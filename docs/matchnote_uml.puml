@@ -1,0 +1,115 @@
+@startuml MatchNote
+
+
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor White
+    BorderColor #333333
+    ArrowColor #666666
+}
+skinparam linetype ortho
+hide circle
+
+
+
+entity User {
+    * id : Integer <<PK>>
+    --
+    username : String
+    password : String
+    badge_id : Integer <<FK>>
+}
+
+entity Badge {
+    * id : Integer <<PK>>
+    --
+    name : String
+    min_rated_match : Integer
+    icon : String
+}
+
+entity Follow {
+    * id : Integer <<PK>>
+    --
+    follower_id : Integer <<FK>>
+    followee_id : Integer <<FK>>
+    created_at : DateTime
+}
+
+
+
+entity Team {
+    * id : Integer <<PK>>
+    --
+    name : String
+    league : String
+    logo : String
+}
+
+entity Player {
+    * id : Integer <<PK>>
+    --
+    name : String
+    team_id : Integer <<FK>>
+}
+
+entity FavoriteClub {
+    * id : Integer <<PK>>
+    --
+    user_id : Integer <<FK>>
+    team_id : Integer <<FK>>
+}
+
+
+
+entity Match {
+    * id : Integer <<PK>>
+    --
+    date : DateTime
+    league : String
+    home_team_id : Integer <<FK>>
+    away_team_id : Integer <<FK>>
+    home_score : Integer
+    away_score : Integer
+    mvp_id : Integer <<FK>> (nullable)
+}
+
+entity Rating {
+    * id : Integer <<PK>>
+    --
+    score : Integer (1-10)
+    comment : String (nullable)
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+    created_at : DateTime
+}
+
+entity Vote {
+    * id : Integer <<PK>>
+    --
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+    player_id : Integer <<FK>>
+    created_at : DateTime
+}
+
+
+
+User ||--o| Badge
+User ||--o{ Follow : "follower"
+User ||--o{ FavoriteClub
+User ||--o{ Rating
+User ||--o{ Vote
+
+Team ||--o{ Player
+Team ||--o{ FavoriteClub
+Team ||--o{ Match : "home/away"
+
+Match ||--o{ Rating
+Match ||--o{ Vote
+Match |o--o| Player : "MVP"
+
+Player ||--o{ Vote
+
+@enduml
