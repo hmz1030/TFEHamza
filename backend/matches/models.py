@@ -1,31 +1,42 @@
 from django.db import models
 
-# Create your models here.
-class Match(models.Model):
-    date = models.DateTimeField()
+
+class Team(models.Model):
+    name = models.CharField(max_length=100)
     league = models.CharField(max_length=100)
-    home_team = models.CharField(max_length=100)
-    away_team = models.CharField(max_length=100)
-    home_score = models.IntegerField()
-    away_score = models.IntegerField()
-    mvp_id = models.IntegerField(default=None, blank=True, null=True)
+
     class Meta:
-        db_table = 'match' ## nom de la table en db 
-    
+        db_table = 'team'
+
+    def __str__(self):
+        return self.name
 
 
 class Player(models.Model):
     name = models.CharField(max_length=100)
-    team_id = models.IntegerField()
-    class Meta:
-        db_table = 'player' ## nom de la table en db 
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='players')
 
-class Team(models.Model):
-    name = models.CharField(max_length=100)
-    league= models.CharField(max_length=100)
-    ## logo ?? url ou bien image stocké 
-    class Meta: 
-        db_table = 'team' ## nom de la table en db 
+    class Meta:
+        db_table = 'player'
+
+    def __str__(self):
+        return self.name
+
+
+class Match(models.Model):
+    date = models.DateTimeField()
+    league = models.CharField(max_length=100)
+    home_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='home_matches')
+    away_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='away_matches')
+    home_score = models.IntegerField(default=0)
+    away_score = models.IntegerField(default=0)
+    mvp = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, blank=True, related_name='mvp_matches')
+
+    class Meta:
+        db_table = 'match'
+
+    def __str__(self):
+        return f"{self.home_team} vs {self.away_team} - {self.date}"
     
 
 
