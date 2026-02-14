@@ -77,10 +77,15 @@ WSGI_APPLICATION = 'matchnote.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# PostgreSQL
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'matchnote',
+        'USER': 'postgres',
+        'PASSWORD': 'matchnote123',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
