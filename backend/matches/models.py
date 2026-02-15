@@ -37,6 +37,34 @@ class Match(models.Model):
 
     def __str__(self):
         return f"{self.home_team} vs {self.away_team} - {self.date}"
-    
 
 
+class Rating(models.Model):
+    score = models.IntegerField()
+    comment = models.TextField(blank=True, default='')
+    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='ratings')
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='ratings')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'rating'
+        #autre facon de faire la contrainte unique, voir model User
+        #pour l'autre facon 
+        unique_together = ('user', 'match')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.match} : {self.score}/10"
+
+
+class Vote(models.Model):
+    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='votes')
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='votes')
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='votes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'vote'
+        unique_together = ('user', 'match')
+
+    def __str__(self):
+        return f"{self.user.username} voted {self.player.name} for {self.match}"
