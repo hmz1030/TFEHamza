@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from matches.models import Team
 
 # Create your models here.
 class Badge(models.Model):
@@ -24,3 +25,31 @@ class User(AbstractUser):
         return self.username
     
 
+class Follow(models.Model):
+    follower = models.ForeignKey(User,on_delete=models.CASCADE, related_name='following')
+    followee = models.ForeignKey(User, on_delete=models.CASCADE,  related_name='followers')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'follow'
+         # contrainte unique, pas sur de name, a verifier !!
+        constraints = [
+            models.UniqueConstraint(name='unique_follow', fields=['follower', 'followee']),
+        ]
+
+    def __str__(self):
+        return f"{self.follower.username} follows {self.followee.username}"
+
+class FavoriteClub(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    team = models.ForeignKey(Team,on_delete=models.CASCADE)
+
+    class Meta:
+        db_table = 'favorite_club'
+        # contrainte unique, pas sur de name, a verifier !!
+        constraints = [
+            models.UniqueConstraint(name='unique_favorite_club', fields=['user', 'team']),
+        ]
+                                    
+    def __str__(self):
+        return f"{self.user.username} likes {self.team.name}"
