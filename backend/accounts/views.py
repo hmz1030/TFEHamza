@@ -1,9 +1,10 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, UserSerializer
+from .serializers import RegisterSerializer, UserSerializer, FollowSerializer, FavoriteClubSerializer
+from .models import Follow, FavoriteClub
 
-# Create your views here.
+
 class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
@@ -30,3 +31,33 @@ class MeView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class FollowView(generics.CreateAPIView):
+    serializer_class = FollowSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(follower=self.request.user)
+
+
+class UnfollowView(generics.DestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return Follow.objects.get(follower=self.request.user, followee_id=self.kwargs['followee_id'])
+
+
+class FavoriteClubCreateView(generics.CreateAPIView):
+    serializer_class = FavoriteClubSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class FavoriteClubDeleteView(generics.DestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return FavoriteClub.objects.get(user=self.request.user, team_id=self.kwargs['team_id'])
