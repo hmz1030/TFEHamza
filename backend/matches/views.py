@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions
-from .models import Team, Player, Match
-from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer
+from .models import Team, Player, Match, Rating, Vote
+from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer
 
 
 class TeamListView(generics.ListAPIView):
@@ -27,3 +27,19 @@ class MatchDetailView(generics.RetrieveAPIView):
     queryset = Match.objects.all()
     serializer_class = MatchSerializer
     permission_classes = [permissions.AllowAny]
+
+
+class RatingCreateView(generics.CreateAPIView):
+    serializer_class = RatingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class VoteCreateView(generics.CreateAPIView):
+    serializer_class = VoteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
