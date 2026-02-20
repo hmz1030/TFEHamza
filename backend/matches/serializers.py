@@ -18,14 +18,26 @@ class MatchSerializer(serializers.ModelSerializer):
         fields = ('id', 'date', 'league', 'home_team', 'away_team', 'home_score', 'away_score', 'mvp')
 
 class RatingSerializer(serializers.ModelSerializer):
+    score = serializers.IntegerField(min_value=1, max_value=10)
+
     class Meta:
         model = Rating
         fields = ('id', 'score', 'comment', 'user', 'match', 'created_at')
         read_only_fields = ('user', 'created_at')
+
 
 class VoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vote
         fields = ('id', 'user', 'match', 'player', 'created_at')
         read_only_fields = ('user', 'created_at')
+        
+    #verif si le joueur joue dans le match
+    def validate(self, data):
+        match = data['match']
+        player = data['player']
+        teams = [match.home_team, match.away_team]
+        if player.team not in teams:
+            raise serializers.ValidationError("Ce joueur ne joue pas ce match")
+        return data
 

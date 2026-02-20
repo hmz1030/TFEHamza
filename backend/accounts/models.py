@@ -35,6 +35,8 @@ class Follow(models.Model):
          # contrainte unique, pas sur de name, a verifier !!
         constraints = [
             models.UniqueConstraint(name='unique_follow', fields=['follower', 'followee']),
+            # le ~ veut dire non, donc je veux pas me  suivre moi meme 
+            models.CheckConstraint(name='no_self_follow', condition=~models.Q(follower=models.F('followee'))),
         ]
 
     def __str__(self):
