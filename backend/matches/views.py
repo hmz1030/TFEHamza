@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from rest_framework import generics, permissions
 from .models import Team, Player, Match, Rating, Vote
 from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer
@@ -34,7 +35,11 @@ class RatingCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        try:
+            serializer.save(user=self.request.user)
+            #integrity error : permet de lever une exception si une erreur db est levée
+        except IntegrityError:
+            raise generics.ValidationError("Vous avez déjà noté ce match.")
 
 
 class VoteCreateView(generics.CreateAPIView):
@@ -42,4 +47,7 @@ class VoteCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        try:
+            serializer.save(user=self.request.user)
+        except IntegrityError:
+            raise generics.ValidationError("Vous avez déjà voté pour ce match.")

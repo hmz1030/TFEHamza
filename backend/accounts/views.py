@@ -1,3 +1,5 @@
+from django.db import IntegrityError
+from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -38,14 +40,17 @@ class FollowView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(follower=self.request.user)
+        try:
+            serializer.save(follower=self.request.user)
+        except IntegrityError:
+            raise generics.ValidationError("Vous suivez déjà cet utilisateur.")
 
 
 class UnfollowView(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
-        return Follow.objects.get(follower=self.request.user, followee_id=self.kwargs['followee_id'])
+        return get_object_or_404(Follow, follower=self.request.user, followee_id=self.kwargs['followee_id'])
 
 
 class FavoriteClubCreateView(generics.CreateAPIView):
@@ -53,11 +58,14 @@ class FavoriteClubCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        try:
+            serializer.save(user=self.request.user)
+        except IntegrityError:
+            raise generics.ValidationError("Ce club est déjà dans vos favoris.")
 
 
 class FavoriteClubDeleteView(generics.DestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
-        return FavoriteClub.objects.get(user=self.request.user, team_id=self.kwargs['team_id'])
+        return get_object_or_404(FavoriteClub, user=self.request.user, team_id=self.kwargs['team_id'])
