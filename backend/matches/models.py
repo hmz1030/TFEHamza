@@ -75,3 +75,19 @@ class Vote(models.Model):
 
     def __str__(self):
         return f"{self.user.username} voted {self.player.name} for {self.match}"
+
+
+class Pronostic(models.Model):
+    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='pronostics')
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='pronostics')
+    home_score = models.IntegerField()
+    away_score = models.IntegerField()
+    points = models.IntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'pronostic'
+        unique_together = ('user', 'match')
+
+    def __str__(self):
+        return f"{self.user.username} : {self.home_score}-{self.away_score} pour {self.match}"
