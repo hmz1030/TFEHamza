@@ -1,7 +1,7 @@
 from django.db import IntegrityError
 from rest_framework import generics, permissions
-from .models import Team, Player, Match, Rating, Vote
-from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer
+from .models import Team, Player, Match, Rating, Vote, Pronostic
+from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer, PronosticSerializer
 
 
 class TeamListView(generics.ListAPIView):
@@ -51,3 +51,22 @@ class VoteCreateView(generics.CreateAPIView):
             serializer.save(user=self.request.user)
         except IntegrityError:
             raise generics.ValidationError("Vous avez déjà voté pour ce match.")
+
+
+class PronosticCreateView(generics.CreateAPIView):
+    serializer_class = PronosticSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        try:
+            serializer.save(user=self.request.user)
+        except IntegrityError:
+            raise generics.ValidationError("Vous avez déjà pronostiqué ce match.")
+
+
+class PronosticListView(generics.ListAPIView):
+    serializer_class = PronosticSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Pronostic.objects.filter(match_id=self.kwargs['match_id'])

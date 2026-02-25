@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Team, Player, Match, Rating, Vote
+from .models import Team, Player, Match, Rating, Vote, Pronostic
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -40,4 +40,11 @@ class VoteSerializer(serializers.ModelSerializer):
         if player.team not in teams:
             raise serializers.ValidationError("Ce joueur ne joue pas ce match")
         return data
+
+
+class PronosticSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pronostic
+        fields = ('id', 'user', 'match', 'home_score', 'away_score', 'points', 'created_at')
+        read_only_fields = ('user', 'points', 'created_at')
 
