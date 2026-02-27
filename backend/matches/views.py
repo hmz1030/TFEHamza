@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.utils import timezone
 from rest_framework import generics, permissions
 from .models import Team, Player, Match, Rating, Vote, Pronostic
 from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer, PronosticSerializer
@@ -28,6 +29,15 @@ class MatchDetailView(generics.RetrieveAPIView):
     queryset = Match.objects.all()
     serializer_class = MatchSerializer
     permission_classes = [permissions.AllowAny]
+
+
+class TodayMatchListView(generics.ListAPIView):
+    serializer_class = MatchSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        today = timezone.now().date()
+        return Match.objects.filter(date__date=today).order_by('date')
 
 
 class RatingCreateView(generics.CreateAPIView):
