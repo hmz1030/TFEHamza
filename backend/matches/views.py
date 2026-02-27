@@ -29,7 +29,7 @@ class MatchDetailView(generics.RetrieveAPIView):
     queryset = Match.objects.all()
     serializer_class = MatchSerializer
     permission_classes = [permissions.AllowAny]
-
+    
 
 class TodayMatchListView(generics.ListAPIView):
     serializer_class = MatchSerializer

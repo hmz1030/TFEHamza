@@ -5,7 +5,7 @@ from .models import Team, Player, Match, Rating, Vote, Pronostic
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ('id', 'name', 'league')
+        fields = ('id', 'name', 'league', 'country', 'logo')
 
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,9 +13,12 @@ class PlayerSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'team')
 
 class MatchSerializer(serializers.ModelSerializer):
+    home_team = TeamSerializer(read_only=True) # pour afficher les details de l'equipe à la place de juste son id
+    away_team = TeamSerializer(read_only=True)
+
     class Meta:
         model = Match
-        fields = ('id', 'date', 'league', 'home_team', 'away_team', 'home_score', 'away_score', 'mvp')
+        fields = ('id', 'date', 'league', 'home_team', 'away_team', 'home_score', 'away_score', 'status', 'mvp')
 
 class RatingSerializer(serializers.ModelSerializer):
     score = serializers.IntegerField(min_value=1, max_value=10)
