@@ -17,6 +17,7 @@ entity User {
     * id : Integer <<PK>>
     --
     username : String
+    email : String
     password : String
     badge_id : Integer <<FK>>
 }
@@ -42,15 +43,19 @@ entity Follow {
 entity Team {
     * id : Integer <<PK>>
     --
+    api_id : String (nullable, unique)
     name : String
     league : String
+    country : String
     logo : String
 }
 
 entity Player {
     * id : Integer <<PK>>
     --
+    api_id : String (nullable, unique)
     name : String
+    position : String
     team_id : Integer <<FK>>
 }
 
@@ -66,12 +71,14 @@ entity FavoriteClub {
 entity Match {
     * id : Integer <<PK>>
     --
+    api_id : String (nullable, unique)
     date : DateTime
     league : String
     home_team_id : Integer <<FK>>
     away_team_id : Integer <<FK>>
     home_score : Integer
     away_score : Integer
+    status : String
     mvp_id : Integer <<FK>> (nullable)
 }
 
@@ -94,6 +101,17 @@ entity Vote {
     created_at : DateTime
 }
 
+entity Pronostic {
+    * id : Integer <<PK>>
+    --
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+    home_score : Integer
+    away_score : Integer
+    points : Integer (nullable)
+    created_at : DateTime
+}
+
 
 
 User ||--o| Badge
@@ -101,6 +119,7 @@ User ||--o{ Follow : "follower"
 User ||--o{ FavoriteClub
 User ||--o{ Rating
 User ||--o{ Vote
+User ||--o{ Pronostic
 
 Team ||--o{ Player
 Team ||--o{ FavoriteClub
@@ -108,6 +127,7 @@ Team ||--o{ Match : "home/away"
 
 Match ||--o{ Rating
 Match ||--o{ Vote
+Match ||--o{ Pronostic
 Match |o--o| Player : "MVP"
 
 Player ||--o{ Vote
