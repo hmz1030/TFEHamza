@@ -80,3 +80,17 @@ class PronosticListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Pronostic.objects.filter(match_id=self.kwargs['match_id'])
+    
+class RatingListView(generics.ListAPIView):
+    serializer_class = RatingSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Rating.objects.filter(match_id=self.kwargs['match_id'])
+    
+class VoteListView(generics.ListAPIView):
+    serializer_class = VoteSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Vote.objects.filter(match_id=self.kwargs['match_id'])
