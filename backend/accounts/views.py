@@ -2,9 +2,12 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, UserSerializer, FollowSerializer, FavoriteClubSerializer
 from .models import Follow, FavoriteClub
+from matches.models import Rating, Vote, Pronostic
+from matches.serializers import RatingSerializer, VoteSerializer, PronosticSerializer
 
 
 class RegisterView(generics.CreateAPIView):
@@ -69,3 +72,18 @@ class FavoriteClubDeleteView(generics.DestroyAPIView):
 
     def get_object(self):
         return get_object_or_404(FavoriteClub, user=self.request.user, team_id=self.kwargs['team_id'])
+
+
+class MyActivityView(APIView):
+    #ici pas une listeapiview car on veut retourner les 3 listes (ratings, votes, pronostics) 
+    # au lieu d'une liste d'un seul objet d'un seul  type genre que les ratings 
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            #many= true => signfieq qu'on attend une liste d'objets et pas un seul objet
+            'ratings': RatingSerializer(Rating.objects.filter(user=user), many=True).data,
+            'votes': VoteSerializer(Vote.objects.filter(user=user), many=True).data,
+            'pronostics': PronosticSerializer(Pronostic.objects.filter(user=user), many=True).data,
+        })
