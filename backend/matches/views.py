@@ -1,6 +1,7 @@
 from django.db import IntegrityError
 from django.utils import timezone
 from rest_framework import generics, permissions
+from accounts.models import Badge
 from .models import Team, Player, Match, Rating, Vote, Pronostic
 from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer, PronosticSerializer
 
@@ -50,6 +51,15 @@ class RatingCreateView(generics.CreateAPIView):
             #integrity error : permet de lever une exception si une erreur db est levée
         except IntegrityError:
             raise generics.ValidationError("Vous avez déjà noté ce match.")
+
+        # apres chaque rating, on check si le user merite un nouveau badge
+        user = self.request.user
+        total_ratings = Rating.objects.filter(user=user).count()
+        # on prend le badge le plus eleve que le user peut avoir
+        best_badge = Badge.objects.filter(min_rated_match__lte=total_ratings).order_by('-min_rated_match').first()
+        if best_badge and user.badge != best_badge:
+            user.badge = best_badge
+            user.save()
 
 
 class VoteCreateView(generics.CreateAPIView):
