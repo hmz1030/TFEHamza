@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api'
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: BASE_URL,
 })
 
 // Interceptor requete : ajoute le token JWT a chaque appel
@@ -26,7 +28,7 @@ api.interceptors.response.use(
       const refreshToken = localStorage.getItem('refresh_token')
       if (refreshToken) {
         try {
-          const response = await axios.post('http://localhost:8000/api/accounts/login/refresh/', {
+          const response = await axios.post(`${BASE_URL}/accounts/login/refresh/`, {
             refresh: refreshToken,
           })
           const newAccess = response.data.access
