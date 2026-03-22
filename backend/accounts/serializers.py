@@ -1,16 +1,46 @@
-from rest_framework import serializers
+import re
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
 from .models import Follow, FavoriteClub
 
 User = get_user_model()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(validators=[])
+    email = serializers.EmailField(validators=[])
     password = serializers.CharField(write_only=True, min_length=8)
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password')
+
+    def validate_username(self, value):
+        if User.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError("Ce nom d'utilisateur est déjà utilisé.")
+        return value
+
+    def validate_email(self, value):
+        if value and User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("Cet email est déjà utilisé.")
+        return value
+
+    def validate_password(self, value):
+        validate_password(value)
+
+        if not re.search(r'[A-Z]', value):
+            raise serializers.ValidationError(
+                'Le mot de passe doit contenir au moins une lettre majuscule.'
+            )
+
+        if not re.search(r'[^A-Za-z0-9]', value):
+            raise serializers.ValidationError(
+                'Le mot de passe doit contenir au moins un caractère spécial.'
+            )
+
+        return value
 
     def create(self, validated_data):
         user = User.objects.create_user(

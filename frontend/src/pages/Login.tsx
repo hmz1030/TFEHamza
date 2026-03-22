@@ -1,3 +1,4 @@
+import axios from 'axios'
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -18,8 +19,12 @@ function Login() {
     try {
       await login(username, password)
       navigate('/')
-    } catch {
-      setError('Identifiants incorrects')
+    } catch (error) {
+      if (axios.isAxiosError(error) && typeof error.response?.data?.detail === 'string') {
+        setError(error.response.data.detail)
+      } else {
+        setError('Identifiants incorrects')
+      }
     } finally {
       setLoading(false)
     }
@@ -50,7 +55,7 @@ function Login() {
               </label>
               <input
                 type="text"
-                placeholder="votre_username"
+                placeholder="Lionel Messi"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
