@@ -13,6 +13,13 @@ from matches.models import Team, Match
 
 
 LIVE_FOOTBALL_API_KEY = config('LIVE_FOOTBALL_API_KEY', default='')
+# Optionnel : IDs `league.id` renvoyés par matches.php (séparés par des virgules).
+# Si défini, seuls ces matchs sont importés (liste blanche stricte, recommandé).
+LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS = frozenset(
+    x.strip()
+    for x in config('LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS', default='').split(',')
+    if x.strip()
+)
 BASE_URL = 'https://live-football-api.com/api/v1'
 
 # Ligues cibles et leurs aliases pour matcher les noms retournes par l'API
@@ -39,23 +46,89 @@ TARGET_LEAGUES = {
     },
 }
 
+# Pays autorisés pour les 5 grands championnats (après normalisation)
+_ALLOWED_COUNTRIES = frozenset()
+for _cfg in TARGET_LEAGUES.values():
+    _ALLOWED_COUNTRIES = _ALLOWED_COUNTRIES | frozenset(_cfg['countries'])
+
+# Sous-chaînes dans le nom de ligue : ligues à exclure (Portugal, 2e divisions, etc.)
+_REJECT_LEAGUE_NAME_SUBSTRINGS = (
+    'primeira',
+    'liga portugal',
+    'ligue 2',
+    'bundesliga 2',
+    '2. bundesliga',
+    'serie b',
+    'segunda',
+    'la liga 2',
+    'laliga 2',
+    'eredivisie',
+    'brasileir',
+    'super lig',
+    'scottish',
+    'welsh',
+    'northern irish',
+    'championship',  # Championship anglais (pas Premier League)
+    'league one',
+    'league two',
+)
+
 
 def _normalize(text):
     return (text or '').strip().lower()
 
 
+def _normalize_country(raw):
+    """Unifie les variantes (UK, Deutschland…) pour le filtre pays."""
+    c = _normalize(raw if isinstance(raw, str) else str(raw or ''))
+    mapping = {
+        'uk': 'england',
+        'united kingdom': 'england',
+        'great britain': 'england',
+        'gb': 'england',
+        'deutschland': 'germany',
+        'espana': 'spain',
+        'españa': 'spain',
+        'italia': 'italy',
+    }
+    return mapping.get(c, c)
+
+
+def _reject_league_name(api_league_name):
+    """Exclut les ligues dont le nom ressemble aux grands championnats mais ne l'est pas."""
+    n = _normalize(api_league_name)
+    if not n:
+        return True
+    return any(sub in n for sub in _REJECT_LEAGUE_NAME_SUBSTRINGS)
+
+
 def _get_league_name(api_league_name, api_country_name):
     """Retourne le nom normalise de la ligue si elle fait partie des 5 grands championnats."""
-    name = _normalize(api_league_name)
-    country = _normalize(api_country_name)
+    if _reject_league_name(api_league_name):
+        return None
 
-    for league_name, config in TARGET_LEAGUES.items():
-        aliases = config['aliases']
-        countries = config['countries']
+    name = _normalize(api_league_name)
+    country = _normalize_country(api_country_name)
+
+    # Pays doit être strictement l'un des 5 (évite pays vide / erreur API)
+    if country not in _ALLOWED_COUNTRIES:
+        return None
+
+    for league_name, cfg in TARGET_LEAGUES.items():
+        aliases = cfg['aliases']
+        countries = cfg['countries']
 
         if country in countries and any(alias == name for alias in aliases):
             return league_name
     return None
+
+
+def _league_allowed_by_id(api_league_id):
+    """Si LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS est défini, seul l'ID compte."""
+    if not LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS:
+        return True
+    lid = (api_league_id or '').strip()
+    return lid in LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS
 
 
 def _find_or_create_team(team_name, league_name):
@@ -122,9 +195,17 @@ class Command(BaseCommand):
         valid_api_ids = set()
 
         for match_data in all_matches:
-            # Verifier si c'est un des 5 grands championnats
-            api_league_name = match_data.get('league', {}).get('name', '')
-            api_country_name = match_data.get('league', {}).get('country', '')
+            league_block = match_data.get('league') or {}
+            api_league_id = str(league_block.get('id', '') or '').strip()
+            api_league_name = league_block.get('name', '')
+            api_country_name = league_block.get('country', '')
+
+            # Liste blanche stricte optionnelle (LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS)
+            if not _league_allowed_by_id(api_league_id):
+                skipped += 1
+                continue
+
+            # Verifier si c'est un des 5 grands championnats (nom + pays + exclusions)
             league_name = _get_league_name(api_league_name, api_country_name)
             if not league_name:
                 skipped += 1

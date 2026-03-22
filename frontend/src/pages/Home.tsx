@@ -66,13 +66,11 @@ function Home() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 rounded-[1.5rem] bg-slate-950/35 p-5 backdrop-blur-sm">
+            
               <p className="text-xs uppercase tracking-[0.24em] text-slate-400">Aujourd&apos;hui</p>
               <p className="text-xl font-semibold text-slate-100">{formattedDate}</p>
-              <p className="text-sm text-slate-400">
-                {matches.length} match{matches.length > 1 ? 's' : ''} chargé{matches.length > 1 ? 's' : ''}
-              </p>
-            </div>
+              
+            
           </div>
         </section>
 
