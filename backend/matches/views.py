@@ -1,6 +1,12 @@
+from io import StringIO
+
+from django.conf import settings
+from django.core.management import call_command
 from django.db import IntegrityError
 from django.utils import timezone
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from accounts.models import Badge
 from .models import Team, Player, Match, Rating, Vote, Pronostic
 from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer, PronosticSerializer
@@ -39,6 +45,39 @@ class TodayMatchListView(generics.ListAPIView):
     def get_queryset(self):
         today = timezone.now().date()
         return Match.objects.filter(date__date=today).order_by('date')
+
+
+class DevSyncMatchesView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        if not settings.DEBUG:
+            return Response(
+                {'detail': 'Cet endpoint est disponible uniquement en mode développement.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        stdout = StringIO()
+
+        try:
+            call_command('sync_matches', stdout=stdout)
+        except Exception as exc:
+            return Response(
+                {
+                    'detail': 'La synchronisation des matchs a échoué.',
+                    'error': str(exc),
+                    'output': stdout.getvalue(),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(
+            {
+                'detail': 'Synchronisation terminée.',
+                'output': stdout.getvalue(),
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class RatingCreateView(generics.CreateAPIView):

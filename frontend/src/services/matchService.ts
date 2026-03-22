@@ -7,6 +7,9 @@ export const getMatches = () =>
 export const getTodayMatches = () =>
   api.get<Match[]>('/matches/today/')
 
+export const syncTodayMatches = () =>
+  api.post<{ detail: string; output: string }>('/dev/sync-matches/')
+
 export const getMatch = (id: number) =>
   api.get<Match>(`/matches/${id}/`)
 

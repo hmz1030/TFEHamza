@@ -6,6 +6,7 @@ interface UseMatchesResult {
   matches: Match[]
   loading: boolean
   error: string | null
+  refetch: () => Promise<void>
 }
 
 export function useMatches(): UseMatchesResult {
@@ -13,10 +14,24 @@ export function useMatches(): UseMatchesResult {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const fetchMatches = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const response = await getTodayMatches()
+      setMatches(response.data)
+    } catch {
+      setError('Impossible de charger les matchs du jour.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
     let isMounted = true
 
-    const fetchMatches = async () => {
+    const loadMatches = async () => {
       try {
         setLoading(true)
         setError(null)
@@ -37,12 +52,12 @@ export function useMatches(): UseMatchesResult {
       }
     }
 
-    fetchMatches()
+    loadMatches()
 
     return () => {
       isMounted = false
     }
   }, [])
 
-  return { matches, loading, error }
+  return { matches, loading, error, refetch: fetchMatches }
 }

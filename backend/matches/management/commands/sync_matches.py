@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timezone as dt_timezone
 
 import requests
 from django.core.management.base import BaseCommand
@@ -17,11 +17,26 @@ BASE_URL = 'https://live-football-api.com/api/v1'
 
 # Ligues cibles et leurs aliases pour matcher les noms retournes par l'API
 TARGET_LEAGUES = {
-    'Premier League': ('premier league',),
-    'La Liga': ('la liga', 'laliga'),
-    'Serie A': ('serie a',),
-    'Ligue 1': ('ligue 1',),
-    'Bundesliga': ('bundesliga',),
+    'Premier League': {
+        'aliases': ('premier league',),
+        'countries': ('england',),
+    },
+    'La Liga': {
+        'aliases': ('la liga', 'laliga'),
+        'countries': ('spain',),
+    },
+    'Serie A': {
+        'aliases': ('serie a',),
+        'countries': ('italy',),
+    },
+    'Ligue 1': {
+        'aliases': ('ligue 1',),
+        'countries': ('france',),
+    },
+    'Bundesliga': {
+        'aliases': ('bundesliga',),
+        'countries': ('germany',),
+    },
 }
 
 
@@ -29,11 +44,16 @@ def _normalize(text):
     return (text or '').strip().lower()
 
 
-def _get_league_name(api_league_name):
+def _get_league_name(api_league_name, api_country_name):
     """Retourne le nom normalise de la ligue si elle fait partie des 5 grands championnats."""
     name = _normalize(api_league_name)
-    for league_name, aliases in TARGET_LEAGUES.items():
-        if any(alias in name for alias in aliases):
+    country = _normalize(api_country_name)
+
+    for league_name, config in TARGET_LEAGUES.items():
+        aliases = config['aliases']
+        countries = config['countries']
+
+        if country in countries and any(alias == name for alias in aliases):
             return league_name
     return None
 
@@ -99,11 +119,13 @@ class Command(BaseCommand):
         created = 0
         updated = 0
         skipped = 0
+        valid_api_ids = set()
 
         for match_data in all_matches:
             # Verifier si c'est un des 5 grands championnats
             api_league_name = match_data.get('league', {}).get('name', '')
-            league_name = _get_league_name(api_league_name)
+            api_country_name = match_data.get('league', {}).get('country', '')
+            league_name = _get_league_name(api_league_name, api_country_name)
             if not league_name:
                 skipped += 1
                 continue
@@ -133,7 +155,7 @@ class Command(BaseCommand):
             match_datetime = timezone.datetime.combine(
                 target_date,
                 timezone.datetime.strptime(kickoff, '%H:%M').time(),
-                tzinfo=timezone.utc,
+                tzinfo=dt_timezone.utc,
             )
 
             # Convertir les scores en int
@@ -165,6 +187,10 @@ class Command(BaseCommand):
             else:
                 updated += 1
 
+            valid_api_ids.add(api_id)
+
+        deleted = Match.objects.filter(date__date=target_date).exclude(api_id__in=valid_api_ids).delete()[0]
+
         self.stdout.write(self.style.SUCCESS(
-            f"\nTermine ! {created} matchs crees, {updated} mis a jour, {skipped} ignores (autres ligues)."
+            f"\nTermine ! {created} matchs crees, {updated} mis a jour, {deleted} supprimes, {skipped} ignores (autres ligues)."
         ))
