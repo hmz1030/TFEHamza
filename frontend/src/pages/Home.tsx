@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import axios from 'axios'
+import { useSearchParams } from 'react-router-dom'
 import Loader from '../components/ui/Loader'
 import LeagueFilter, { type LeagueFilterValue } from '../components/match/LeagueFilter'
 import MatchList from '../components/match/MatchList'
@@ -32,12 +33,19 @@ function shiftInputDate(date: string, days: number) {
   return formatDateForInput(nextDate)
 }
 
+function isValidInputDate(date: string | null) {
+  return typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)
+}
+
 function Home() {
   const today = useMemo(() => formatDateForInput(new Date()), [])
+  const [searchParams, setSearchParams] = useSearchParams()
   const [selectedLeague, setSelectedLeague] = useState<LeagueFilterValue>('Toutes')
-  const [selectedDate, setSelectedDate] = useState(today)
   const [syncLoading, setSyncLoading] = useState(false)
   const [syncMessage, setSyncMessage] = useState<string | null>(null)
+  const selectedDate = isValidInputDate(searchParams.get('date'))
+    ? searchParams.get('date')!
+    : today
   const { matches, loading, error, refetch } = useMatches(selectedDate)
 
   const filteredMatches = useMemo(() => {
@@ -52,7 +60,13 @@ function Home() {
   const isToday = selectedDate === today
 
   const handleDateChange = (nextDate: string) => {
-    setSelectedDate(nextDate)
+    const nextParams = new URLSearchParams(searchParams)
+    if (nextDate === today) {
+      nextParams.delete('date')
+    } else {
+      nextParams.set('date', nextDate)
+    }
+    setSearchParams(nextParams)
     setSyncMessage(null)
   }
 
