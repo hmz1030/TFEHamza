@@ -7,18 +7,22 @@ class TeamSerializer(serializers.ModelSerializer):
         model = Team
         fields = ('id', 'name', 'league', 'country', 'logo')
 
+
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ('id', 'name', 'team')
 
+
 class MatchSerializer(serializers.ModelSerializer):
-    home_team = TeamSerializer(read_only=True) # pour afficher les details de l'equipe à la place de juste son id
+    home_team = TeamSerializer(read_only=True)
     away_team = TeamSerializer(read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Match
-        fields = ('id', 'date', 'league', 'home_team', 'away_team', 'home_score', 'away_score', 'status', 'mvp')
+        fields = ('id', 'date', 'league', 'home_team', 'away_team', 'home_score', 'away_score', 'status', 'mvp', 'average_rating')
+
 
 class RatingSerializer(serializers.ModelSerializer):
     score = serializers.IntegerField(min_value=1, max_value=10)
@@ -34,8 +38,7 @@ class VoteSerializer(serializers.ModelSerializer):
         model = Vote
         fields = ('id', 'user', 'match', 'player', 'created_at')
         read_only_fields = ('user', 'created_at')
-        
-    #verif si le joueur joue dans le match
+
     def validate(self, data):
         match = data['match']
         player = data['player']
@@ -50,4 +53,3 @@ class PronosticSerializer(serializers.ModelSerializer):
         model = Pronostic
         fields = ('id', 'user', 'match', 'home_score', 'away_score', 'points', 'created_at')
         read_only_fields = ('user', 'points', 'created_at')
-
