@@ -38,6 +38,7 @@ export interface Match {
   away_score: number | null
   status: string
   mvp: number | null
+  average_rating: number | null
 }
 
 export interface Rating {
