@@ -61,7 +61,7 @@ function getRatingConfig(averageRating: number | null) {
 }
 
 function MatchCard({ match }: MatchCardProps) {
-  const { badge, badgeClasses, actionLabel, scoreAccent, showLiveDot } = getStatusConfig(match.status)
+  const { badge, badgeClasses, scoreAccent, showLiveDot } = getStatusConfig(match.status)
   const ratingConfig = getRatingConfig(match.average_rating)
   const isScheduled = badge === 'À venir'
 
@@ -72,14 +72,9 @@ function MatchCard({ match }: MatchCardProps) {
     >
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="text-sm font-medium text-slate-400">{match.league}</div>
-        <div className="flex items-center gap-2">
-          <div className={`rounded-full px-3 py-1 text-xs font-semibold ${ratingConfig.classes}`}>
-            {ratingConfig.label}
-          </div>
-          <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${badgeClasses}`}>
-            {showLiveDot && <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />}
-            <span>{badge}</span>
-          </div>
+        <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${badgeClasses}`}>
+          {showLiveDot && <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />}
+          <span>{badge}</span>
         </div>
       </div>
 
@@ -151,9 +146,10 @@ function MatchCard({ match }: MatchCardProps) {
             ? `Coup d'envoi ${formatMatchTime(match.date)}`
             : match.home_team.country || match.away_team.country || match.league}
         </div>
-        <span className="text-sm font-semibold uppercase tracking-[0.16em] text-blue-300 transition group-hover:text-blue-200">
-          {actionLabel}
-        </span>
+        <div className={`rounded-2xl px-4 py-2 text-right ${ratingConfig.classes}`}>
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] opacity-80">Note</p>
+          <p className="mt-1 text-lg font-black tracking-tight">{ratingConfig.label}</p>
+        </div>
       </div>
     </Link>
   )
