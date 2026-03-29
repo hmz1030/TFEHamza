@@ -44,8 +44,25 @@ function getStatusConfig(status: string) {
   }
 }
 
+function getRatingConfig(averageRating: number | null) {
+  if (averageRating === null) {
+    return { label: 'Pas de note', classes: 'bg-slate-900/80 text-slate-400' }
+  }
+
+  if (averageRating > 7) {
+    return { label: averageRating.toFixed(1), classes: 'bg-emerald-500/15 text-emerald-300' }
+  }
+
+  if (averageRating >= 5) {
+    return { label: averageRating.toFixed(1), classes: 'bg-amber-500/15 text-amber-300' }
+  }
+
+  return { label: averageRating.toFixed(1), classes: 'bg-rose-500/15 text-rose-300' }
+}
+
 function MatchCard({ match }: MatchCardProps) {
   const { badge, badgeClasses, actionLabel, scoreAccent, showLiveDot } = getStatusConfig(match.status)
+  const ratingConfig = getRatingConfig(match.average_rating)
   const isScheduled = badge === 'À venir'
 
   return (
@@ -55,9 +72,14 @@ function MatchCard({ match }: MatchCardProps) {
     >
       <div className="mb-5 flex items-center justify-between gap-3">
         <div className="text-sm font-medium text-slate-400">{match.league}</div>
-        <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${badgeClasses}`}>
-          {showLiveDot && <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />}
-          <span>{badge}</span>
+        <div className="flex items-center gap-2">
+          <div className={`rounded-full px-3 py-1 text-xs font-semibold ${ratingConfig.classes}`}>
+            {ratingConfig.label}
+          </div>
+          <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${badgeClasses}`}>
+            {showLiveDot && <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />}
+            <span>{badge}</span>
+          </div>
         </div>
       </div>
 
