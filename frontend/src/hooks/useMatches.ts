@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Match } from '../types'
-import { getTodayMatches } from '../services/matchService'
+import { getMatchesByDate, getTodayMatches } from '../services/matchService'
 
 interface UseMatchesResult {
   matches: Match[]
@@ -9,55 +9,51 @@ interface UseMatchesResult {
   refetch: () => Promise<void>
 }
 
-export function useMatches(): UseMatchesResult {
+async function fetchMatchesForDate(selectedDate?: string) {
+  if (selectedDate) {
+    return getMatchesByDate(selectedDate)
+  }
+
+  return getTodayMatches()
+}
+
+export function useMatches(selectedDate?: string): UseMatchesResult {
   const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchMatches = async () => {
+  const fetchMatches = async (canUpdate = () => true) => {
     try {
-      setLoading(true)
-      setError(null)
+      if (canUpdate()) {
+        setLoading(true)
+        setError(null)
+      }
 
-      const response = await getTodayMatches()
-      setMatches(response.data)
+      const response = await fetchMatchesForDate(selectedDate)
+
+      if (canUpdate()) {
+        setMatches(response.data)
+      }
     } catch {
-      setError('Impossible de charger les matchs du jour.')
+      if (canUpdate()) {
+        setError('Impossible de charger les matchs pour cette date.')
+      }
     } finally {
-      setLoading(false)
+      if (canUpdate()) {
+        setLoading(false)
+      }
     }
   }
 
   useEffect(() => {
-    let isMounted = true
+    let isActive = true
 
-    const loadMatches = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-
-        const response = await getTodayMatches()
-
-        if (isMounted) {
-          setMatches(response.data)
-        }
-      } catch {
-        if (isMounted) {
-          setError('Impossible de charger les matchs du jour.')
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
-      }
-    }
-
-    loadMatches()
+    void fetchMatches(() => isActive)
 
     return () => {
-      isMounted = false
+      isActive = false
     }
-  }, [])
+  }, [selectedDate])
 
-  return { matches, loading, error, refetch: fetchMatches }
+  return { matches, loading, error, refetch: () => fetchMatches() }
 }
