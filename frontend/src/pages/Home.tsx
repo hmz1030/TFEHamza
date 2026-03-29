@@ -70,15 +70,14 @@ function Home() {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase tracking-[0.28em] text-blue-300/90">
-                {isToday ? 'Matchs du jour' : 'Matchs a la date choisie'}
+                {isToday ? 'Matchs du jour' : 'Matchs'}
               </p>
               <h1 className="mt-4 text-4xl font-bold tracking-[-0.02em] text-slate-50 sm:text-5xl">
-                Le football du jour,
-                <span className="block text-blue-400">a la date que tu veux.</span>
+                Le football,
+                <span className="block text-blue-400">quand tu veux.</span>
               </h1>
               <p className="mt-4 max-w-2xl text-base text-slate-300 sm:text-lg">
-                Choisis une date, filtre les affiches des cinq grands championnats et retrouve
-                la meme experience MatchNote pour n&apos;importe quelle journee disponible.
+                Choisis une date et retrouve les matchs disponibles.
               </p>
             </div>
 
