@@ -25,6 +25,13 @@ function formatDisplayDate(date: string) {
   }).format(new Date(`${date}T12:00:00`))
 }
 
+function shiftInputDate(date: string, days: number) {
+  const nextDate = new Date(`${date}T12:00:00`)
+  nextDate.setDate(nextDate.getDate() + days)
+
+  return formatDateForInput(nextDate)
+}
+
 function Home() {
   const today = useMemo(() => formatDateForInput(new Date()), [])
   const [selectedLeague, setSelectedLeague] = useState<LeagueFilterValue>('Toutes')
@@ -43,6 +50,11 @@ function Home() {
 
   const formattedDate = useMemo(() => formatDisplayDate(selectedDate), [selectedDate])
   const isToday = selectedDate === today
+
+  const handleDateChange = (nextDate: string) => {
+    setSelectedDate(nextDate)
+    setSyncMessage(null)
+  }
 
   const handleDevRefresh = async () => {
     setSyncLoading(true)
@@ -87,28 +99,42 @@ function Home() {
               </p>
               <p className="mt-2 text-xl font-semibold text-slate-100">{formattedDate}</p>
 
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="mt-4 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleDateChange(shiftInputDate(selectedDate, -1))}
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-slate-200 ring-1 ring-white/10 transition hover:bg-slate-800"
+                  aria-label="Jour precedent"
+                >
+                  {'<'}
+                </button>
+
                 <label className="flex-1">
                   <span className="sr-only">Choisir une date</span>
                   <input
                     type="date"
                     value={selectedDate}
-                    onChange={(event) => {
-                      setSelectedDate(event.target.value)
-                      setSyncMessage(null)
-                    }}
+                    onChange={(event) => handleDateChange(event.target.value)}
                     className="w-full rounded-2xl border border-white/10 bg-slate-900/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
                   />
                 </label>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedDate(today)
-                    setSyncMessage(null)
-                  }}
+                  onClick={() => handleDateChange(shiftInputDate(selectedDate, 1))}
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-slate-200 ring-1 ring-white/10 transition hover:bg-slate-800"
+                  aria-label="Jour suivant"
+                >
+                  {'>'}
+                </button>
+              </div>
+
+              <div className="mt-3 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => handleDateChange(today)}
                   disabled={isToday}
-                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-slate-200 ring-1 ring-white/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-slate-200 ring-1 ring-white/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Aujourd&apos;hui
                 </button>
