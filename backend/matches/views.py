@@ -3,6 +3,7 @@ from io import StringIO
 from django.conf import settings
 from django.core.management import call_command
 from django.db import IntegrityError
+from django.utils.dateparse import parse_date
 from django.utils import timezone
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -28,9 +29,21 @@ class PlayerListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
 class MatchListView(generics.ListAPIView):
-    queryset = Match.objects.all()
     serializer_class = MatchSerializer
     permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        queryset = Match.objects.all().order_by('date')
+        target_date = self.request.query_params.get('date')
+
+        if not target_date:
+            return queryset
+
+        parsed_date = parse_date(target_date)
+        if not parsed_date:
+            return Match.objects.none()
+
+        return queryset.filter(date__date=parsed_date)
 
 class MatchDetailView(generics.RetrieveAPIView):
     queryset = Match.objects.all()
@@ -58,9 +71,20 @@ class DevSyncMatchesView(APIView):
             )
 
         stdout = StringIO()
+        target_date = request.data.get('date')
+
+        if target_date and not parse_date(target_date):
+            return Response(
+                {'detail': 'Le format de date attendu est YYYY-MM-DD.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         try:
-            call_command('sync_matches', stdout=stdout)
+            command_kwargs = {'stdout': stdout}
+            if target_date:
+                command_kwargs['date'] = target_date
+
+            call_command('sync_matches', **command_kwargs)
         except Exception as exc:
             return Response(
                 {
