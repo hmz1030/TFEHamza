@@ -46,6 +46,7 @@ export interface Rating {
   score: number
   comment: string
   user: number
+  user_username: string
   match: number
   created_at: string
 }
