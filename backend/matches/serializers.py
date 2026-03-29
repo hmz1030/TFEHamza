@@ -26,10 +26,11 @@ class MatchSerializer(serializers.ModelSerializer):
 
 class RatingSerializer(serializers.ModelSerializer):
     score = serializers.IntegerField(min_value=1, max_value=10)
+    user_username = serializers.CharField(source='user.username', read_only=True)
 
     class Meta:
         model = Rating
-        fields = ('id', 'score', 'comment', 'user', 'match', 'created_at')
+        fields = ('id', 'score', 'comment', 'user', 'user_username', 'match', 'created_at')
         read_only_fields = ('user', 'created_at')
 
 
