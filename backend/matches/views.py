@@ -3,6 +3,7 @@ from io import StringIO
 from django.conf import settings
 from django.core.management import call_command
 from django.db import IntegrityError
+from django.db.models import Avg
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from rest_framework import generics, permissions, status
@@ -11,6 +12,11 @@ from rest_framework.views import APIView
 from accounts.models import Badge
 from .models import Team, Player, Match, Rating, Vote, Pronostic
 from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer, PronosticSerializer
+
+def get_match_queryset():
+    return Match.objects.annotate(
+        average_rating=Avg('ratings__score')
+    ).order_by('date')
 
 
 class TeamListView(generics.ListAPIView):
@@ -33,7 +39,7 @@ class MatchListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        queryset = Match.objects.all().order_by('date')
+        queryset = get_match_queryset()
         target_date = self.request.query_params.get('date')
 
         if not target_date:
@@ -46,7 +52,7 @@ class MatchListView(generics.ListAPIView):
         return queryset.filter(date__date=parsed_date)
 
 class MatchDetailView(generics.RetrieveAPIView):
-    queryset = Match.objects.all()
+    queryset = get_match_queryset()
     serializer_class = MatchSerializer
     permission_classes = [permissions.AllowAny]
     
@@ -57,7 +63,7 @@ class TodayMatchListView(generics.ListAPIView):
 
     def get_queryset(self):
         today = timezone.now().date()
-        return Match.objects.filter(date__date=today).order_by('date')
+        return get_match_queryset().filter(date__date=today)
 
 
 class DevSyncMatchesView(APIView):
