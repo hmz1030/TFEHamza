@@ -129,7 +129,7 @@ function Home() {
                 </button>
               </div>
 
-              <div className="mt-3 flex justify-end">
+              <div className="mt-3 flex justify-center">
                 <button
                   type="button"
                   onClick={() => handleDateChange(today)}
