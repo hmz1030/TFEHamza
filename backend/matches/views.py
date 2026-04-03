@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.management import call_command
 from django.db import IntegrityError
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from rest_framework import generics, permissions, status
@@ -56,6 +57,17 @@ class MatchDetailView(generics.RetrieveAPIView):
     serializer_class = MatchSerializer
     permission_classes = [permissions.AllowAny]
     
+
+class MatchPlayerListView(generics.ListAPIView):
+    serializer_class = PlayerSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        match = get_object_or_404(Match, pk=self.kwargs['match_id'])
+        return Player.objects.filter(
+            team_id__in=[match.home_team_id, match.away_team_id]
+        ).order_by('team_id', 'name')
+
 
 class TodayMatchListView(generics.ListAPIView):
     serializer_class = MatchSerializer
