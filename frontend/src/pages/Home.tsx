@@ -127,6 +127,7 @@ function Home() {
                   <span className="sr-only">Choisir une date</span>
                   <input
                     type="date"
+                    lang="fr-BE"
                     value={selectedDate}
                     onChange={(event) => handleDateChange(event.target.value)}
                     className="w-full rounded-2xl border border-white/10 bg-slate-900/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
