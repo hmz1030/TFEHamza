@@ -1,10 +1,31 @@
 import requests
 from django.core.management.base import BaseCommand
 from decouple import config
+from matches.models import Match, Player
 
 
 LIVE_FOOTBALL_API_KEY = config('LIVE_FOOTBALL_API_KEY', default='')
 BASE_URL = 'https://live-football-api.com/api/v1'
+
+
+def _fetch_lineups(match_api_id):
+    response = requests.get(
+        f'{BASE_URL}/lineups.php',
+        params={'api_key': LIVE_FOOTBALL_API_KEY, 'match_id': match_api_id, 'lang': 'en'},
+        timeout=20,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    if not payload.get('success'):
+        return None
+    return payload.get('data') or {}
+
+
+def _players_from_side(side_data):
+    players = []
+    for group in ('starting', 'subs'):
+        players.extend(side_data.get(group) or [])
+    return players
 
 
 class Command(BaseCommand):
