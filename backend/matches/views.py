@@ -64,9 +64,7 @@ class MatchPlayerListView(generics.ListAPIView):
 
     def get_queryset(self):
         match = get_object_or_404(Match, pk=self.kwargs['match_id'])
-        return Player.objects.filter(
-            team_id__in=[match.home_team_id, match.away_team_id]
-        ).order_by('team_id', 'name')
+        return Player.objects.filter(match_players__match=match).order_by('team_id', 'name').distinct()
 
 
 class TodayMatchListView(generics.ListAPIView):
