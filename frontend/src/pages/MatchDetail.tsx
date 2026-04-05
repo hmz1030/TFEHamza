@@ -35,6 +35,12 @@ function MatchDetail() {
           </div>
           <p className="mt-6 text-center text-sm text-slate-400">{formatMatchDate(match.date)}</p>
         </section>
+
+        <nav className="flex flex-wrap gap-3">
+          <a href="#pronostics" className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-200 ring-1 ring-white/10">Pronostics</a>
+          <a href="#ratings" className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-200 ring-1 ring-white/10">Ratings</a>
+          <a href="#votes" className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-200 ring-1 ring-white/10">Vote MVP</a>
+        </nav>
       </div>
     </div>
   )
