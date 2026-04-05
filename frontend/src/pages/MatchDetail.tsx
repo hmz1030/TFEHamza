@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import PronosticForm from '../components/pronostic/PronosticForm'
 import PronosticList from '../components/pronostic/PronosticList'
@@ -9,6 +10,9 @@ import VoteResults from '../components/vote/VoteResults'
 import Loader from '../components/ui/Loader'
 import { useMatch } from '../hooks/useMatch'
 import { useMatchPlayers } from '../hooks/useMatchPlayers'
+import { syncMatchPlayers } from '../services/matchService'
+
+const isDev = import.meta.env.DEV
 
 function formatMatchDate(date: string) {
   return new Intl.DateTimeFormat('fr-BE', {
@@ -24,7 +28,8 @@ function MatchDetail() {
   const { id } = useParams()
   const matchId = Number(id)
   const { match, ratings, votes, pronostics, loading, error, refetch } = useMatch(matchId)
-  const { players } = useMatchPlayers(matchId)
+  const { players, loadingPlayers, refetchPlayers } = useMatchPlayers(matchId)
+  const [syncingPlayers, setSyncingPlayers] = useState(false)
 
   if (loading) return <Loader label="Chargement du match..." />
   if (error || !match) return <div className="px-4 py-10 text-center text-red-300">{error || 'Match introuvable.'}</div>
