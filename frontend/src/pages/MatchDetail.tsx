@@ -1,4 +1,6 @@
 import { useParams } from 'react-router-dom'
+import PronosticForm from '../components/pronostic/PronosticForm'
+import PronosticList from '../components/pronostic/PronosticList'
 import Loader from '../components/ui/Loader'
 import { useMatch } from '../hooks/useMatch'
 
@@ -15,7 +17,7 @@ function formatMatchDate(date: string) {
 function MatchDetail() {
   const { id } = useParams()
   const matchId = Number(id)
-  const { match, loading, error } = useMatch(matchId)
+  const { match, pronostics, loading, error, refetch } = useMatch(matchId)
 
   if (loading) return <Loader label="Chargement du match..." />
   if (error || !match) return <div className="px-4 py-10 text-center text-red-300">{error || 'Match introuvable.'}</div>
@@ -41,6 +43,12 @@ function MatchDetail() {
           <a href="#ratings" className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-200 ring-1 ring-white/10">Ratings</a>
           <a href="#votes" className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-200 ring-1 ring-white/10">Vote MVP</a>
         </nav>
+
+        <section id="pronostics" className="space-y-4">
+          <h2 className="text-2xl font-bold text-slate-100">Pronostics</h2>
+          <PronosticForm matchId={match.id} status={match.status} onCreated={refetch} />
+          <PronosticList pronostics={pronostics} />
+        </section>
       </div>
     </div>
   )
