@@ -4,8 +4,11 @@ import PronosticList from '../components/pronostic/PronosticList'
 import ScoreBadge from '../components/match/ScoreBadge'
 import RatingForm from '../components/rating/RatingForm'
 import RatingList from '../components/rating/RatingList'
+import VoteForm from '../components/vote/VoteForm'
+import VoteResults from '../components/vote/VoteResults'
 import Loader from '../components/ui/Loader'
 import { useMatch } from '../hooks/useMatch'
+import { useMatchPlayers } from '../hooks/useMatchPlayers'
 
 function formatMatchDate(date: string) {
   return new Intl.DateTimeFormat('fr-BE', {
@@ -20,7 +23,8 @@ function formatMatchDate(date: string) {
 function MatchDetail() {
   const { id } = useParams()
   const matchId = Number(id)
-  const { match, ratings, pronostics, loading, error, refetch } = useMatch(matchId)
+  const { match, ratings, votes, pronostics, loading, error, refetch } = useMatch(matchId)
+  const { players } = useMatchPlayers(matchId)
 
   if (loading) return <Loader label="Chargement du match..." />
   if (error || !match) return <div className="px-4 py-10 text-center text-red-300">{error || 'Match introuvable.'}</div>
@@ -58,6 +62,12 @@ function MatchDetail() {
           <ScoreBadge ratings={ratings} />
           <RatingForm matchId={match.id} status={match.status} onCreated={refetch} />
           <RatingList ratings={ratings} />
+        </section>
+
+        <section id="votes" className="space-y-4">
+          <h2 className="text-2xl font-bold text-slate-100">Vote MVP</h2>
+          <VoteForm match={match} players={players} onCreated={refetch} />
+          <VoteResults votes={votes} players={players} />
         </section>
       </div>
     </div>
