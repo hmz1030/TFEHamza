@@ -122,6 +122,28 @@ class DevSyncMatchesView(APIView):
         )
 
 
+class DevSyncPlayersView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        if not settings.DEBUG:
+            return Response({'detail': 'Cet endpoint est disponible uniquement en mode dÃ©veloppement.'}, status=status.HTTP_403_FORBIDDEN)
+
+        stdout = StringIO()
+        command_kwargs = {'stdout': stdout}
+        if request.data.get('date'):
+            command_kwargs['date'] = request.data['date']
+        if request.data.get('match_id'):
+            command_kwargs['match_id'] = request.data['match_id']
+
+        try:
+            call_command('sync_players', **command_kwargs)
+        except Exception as exc:
+            return Response({'detail': str(exc), 'output': stdout.getvalue()}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'detail': 'Synchronisation des joueurs terminee.', 'output': stdout.getvalue()}, status=status.HTTP_200_OK)
+
+
 class RatingCreateView(generics.CreateAPIView):
     serializer_class = RatingSerializer
     permission_classes = [permissions.IsAuthenticated]
