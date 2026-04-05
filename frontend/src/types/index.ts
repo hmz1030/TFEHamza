@@ -62,10 +62,11 @@ export interface Vote {
 export interface Pronostic {
   id: number
   user: number
+  user_username: string
   match: number
   home_score: number
   away_score: number
-  points: number
+  points: number | null
   created_at: string
 }
 
