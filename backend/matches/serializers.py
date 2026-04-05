@@ -50,7 +50,9 @@ class VoteSerializer(serializers.ModelSerializer):
 
 
 class PronosticSerializer(serializers.ModelSerializer):
+    user_username = serializers.CharField(source='user.username', read_only=True)
+
     class Meta:
         model = Pronostic
-        fields = ('id', 'user', 'match', 'home_score', 'away_score', 'points', 'created_at')
+        fields = ('id', 'user', 'user_username', 'match', 'home_score', 'away_score', 'points', 'created_at')
         read_only_fields = ('user', 'points', 'created_at')
