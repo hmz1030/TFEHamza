@@ -20,6 +20,13 @@ function VoteForm({ match, players: initialPlayers = [], onCreated }: VoteFormPr
   const isFinished = match.status.toLowerCase().includes('finish')
 
   useEffect(() => {
+    if (initialPlayers.length > 0) {
+      setPlayers(initialPlayers)
+      setSelectedPlayer(initialPlayers[0] ? String(initialPlayers[0].id) : '')
+      setLoadingPlayers(false)
+      return
+    }
+
     if (!user || !isFinished || initialPlayers.length > 0) return
     let active = true
     void getMatchPlayers(match.id).then(({ data }) => {
