@@ -6,12 +6,13 @@ import type { Match, Player } from '../../types'
 
 interface VoteFormProps {
   match: Match
+  players?: Player[]
   onCreated?: () => Promise<void> | void
 }
 
-function VoteForm({ match, onCreated }: VoteFormProps) {
+function VoteForm({ match, players: initialPlayers = [], onCreated }: VoteFormProps) {
   const { user } = useAuth()
-  const [players, setPlayers] = useState<Player[]>([])
+  const [players, setPlayers] = useState<Player[]>(initialPlayers)
   const [selectedPlayer, setSelectedPlayer] = useState('')
   const [loading, setLoading] = useState(false)
   const [loadingPlayers, setLoadingPlayers] = useState(true)
@@ -19,7 +20,7 @@ function VoteForm({ match, onCreated }: VoteFormProps) {
   const isFinished = match.status.toLowerCase().includes('finish')
 
   useEffect(() => {
-    if (!user || !isFinished) return
+    if (!user || !isFinished || initialPlayers.length > 0) return
     let active = true
     void getMatchPlayers(match.id).then(({ data }) => {
       if (!active) return
@@ -28,7 +29,7 @@ function VoteForm({ match, onCreated }: VoteFormProps) {
       setLoadingPlayers(false)
     }).catch(() => active && (setError('Impossible de charger les joueurs.'), setLoadingPlayers(false)))
     return () => { active = false }
-  }, [isFinished, match.id, user])
+  }, [initialPlayers.length, isFinished, match.id, user])
 
   if (!user || !isFinished) return null
 
