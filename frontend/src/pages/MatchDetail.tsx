@@ -34,6 +34,16 @@ function MatchDetail() {
   if (loading) return <Loader label="Chargement du match..." />
   if (error || !match) return <div className="px-4 py-10 text-center text-red-300">{error || 'Match introuvable.'}</div>
 
+  const handleSyncPlayers = async () => {
+    setSyncingPlayers(true)
+    try {
+      await syncMatchPlayers(match.id)
+      await refetchPlayers()
+    } finally {
+      setSyncingPlayers(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-8">
@@ -71,6 +81,11 @@ function MatchDetail() {
 
         <section id="votes" className="space-y-4">
           <h2 className="text-2xl font-bold text-slate-100">Vote MVP</h2>
+          {isDev && players.length === 0 && !loadingPlayers && (
+            <button type="button" onClick={handleSyncPlayers} disabled={syncingPlayers} className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-blue-300 ring-1 ring-white/10 disabled:opacity-60">
+              {syncingPlayers ? 'Sync des joueurs...' : 'Synchroniser les joueurs (dev)'}
+            </button>
+          )}
           <VoteForm match={match} players={players} onCreated={refetch} />
           <VoteResults votes={votes} players={players} />
         </section>
