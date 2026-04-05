@@ -46,6 +46,18 @@ class Match(models.Model):
         return f"{self.home_team} vs {self.away_team} - {self.date}"
 
 
+class MatchPlayer(models.Model):
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='match_players')
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='match_players')
+
+    class Meta:
+        db_table = 'match_player'
+        unique_together = ('match', 'player')
+
+    def __str__(self):
+        return f"{self.player.name} a joue {self.match}"
+
+
 class Rating(models.Model):
     score = models.IntegerField()
     comment = models.TextField(blank=True, default='')
