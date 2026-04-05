@@ -28,6 +28,21 @@ def _players_from_side(side_data):
     return players
 
 
+def _upsert_players(team, raw_players):
+    total = 0
+    for raw_player in raw_players:
+        api_id = str(raw_player.get('id') or '').strip()
+        name = (raw_player.get('name') or '').strip()
+        if not api_id or not name:
+            continue
+        Player.objects.update_or_create(
+            api_id=api_id,
+            defaults={'name': name, 'team': team},
+        )
+        total += 1
+    return total
+
+
 class Command(BaseCommand):
     help = 'Synchronise les joueurs depuis Live Football API'
 
@@ -40,4 +55,23 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR('LIVE_FOOTBALL_API_KEY manquante dans .env'))
             return
 
-        self.stdout.write('Commande sync_players initialisee.')
+        queryset = Match.objects.exclude(api_id__isnull=True).exclude(api_id='')
+        if options.get('match_id'):
+            queryset = queryset.filter(pk=options['match_id'])
+        elif options.get('date'):
+            queryset = queryset.filter(date__date=options['date'])
+
+        synced_matches = 0
+        synced_players = 0
+
+        for match in queryset:
+            data = _fetch_lineups(match.api_id)
+            if not data or not data.get('home') or not data.get('away'):
+                continue
+            synced_players += _upsert_players(match.home_team, _players_from_side(data['home']))
+            synced_players += _upsert_players(match.away_team, _players_from_side(data['away']))
+            synced_matches += 1
+
+        self.stdout.write(self.style.SUCCESS(
+            f'Synchronisation terminee : {synced_matches} match(s), {synced_players} joueur(s).'
+        ))
