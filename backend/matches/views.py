@@ -125,7 +125,7 @@ class DevSyncPlayersView(APIView):
 
     def post(self, request):
         if not settings.DEBUG:
-            return Response({'detail': 'Cet endpoint est disponible uniquement en mode dÃ©veloppement.'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'detail': 'Cet endpoint est disponible uniquement en mode développement.'}, status=status.HTTP_403_FORBIDDEN)
 
         stdout = StringIO()
         command_kwargs = {'stdout': stdout}
