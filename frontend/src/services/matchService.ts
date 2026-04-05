@@ -15,6 +15,9 @@ export const getTodayMatches = () =>
 export const syncTodayMatches = (date?: string) =>
   api.post<{ detail: string; output: string }>('/dev/sync-matches/', date ? { date } : {})
 
+export const syncMatchPlayers = (matchId: number) =>
+  api.post<{ detail: string; output: string }>('/dev/sync-players/', { match_id: matchId })
+
 export const getMatch = (id: number) =>
   api.get<Match>(`/matches/${id}/`)
 
