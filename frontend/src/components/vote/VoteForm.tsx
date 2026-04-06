@@ -49,23 +49,23 @@ function VoteForm({ match, players: initialPlayers = [], onCreated }: VoteFormPr
       await createVote({ match: match.id, player: Number(selectedPlayer) })
       await onCreated?.()
     } catch {
-      setError('Impossible d envoyer ton vote.')
+      setError("Impossible d'envoyer ton vote.")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-[1.75rem] bg-slate-900/70 p-5 ring-1 ring-white/5">
-      <label className="block text-sm font-medium text-slate-300">Ton MVP</label>
-      <select value={selectedPlayer} onChange={(e) => setSelectedPlayer(e.target.value)} disabled={loadingPlayers || players.length === 0} className="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 text-sm text-slate-100 outline-none">
+    <form onSubmit={handleSubmit} className="space-y-4 rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+      <label className="block text-sm font-medium text-[var(--muted-strong)]">Ton MVP</label>
+      <select value={selectedPlayer} onChange={(e) => setSelectedPlayer(e.target.value)} disabled={loadingPlayers || players.length === 0} className="w-full rounded-[1.2rem] border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent)]">
         <optgroup label={match.home_team.name}>{players.filter((player) => player.team === match.home_team.id).map((player) => <option key={player.id} value={player.id}>{player.name}</option>)}</optgroup>
         <optgroup label={match.away_team.name}>{players.filter((player) => player.team === match.away_team.id).map((player) => <option key={player.id} value={player.id}>{player.name}</option>)}</optgroup>
       </select>
-      {loadingPlayers && <p className="text-sm text-slate-400">Chargement des joueurs...</p>}
-      {!loadingPlayers && players.length === 0 && <p className="text-sm text-slate-400">Aucun joueur disponible pour ce match.</p>}
-      {error && <p className="text-sm text-rose-300">{error}</p>}
-      <button type="submit" disabled={loading || loadingPlayers || !selectedPlayer} className="rounded-2xl bg-blue-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-blue-400 disabled:opacity-60">
+      {loadingPlayers ? <p className="text-sm text-[var(--muted)]">Chargement des joueurs...</p> : null}
+      {!loadingPlayers && players.length === 0 ? <p className="text-sm text-[var(--muted)]">Aucun joueur disponible pour ce match.</p> : null}
+      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+      <button type="submit" disabled={loading || loadingPlayers || !selectedPlayer} className="rounded-full bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--bg-deep)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60">
         {loading ? 'Envoi...' : 'Voter'}
       </button>
     </form>
