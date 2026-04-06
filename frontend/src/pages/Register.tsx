@@ -118,27 +118,24 @@ function Register() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
-
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white tracking-tight">
-            Match<span className="text-blue-500">Note</span>
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-[var(--text)]">
+            Match<span className="text-[var(--accent-strong)]">Note</span>
           </h1>
-          <p className="text-slate-400 mt-2 text-sm">
-            Notez, commentez, pronostiques vos matchs
+          <p className="mt-3 text-sm text-[var(--muted)]">
+            Crée ton compte et rejoins l&apos;ambiance du match.
           </p>
         </div>
 
-        {/* Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-xl">
-          <h2 className="text-xl font-semibold text-white mb-6">Créer un compte</h2>
+        <div className="rounded-[2rem] border border-[var(--line)] bg-[linear-gradient(145deg,rgba(17,27,40,0.96),rgba(8,17,27,0.88))] p-8 shadow-[var(--shadow)]">
+          <h2 className="mb-6 text-2xl font-bold text-[var(--text)]">Créer un compte</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1.5">
-                Nom d'utilisateur
+              <label className="mb-1.5 block text-sm font-medium text-[var(--muted)]">
+                Nom d&apos;utilisateur
               </label>
               <input
                 type="text"
@@ -146,19 +143,19 @@ function Register() {
                 value={username}
                 onChange={(e) => handleFieldChange('username', e.target.value)}
                 required
-                className={`w-full bg-slate-800 border text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition ${
+                className={`w-full rounded-[1.2rem] border bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--muted)] transition focus:outline-none ${
                   fieldErrors.username
-                    ? 'border-red-400/50 focus:border-red-400 focus:ring-red-400'
-                    : 'border-slate-700 focus:border-blue-500 focus:ring-blue-500'
+                    ? 'border-[rgba(216,125,116,0.35)] focus:border-[var(--danger)]'
+                    : 'border-[var(--line)] focus:border-[var(--accent)]'
                 }`}
               />
-              {fieldErrors.username && (
-                <p className="mt-1.5 text-sm text-red-400">{fieldErrors.username}</p>
-              )}
+              {fieldErrors.username ? (
+                <p className="mt-1.5 text-sm text-[var(--danger)]">{fieldErrors.username}</p>
+              ) : null}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1.5">
+              <label className="mb-1.5 block text-sm font-medium text-[var(--muted)]">
                 Email
               </label>
               <input
@@ -167,19 +164,19 @@ function Register() {
                 value={email}
                 onChange={(e) => handleFieldChange('email', e.target.value)}
                 required
-                className={`w-full bg-slate-800 border text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition ${
+                className={`w-full rounded-[1.2rem] border bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--muted)] transition focus:outline-none ${
                   fieldErrors.email
-                    ? 'border-red-400/50 focus:border-red-400 focus:ring-red-400'
-                    : 'border-slate-700 focus:border-blue-500 focus:ring-blue-500'
+                    ? 'border-[rgba(216,125,116,0.35)] focus:border-[var(--danger)]'
+                    : 'border-[var(--line)] focus:border-[var(--accent)]'
                 }`}
               />
-              {fieldErrors.email && (
-                <p className="mt-1.5 text-sm text-red-400">{fieldErrors.email}</p>
-              )}
+              {fieldErrors.email ? (
+                <p className="mt-1.5 text-sm text-[var(--danger)]">{fieldErrors.email}</p>
+              ) : null}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-1.5">
+              <label className="mb-1.5 block text-sm font-medium text-[var(--muted)]">
                 Mot de passe
               </label>
               <input
@@ -189,40 +186,39 @@ function Register() {
                 onChange={(e) => handleFieldChange('password', e.target.value)}
                 required
                 minLength={8}
-                className={`w-full bg-slate-800 border text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 transition ${
+                className={`w-full rounded-[1.2rem] border bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-[var(--text)] placeholder:text-[var(--muted)] transition focus:outline-none ${
                   fieldErrors.password
-                    ? 'border-red-400/50 focus:border-red-400 focus:ring-red-400'
-                    : 'border-slate-700 focus:border-blue-500 focus:ring-blue-500'
+                    ? 'border-[rgba(216,125,116,0.35)] focus:border-[var(--danger)]'
+                    : 'border-[var(--line)] focus:border-[var(--accent)]'
                 }`}
               />
-              <p className="text-slate-500 text-xs mt-1.5">
-                Minimum 8 caractères, 1 majuscule et 1 caractère spécial
+              <p className="mt-1.5 text-xs text-[var(--muted)]">
+                Minimum 8 caractères, 1 majuscule et 1 caractère spécial.
               </p>
-              {fieldErrors.password && (
-                <p className="mt-1.5 text-sm text-red-400">{fieldErrors.password}</p>
-              )}
+              {fieldErrors.password ? (
+                <p className="mt-1.5 text-sm text-[var(--danger)]">{fieldErrors.password}</p>
+              ) : null}
             </div>
 
-            {fieldErrors.general && (
-              <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">
+            {fieldErrors.general ? (
+              <p className="rounded-[1rem] border border-[rgba(216,125,116,0.22)] bg-[rgba(216,125,116,0.08)] px-3 py-2 text-sm text-[var(--danger)]">
                 {fieldErrors.general}
               </p>
-            )}
+            ) : null}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl py-3 text-sm transition mt-2"
+              className="mt-2 w-full rounded-full bg-[var(--accent)] py-3 text-sm font-semibold text-[var(--bg-deep)] transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? <Loader size="sm" label="" /> : "S'inscrire"}
             </button>
           </form>
         </div>
 
-        {/* Lien connexion */}
-        <p className="text-center text-slate-500 text-sm mt-6">
+        <p className="mt-6 text-center text-sm text-[var(--muted)]">
           Déjà un compte ?{' '}
-          <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium transition">
+          <Link to="/login" className="font-medium text-[var(--accent-strong)] transition hover:text-[var(--text)]">
             Se connecter
           </Link>
         </p>
