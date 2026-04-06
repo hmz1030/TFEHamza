@@ -77,12 +77,12 @@ function Home() {
     try {
       const response = await syncTodayMatches(selectedDate)
       await refetch()
-      setSyncMessage(response.data.detail || 'Donnees synchronisees.')
+      setSyncMessage(response.data.detail || 'Données synchronisées.')
     } catch (syncError) {
       if (axios.isAxiosError(syncError) && typeof syncError.response?.data?.detail === 'string') {
         setSyncMessage(syncError.response.data.detail)
       } else {
-        setSyncMessage('La synchronisation a echoue.')
+        setSyncMessage('La synchronisation a échoué.')
       }
     } finally {
       setSyncLoading(false)
@@ -90,35 +90,32 @@ function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
+    <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-10">
-        <section className="overflow-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.28),_transparent_35%),radial-gradient(circle_at_top_right,_rgba(34,197,94,0.12),_transparent_30%),linear-gradient(180deg,_rgba(19,27,46,0.98),_rgba(11,19,38,1))] px-6 py-8 shadow-[0_24px_60px_-18px_rgba(0,0,0,0.75)] ring-1 ring-white/5 sm:px-8 sm:py-10">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <section className="overflow-hidden rounded-[2rem] border border-[var(--line)] bg-[linear-gradient(145deg,rgba(17,27,40,0.96),rgba(8,17,27,0.88))] shadow-[var(--shadow)]">
+          <div className="grid gap-8 px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[1.6fr_0.9fr] lg:items-end">
             <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-blue-300/90">
-                {isToday ? 'Matchs du jour' : 'Matchs'}
+              <p className="text-sm font-semibold uppercase tracking-[0.34em] text-[var(--accent-strong)]">
+                {isToday ? 'Sélection du jour' : 'Archives de match'}
               </p>
-              <h1 className="mt-4 text-4xl font-bold tracking-[-0.02em] text-slate-50 sm:text-5xl">
-                Le football,
-                <span className="block text-blue-400">quand tu veux.</span>
+              <h1 className="mt-5 max-w-2xl text-4xl font-bold text-[var(--text)] sm:text-5xl lg:text-6xl">
+                Note ton Football
               </h1>
-              <p className="mt-4 max-w-2xl text-base text-slate-300 sm:text-lg">
-                Choisis une date et retrouve les matchs disponibles.
-              </p>
+            
             </div>
 
-            <div className="w-full max-w-sm rounded-[1.75rem] bg-slate-950/45 p-5 shadow-[0_18px_42px_-22px_rgba(0,0,0,0.85)] ring-1 ring-white/10 backdrop-blur-md">
-              <p className="text-xs uppercase tracking-[0.24em] text-slate-400">
-                {isToday ? "Aujourd'hui" : 'Date selectionnee'}
+            <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(7,12,19,0.64)] p-5 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.9)]">
+              <p className="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">
+                {isToday ? "Aujourd'hui" : 'Date sélectionnée'}
               </p>
-              <p className="mt-2 text-xl font-semibold text-slate-100">{formattedDate}</p>
+              <p className="mt-3 text-2xl font-semibold capitalize text-[var(--text)]">{formattedDate}</p>
 
-              <div className="mt-4 flex items-center gap-3">
+              <div className="mt-5 flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => handleDateChange(shiftInputDate(selectedDate, -1))}
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-slate-200 ring-1 ring-white/10 transition hover:bg-slate-800"
-                  aria-label="Jour precedent"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-lg font-semibold text-[var(--text)] transition hover:border-[var(--line-strong)] hover:bg-[rgba(255,255,255,0.06)]"
+                  aria-label="Jour précédent"
                 >
                   {'<'}
                 </button>
@@ -130,28 +127,28 @@ function Home() {
                     lang="fr-BE"
                     value={selectedDate}
                     onChange={(event) => handleDateChange(event.target.value)}
-                    className="w-full rounded-2xl border border-white/10 bg-slate-900/90 px-4 py-3 text-sm text-slate-100 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent)]"
                   />
                 </label>
 
                 <button
                   type="button"
                   onClick={() => handleDateChange(shiftInputDate(selectedDate, 1))}
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-semibold text-slate-200 ring-1 ring-white/10 transition hover:bg-slate-800"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-lg font-semibold text-[var(--text)] transition hover:border-[var(--line-strong)] hover:bg-[rgba(255,255,255,0.06)]"
                   aria-label="Jour suivant"
                 >
                   {'>'}
                 </button>
               </div>
 
-              <div className="mt-3 flex justify-center">
+              <div className="mt-4 flex justify-start">
                 <button
                   type="button"
                   onClick={() => handleDateChange(today)}
                   disabled={isToday}
-                  className="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-slate-200 ring-1 ring-white/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--bg-deep)] transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-45"
                 >
-                  Aujourd&apos;hui
+                  Revenir à aujourd&apos;hui
                 </button>
               </div>
             </div>
@@ -167,7 +164,7 @@ function Home() {
                 type="button"
                 onClick={handleDevRefresh}
                 disabled={syncLoading}
-                className="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-blue-300 shadow-[0_14px_30px_-18px_rgba(0,0,0,0.8)] ring-1 ring-white/5 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {syncLoading
                   ? 'Synchronisation en cours...'
@@ -176,19 +173,19 @@ function Home() {
             )}
           </div>
 
-          {syncMessage && (
-            <div className="rounded-2xl bg-slate-900/80 px-4 py-3 text-sm text-slate-300 ring-1 ring-white/5">
+          {syncMessage ? (
+            <div className="rounded-[1.4rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] px-4 py-3 text-sm text-[var(--muted-strong)]">
               {syncMessage}
             </div>
-          )}
+          ) : null}
         </section>
 
         {loading ? (
           <Loader label={`Chargement des matchs du ${selectedDate}...`} />
         ) : error ? (
-          <div className="rounded-[2rem] bg-red-500/10 px-6 py-8 text-center ring-1 ring-red-400/20">
-            <p className="text-lg font-semibold text-red-300">Impossible de charger les matchs</p>
-            <p className="mt-2 text-sm text-red-200/80">{error}</p>
+          <div className="rounded-[1.8rem] border border-[rgba(216,125,116,0.26)] bg-[rgba(216,125,116,0.08)] px-6 py-8 text-center">
+            <p className="text-lg font-semibold text-[var(--text)]">Impossible de charger les matchs</p>
+            <p className="mt-2 text-sm text-[var(--danger)]">{error}</p>
           </div>
         ) : (
           <MatchList matches={filteredMatches} />
