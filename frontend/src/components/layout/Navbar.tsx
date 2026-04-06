@@ -11,35 +11,39 @@ function Navbar() {
   }
 
   return (
-    <nav className="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between">
-      <Link to="/" className="text-white font-bold text-xl tracking-tight">
-        Match<span className="text-blue-500">Note</span>
-      </Link>
+    <nav className="sticky top-0 z-40 border-b border-[var(--line)] bg-[rgba(8,17,27,0.88)] px-4 py-4 backdrop-blur-xl sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+        <Link to="/" className="text-xl font-bold tracking-[-0.05em] text-[var(--text)] sm:text-2xl">
+          Match<span className="text-[var(--accent-strong)]">Note</span>
+        </Link>
 
-      <div className="flex items-center gap-4">
-        {user ? (
-          <>
-            <span className="text-slate-300 text-sm font-medium">{user.username}</span>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 px-3 py-1.5 rounded-lg transition"
-            >
-              Déconnexion
-            </button>
-          </>
-        ) : (
-          <>
-            <Link to="/login" className="text-sm text-slate-400 hover:text-white transition">
-              Connexion
-            </Link>
-            <Link
-              to="/register"
-              className="text-sm bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg transition"
-            >
-              Inscription
-            </Link>
-          </>
-        )}
+        <div className="flex items-center gap-3 sm:gap-4">
+          {user ? (
+            <>
+              <span className="hidden rounded-full border border-[var(--line)] bg-white/[0.03] px-3 py-1.5 text-sm font-medium text-[var(--muted-strong)] sm:inline-flex">
+                {user.username}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="rounded-full border border-[var(--line)] px-4 py-2 text-sm font-semibold text-[var(--muted)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)]"
+              >
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="text-sm font-medium text-[var(--muted)] transition hover:text-[var(--text)]">
+                Connexion
+              </Link>
+              <Link
+                to="/register"
+                className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--bg-deep)] transition hover:bg-[var(--accent-strong)]"
+              >
+                Inscription
+              </Link>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   )
