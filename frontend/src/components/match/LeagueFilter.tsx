@@ -41,10 +41,10 @@ function LeagueFilter({ selectedLeague, onSelectLeague }: LeagueFilterProps) {
               key={league.name}
               type="button"
               onClick={() => onSelectLeague(league.name)}
-              className={`inline-flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-medium transition ${
+              className={`inline-flex items-center gap-3 rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
                 isSelected
-                  ? 'bg-blue-500 text-slate-950 shadow-lg shadow-blue-500/20'
-                  : 'bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'border-[rgba(200,132,73,0.35)] bg-[var(--accent-soft)] text-[var(--text)]'
+                  : 'border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-[var(--muted)] hover:border-[var(--line-strong)] hover:text-[var(--text)]'
               }`}
             >
               {league.logoSrc ? (
@@ -55,10 +55,10 @@ function LeagueFilter({ selectedLeague, onSelectLeague }: LeagueFilterProps) {
                 />
               ) : (
                 <span
-                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${
                     isSelected
-                      ? 'bg-slate-950/15 text-slate-950'
-                      : 'bg-slate-800 text-slate-200'
+                      ? 'bg-[var(--accent)] text-[var(--bg-deep)]'
+                      : 'bg-[rgba(255,255,255,0.04)] text-[var(--muted-strong)]'
                   }`}
                 >
                   {league.shortName}
