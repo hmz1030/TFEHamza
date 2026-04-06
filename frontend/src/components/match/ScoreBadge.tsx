@@ -17,32 +17,32 @@ function getAverageScore(ratings: Rating[]) {
 function getScoreConfig(averageScore: number | null) {
   if (averageScore === null) {
     return {
-      label: 'Pas encore note',
-      scoreClasses: 'bg-slate-800/80 text-slate-300 ring-white/10',
-      accentClasses: 'bg-slate-400/70',
+      label: 'Pas encore noté',
+      scoreClasses: 'border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-[var(--muted-strong)]',
+      accentClasses: 'bg-[var(--muted)]',
     }
   }
 
   if (averageScore > 7) {
     return {
-      label: 'Tres bien note',
-      scoreClasses: 'bg-emerald-500/15 text-emerald-300 ring-emerald-400/20',
-      accentClasses: 'bg-emerald-400',
+      label: 'Très bien noté',
+      scoreClasses: 'border-[rgba(121,182,141,0.24)] bg-[rgba(121,182,141,0.12)] text-[var(--success)]',
+      accentClasses: 'bg-[var(--success)]',
     }
   }
 
   if (averageScore >= 5) {
     return {
-      label: 'Avis mitiges',
-      scoreClasses: 'bg-amber-500/15 text-amber-300 ring-amber-400/20',
-      accentClasses: 'bg-amber-400',
+      label: 'Avis partagés',
+      scoreClasses: 'border-[rgba(200,132,73,0.28)] bg-[var(--accent-soft)] text-[var(--accent-strong)]',
+      accentClasses: 'bg-[var(--accent)]',
     }
   }
 
   return {
     label: 'Note faible',
-    scoreClasses: 'bg-rose-500/15 text-rose-300 ring-rose-400/20',
-    accentClasses: 'bg-rose-400',
+    scoreClasses: 'border-[rgba(216,125,116,0.24)] bg-[rgba(216,125,116,0.1)] text-[var(--danger)]',
+    accentClasses: 'bg-[var(--danger)]',
   }
 }
 
@@ -52,7 +52,7 @@ function ScoreBadge({ ratings, className = '' }: ScoreBadgeProps) {
 
   return (
     <div
-      className={`inline-flex items-center gap-4 rounded-2xl px-4 py-3 ring-1 ${config.scoreClasses} ${className}`.trim()}
+      className={`inline-flex items-center gap-4 rounded-[1.4rem] border px-4 py-3 ${config.scoreClasses} ${className}`.trim()}
       role="status"
       aria-live="polite"
     >

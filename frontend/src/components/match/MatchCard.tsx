@@ -17,10 +17,9 @@ function getStatusConfig(status: string) {
 
   if (normalizedStatus.includes('live') || normalizedStatus.includes('direct') || normalizedStatus.includes('progress')) {
     return {
-      badge: 'EN DIRECT',
-      badgeClasses: 'bg-emerald-500/15 text-emerald-300',
-      actionLabel: 'VOIR LES DÉTAILS',
-      scoreAccent: 'text-white',
+      badge: 'En direct',
+      badgeClasses: 'border-[rgba(121,182,141,0.24)] bg-[rgba(121,182,141,0.12)] text-[var(--success)]',
+      scoreAccent: 'text-[var(--text)]',
       showLiveDot: true,
     }
   }
@@ -28,36 +27,34 @@ function getStatusConfig(status: string) {
   if (normalizedStatus.includes('finish') || normalizedStatus.includes('term')) {
     return {
       badge: 'Terminé',
-      badgeClasses: 'bg-slate-700/70 text-slate-200',
-      actionLabel: 'VOIR LE RÉSUMÉ',
-      scoreAccent: 'text-white',
+      badgeClasses: 'border-[var(--line)] bg-[rgba(255,255,255,0.04)] text-[var(--muted-strong)]',
+      scoreAccent: 'text-[var(--text)]',
       showLiveDot: false,
     }
   }
 
   return {
     badge: 'À venir',
-    badgeClasses: 'bg-blue-500/15 text-blue-300',
-    actionLabel: 'PRONOSTIQUER',
-    scoreAccent: 'text-slate-300',
+    badgeClasses: 'border-[rgba(200,132,73,0.3)] bg-[var(--accent-soft)] text-[var(--accent-strong)]',
+    scoreAccent: 'text-[var(--muted-strong)]',
     showLiveDot: false,
   }
 }
 
 function getRatingConfig(averageRating: number | null) {
   if (averageRating === null) {
-    return { label: 'Pas de note', classes: 'bg-slate-900/80 text-slate-400' }
+    return { label: 'Pas de note', classes: 'border-[var(--line)] bg-[rgba(255,255,255,0.04)] text-[var(--muted)]' }
   }
 
   if (averageRating > 7) {
-    return { label: averageRating.toFixed(1), classes: 'bg-emerald-500/15 text-emerald-300' }
+    return { label: averageRating.toFixed(1), classes: 'border-[rgba(121,182,141,0.22)] bg-[rgba(121,182,141,0.12)] text-[var(--success)]' }
   }
 
   if (averageRating >= 5) {
-    return { label: averageRating.toFixed(1), classes: 'bg-amber-500/15 text-amber-300' }
+    return { label: averageRating.toFixed(1), classes: 'border-[rgba(200,132,73,0.26)] bg-[var(--accent-soft)] text-[var(--accent-strong)]' }
   }
 
-  return { label: averageRating.toFixed(1), classes: 'bg-rose-500/15 text-rose-300' }
+  return { label: averageRating.toFixed(1), classes: 'border-[rgba(216,125,116,0.24)] bg-[rgba(216,125,116,0.1)] text-[var(--danger)]' }
 }
 
 function MatchCard({ match }: MatchCardProps) {
@@ -68,19 +65,19 @@ function MatchCard({ match }: MatchCardProps) {
   return (
     <Link
       to={`/matches/${match.id}`}
-      className="group block overflow-hidden rounded-[2rem] bg-slate-800/70 p-6 shadow-[0_20px_40px_-18px_rgba(0,0,0,0.65)] ring-1 ring-white/5 backdrop-blur-sm transition duration-200 hover:-translate-y-1 hover:bg-slate-800 hover:shadow-[0_28px_60px_-20px_rgba(0,0,0,0.8)]"
+      className="group block overflow-hidden rounded-[1.8rem] border border-[var(--line)] bg-[linear-gradient(180deg,rgba(17,27,40,0.9),rgba(11,18,28,0.98))] p-6 shadow-[var(--shadow)] transition duration-200 hover:-translate-y-1 hover:border-[var(--line-strong)]"
     >
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <div className="text-sm font-medium text-slate-400">{match.league}</div>
-        <div className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold ${badgeClasses}`}>
-          {showLiveDot && <span className="h-2 w-2 rounded-full bg-emerald-300 animate-pulse" />}
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <div className="text-sm font-medium text-[var(--muted)]">{match.league}</div>
+        <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${badgeClasses}`}>
+          {showLiveDot ? <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--success)]" /> : null}
           <span>{badge}</span>
         </div>
       </div>
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
         <div className="flex flex-col items-center text-center">
-          <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-slate-950/60 p-3 shadow-inner shadow-black/20">
+          <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] p-3">
             {match.home_team.logo ? (
               <img
                 src={match.home_team.logo}
@@ -88,40 +85,40 @@ function MatchCard({ match }: MatchCardProps) {
                 className="h-full w-full object-contain"
               />
             ) : (
-              <span className="text-sm font-bold text-slate-300">
+              <span className="text-sm font-bold text-[var(--muted-strong)]">
                 {match.home_team.name.slice(0, 3).toUpperCase()}
               </span>
             )}
           </div>
-          <h3 className="text-base font-semibold tracking-tight text-slate-100">
+          <h3 className="text-lg font-bold text-[var(--text)]">
             {match.home_team.name}
           </h3>
         </div>
 
-        <div className="min-w-[88px] text-center">
+        <div className="min-w-[92px] text-center">
           {isScheduled ? (
             <>
-              <div className="text-3xl font-bold tracking-[-0.02em] text-slate-100">
+              <div className="text-3xl font-bold text-[var(--text)]">
                 {formatMatchTime(match.date)}
               </div>
-              <div className="mt-1 text-xs uppercase tracking-[0.24em] text-slate-500">
-                Aujourd&apos;hui
+              <div className="mt-1 text-xs uppercase tracking-[0.24em] text-[var(--muted)]">
+                Coup d&apos;envoi
               </div>
             </>
           ) : (
             <>
-              <div className={`text-4xl font-bold tracking-[-0.02em] ${scoreAccent}`}>
+              <div className={`text-4xl font-bold ${scoreAccent}`}>
                 {match.home_score} - {match.away_score}
               </div>
-              <div className="mt-1 text-xs font-medium uppercase tracking-[0.24em] text-slate-500">
-                {showLiveDot ? "En cours" : badge}
+              <div className="mt-1 text-xs font-medium uppercase tracking-[0.24em] text-[var(--muted)]">
+                {showLiveDot ? 'En cours' : badge}
               </div>
             </>
           )}
         </div>
 
         <div className="flex flex-col items-center text-center">
-          <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-slate-950/60 p-3 shadow-inner shadow-black/20">
+          <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] p-3">
             {match.away_team.logo ? (
               <img
                 src={match.away_team.logo}
@@ -129,25 +126,25 @@ function MatchCard({ match }: MatchCardProps) {
                 className="h-full w-full object-contain"
               />
             ) : (
-              <span className="text-sm font-bold text-slate-300">
+              <span className="text-sm font-bold text-[var(--muted-strong)]">
                 {match.away_team.name.slice(0, 3).toUpperCase()}
               </span>
             )}
           </div>
-          <h3 className="text-base font-semibold tracking-tight text-slate-100">
+          <h3 className="text-lg font-bold text-[var(--text)]">
             {match.away_team.name}
           </h3>
         </div>
       </div>
 
-      <div className="mt-6 flex items-center justify-between">
-        <div className="text-sm text-slate-500">
-          {badge === 'EN DIRECT'
+      <div className="mt-7 flex items-end justify-between gap-4 border-t border-[var(--line)] pt-5">
+        <div className="text-sm leading-6 text-[var(--muted)]">
+          {badge === 'En direct'
             ? `Coup d'envoi ${formatMatchTime(match.date)}`
             : match.home_team.country || match.away_team.country || match.league}
         </div>
-        <div className={`rounded-2xl px-4 py-2 text-right ${ratingConfig.classes}`}>
-          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] opacity-80">Note</p>
+        <div className={`rounded-[1.2rem] border px-4 py-3 text-right ${ratingConfig.classes}`}>
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.2em] opacity-80">Note</p>
           <p className="mt-1 text-lg font-black tracking-tight">{ratingConfig.label}</p>
         </div>
       </div>

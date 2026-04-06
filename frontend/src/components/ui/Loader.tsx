@@ -32,9 +32,9 @@ function Loader({
     >
       <div className="flex flex-col items-center gap-3">
         <div
-          className={`rounded-full border-slate-700/20 border-t-blue-500 animate-spin ${spinnerSizeClasses[size]}`}
+          className={`animate-spin rounded-full border-[rgba(243,239,230,0.12)] border-t-[var(--accent)] ${spinnerSizeClasses[size]}`}
         />
-        <p className="text-sm font-medium text-slate-400">{label}</p>
+        {label ? <p className="text-sm font-medium text-[var(--muted)]">{label}</p> : null}
       </div>
     </div>
   )

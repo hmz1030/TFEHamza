@@ -20,21 +20,21 @@ function PronosticList({ pronostics }: PronosticListProps) {
   )
 
   if (sortedPronostics.length === 0) {
-    return <div className="rounded-[1.75rem] bg-slate-900/60 p-5 text-sm text-slate-400 ring-1 ring-white/5">Aucun pronostic pour le moment.</div>
+    return <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">Aucun pronostic pour le moment.</div>
   }
 
   return (
     <div className="space-y-4">
       {sortedPronostics.map((pronostic) => (
-        <article key={pronostic.id} className="rounded-[1.75rem] bg-slate-900/70 p-5 ring-1 ring-white/5">
+        <article key={pronostic.id} className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-slate-100">{pronostic.user_username}</p>
-              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-500">{formatPronosticDate(pronostic.created_at)}</p>
+              <p className="text-sm font-semibold text-[var(--text)]">{pronostic.user_username}</p>
+              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{formatPronosticDate(pronostic.created_at)}</p>
             </div>
             <div className="text-right">
-              <p className="text-lg font-black tracking-tight text-blue-300">{pronostic.home_score} - {pronostic.away_score}</p>
-              <p className="mt-1 text-xs font-medium text-slate-400">{pronostic.points === null ? 'Points en attente' : `${pronostic.points} point${pronostic.points > 1 ? 's' : ''}`}</p>
+              <p className="text-lg font-black tracking-tight text-[var(--accent-strong)]">{pronostic.home_score} - {pronostic.away_score}</p>
+              <p className="mt-1 text-xs font-medium text-[var(--muted)]">{pronostic.points === null ? 'Points en attente' : `${pronostic.points} point${pronostic.points > 1 ? 's' : ''}`}</p>
             </div>
           </div>
         </article>

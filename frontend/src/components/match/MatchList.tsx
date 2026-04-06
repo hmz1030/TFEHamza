@@ -37,10 +37,10 @@ function MatchList({ matches }: MatchListProps) {
 
   if (matches.length === 0) {
     return (
-      <div className="rounded-[2rem] bg-slate-900/70 px-6 py-12 text-center shadow-[0_20px_40px_-18px_rgba(0,0,0,0.65)] ring-1 ring-white/5 backdrop-blur-sm">
-        <p className="text-lg font-semibold text-slate-100">Aucun match à afficher</p>
-        <p className="mt-2 text-sm text-slate-400">
-          Essayez un autre filtre ou lancez une synchronisation des matchs.
+      <div className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] px-6 py-12 text-center shadow-[var(--shadow)]">
+        <p className="text-lg font-semibold text-[var(--text)]">Aucun match à afficher</p>
+        <p className="mt-2 text-sm text-[var(--muted)]">
+          Essaie un autre filtre ou relance une synchronisation des matchs.
         </p>
       </div>
     )
@@ -52,14 +52,14 @@ function MatchList({ matches }: MatchListProps) {
         <section key={league} className="space-y-5">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-300/90">
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--accent-strong)]">
                 Championnat
               </p>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-100">
+              <h2 className="mt-2 text-3xl font-bold text-[var(--text)]">
                 {league}
               </h2>
             </div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-[var(--muted)]">
               {leagueMatches.length} match{leagueMatches.length > 1 ? 's' : ''}
             </p>
           </div>
