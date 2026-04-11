@@ -23,6 +23,20 @@ function Pronostics() {
 
   if (loading) return <Loader label="Chargement des pronostics..." />
 
+  const upcomingMatches = matches
+    .filter((match) => match.status.toLowerCase() === 'scheduled')
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
+  const historyByDate = [...history]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+  const matchById = new Map(matches.map((match) => [match.id, match]))
+
+  const refetchHistory = async () => {
+    const activityResponse = await getMyActivity()
+    setHistory(activityResponse.data.pronostics)
+  }
+
   return (
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
