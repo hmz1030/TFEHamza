@@ -135,9 +135,18 @@ def _league_allowed_by_id(api_league_id):
     return lid in LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS
 
 
+def _find_existing_team(team_name):
+    return Team.objects.filter(name__iexact=team_name).order_by('-logo', 'id').first()
+
+
 def _find_or_create_team(team_name, league_name):
     """Cherche une equipe par nom + ligue. Si introuvable, la creer sans logo."""
     team_name = (team_name or '').strip()
+
+    if league_name == 'Champions League':
+        existing_team = _find_existing_team(team_name)
+        if existing_team:
+            return existing_team
 
     # Cherche par nom + ligue (insensible a la casse)
     team = Team.objects.filter(name__iexact=team_name, league=league_name).first()
