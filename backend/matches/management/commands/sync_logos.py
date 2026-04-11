@@ -15,6 +15,11 @@ LEAGUES = {
     78: {'name': 'Bundesliga', 'season': 2024},
 }
 
+TEAM_SEARCH_ALIASES = {
+    'PSG': 'Paris Saint Germain',
+    'Bayern Münih': 'Bayern Munchen',
+}
+
 
 #le workflow de cette commande est le suivant :
 # - pour chaque ligue on recup les teams en format json
