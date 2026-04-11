@@ -17,6 +17,8 @@ export interface ActivityData {
   }[]
   pronostics: {
     id: number
+    user: number
+    user_username: string
     match: number
     home_score: number
     away_score: number
