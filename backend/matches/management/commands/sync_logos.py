@@ -1,7 +1,7 @@
 import requests
 from django.core.management.base import BaseCommand
 from decouple import config
-from matches.models import Team
+from matches.models import Match, Team
 
 API_FOOTBALL_KEY = config('API_FOOTBALL_KEY', default='')
 BASE_URL = 'https://v3.football.api-sports.io'
@@ -119,7 +119,17 @@ class Command(BaseCommand):
                 f"  {len(teams)} equipes traitees pour {league_info['name']}"
             ))
 
-        missing_names = Team.objects.filter(logo='').values_list('name', flat=True).distinct()
+        missing_names = set()
+        champions_matches = Match.objects.filter(league='Champions League').select_related(
+            'home_team',
+            'away_team',
+        )
+        for match in champions_matches:
+            if not match.home_team.logo:
+                missing_names.add(match.home_team.name)
+            if not match.away_team.logo:
+                missing_names.add(match.away_team.name)
+
         for team_name in missing_names:
             team_data = _search_team_logo(headers, team_name)
             logo = team_data.get('logo') or ''
