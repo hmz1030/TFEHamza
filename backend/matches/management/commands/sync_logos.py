@@ -119,6 +119,19 @@ class Command(BaseCommand):
                 f"  {len(teams)} equipes traitees pour {league_info['name']}"
             ))
 
+        missing_names = Team.objects.filter(logo='').values_list('name', flat=True).distinct()
+        for team_name in missing_names:
+            team_data = _search_team_logo(headers, team_name)
+            logo = team_data.get('logo') or ''
+            if not logo:
+                continue
+
+            updated = Team.objects.filter(name=team_name).update(logo=logo)
+            total_updated += updated
+            self.stdout.write(self.style.SUCCESS(
+                f"  Logo complete pour {team_name} ({updated} equipes)"
+            ))
+
         self.stdout.write(self.style.SUCCESS(
             f"\nTermine ! {total_created} equipes creees, {total_updated} mises a jour."
         ))
