@@ -14,7 +14,8 @@ LEAGUES = {
     61: {'name': 'Ligue 1', 'season': 2024},
     78: {'name': 'Bundesliga', 'season': 2024},
 }
-
+#ptit fix pcq ya des noms du meme club qui diffèrent selon la compèt 
+# la liste peut s'agrandir par la suite
 TEAM_SEARCH_ALIASES = {
     'PSG': 'Paris Saint Germain',
     'Bayern Münih': 'Bayern Munchen',
