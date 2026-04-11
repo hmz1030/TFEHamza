@@ -65,7 +65,11 @@ function Pronostics() {
           </div>
 
           <div className="space-y-4">
-            {upcomingMatches.map((match) => (
+            {upcomingMatches.length === 0 ? (
+              <div className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
+                Aucun match a pronostiquer pour le moment.
+              </div>
+            ) : upcomingMatches.map((match) => (
               <article key={match.id} className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <div>
@@ -86,7 +90,11 @@ function Pronostics() {
           </div>
 
           <div className="space-y-4">
-            {historyByDate.map((pronostic) => {
+            {historyByDate.length === 0 ? (
+              <div className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
+                Aucun pronostic enregistre pour l'instant.
+              </div>
+            ) : historyByDate.map((pronostic) => {
               const match = matchById.get(pronostic.match)
               return (
                 <article key={pronostic.id} className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
@@ -95,7 +103,10 @@ function Pronostics() {
                       <p className="text-lg font-semibold text-[var(--text)]">{match ? `${match.home_team.name} vs ${match.away_team.name}` : `Match #${pronostic.match}`}</p>
                       <p className="mt-2 text-sm text-[var(--muted)]">{match ? formatMatchDate(match.date) : formatMatchDate(pronostic.created_at)}</p>
                     </div>
-                    <p className="text-lg font-black tracking-tight text-[var(--accent-strong)]">{pronostic.home_score} - {pronostic.away_score}</p>
+                    <div className="text-right">
+                      <p className="text-lg font-black tracking-tight text-[var(--accent-strong)]">{pronostic.home_score} - {pronostic.away_score}</p>
+                      <p className="mt-2 text-xs font-medium text-[var(--muted)]">{pronostic.points === null ? 'Points en attente' : `${pronostic.points} point${pronostic.points > 1 ? 's' : ''}`}</p>
+                    </div>
                   </div>
                 </article>
               )
