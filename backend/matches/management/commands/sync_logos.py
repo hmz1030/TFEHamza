@@ -21,6 +21,27 @@ TEAM_SEARCH_ALIASES = {
 }
 
 
+def _pick_team_result(results):
+    for entry in results:
+        name = (entry.get('team', {}).get('name') or '').lower()
+        if any(tag in name for tag in (' u19', ' u23', ' ii', ' w')):
+            continue
+        return entry.get('team', {})
+    return {}
+
+
+def _search_team_logo(headers, team_name):
+    search_name = TEAM_SEARCH_ALIASES.get(team_name, team_name)
+    response = requests.get(
+        f'{BASE_URL}/teams',
+        headers=headers,
+        params={'search': search_name},
+        timeout=15,
+    )
+    response.raise_for_status()
+    return _pick_team_result(response.json().get('response', []))
+
+
 #le workflow de cette commande est le suivant :
 # - pour chaque ligue on recup les teams en format json
 # - pour chaque team on verifie si elle existe deja en base (en se basant sur le nom)
