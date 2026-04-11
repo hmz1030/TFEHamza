@@ -44,6 +44,10 @@ TARGET_LEAGUES = {
         'aliases': ('bundesliga',),
         'countries': ('germany',),
     },
+    'Champions League': {
+        'aliases': ('champions league', 'uefa champions league'),
+        'countries': ('europe',),
+    },
 }
 
 # Pays autorisés pour les 5 grands championnats (après normalisation)
