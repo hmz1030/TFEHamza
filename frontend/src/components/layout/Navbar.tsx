@@ -20,6 +20,9 @@ function Navbar() {
         <div className="flex items-center gap-3 sm:gap-4">
           {user ? (
             <>
+              <Link to="/pronostics" className="text-sm font-medium text-[var(--muted)] transition hover:text-[var(--text)]">
+                Pronostics
+              </Link>
               <span className="hidden rounded-full border border-[var(--line)] bg-white/[0.03] px-3 py-1.5 text-sm font-medium text-[var(--muted-strong)] sm:inline-flex">
                 {user.username}
               </span>
