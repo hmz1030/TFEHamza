@@ -5,6 +5,16 @@ import type { Match, Pronostic as PronosticType } from '../types'
 import { getMatches } from '../services/matchService'
 import { getMyActivity } from '../services/userService'
 
+function formatMatchDate(date: string) {
+  return new Intl.DateTimeFormat('fr-BE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(date))
+}
+
 function Pronostics() {
   const [matches, setMatches] = useState<Match[]>([])
   const [history, setHistory] = useState<PronosticType[]>([])
@@ -66,6 +76,30 @@ function Pronostics() {
                 <PronosticForm matchId={match.id} status={match.status} onCreated={refetchHistory} />
               </article>
             ))}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-[var(--text)]">Mes pronostics</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">Retrouve tes scores joues et les points gagnes.</p>
+          </div>
+
+          <div className="space-y-4">
+            {historyByDate.map((pronostic) => {
+              const match = matchById.get(pronostic.match)
+              return (
+                <article key={pronostic.id} className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-lg font-semibold text-[var(--text)]">{match ? `${match.home_team.name} vs ${match.away_team.name}` : `Match #${pronostic.match}`}</p>
+                      <p className="mt-2 text-sm text-[var(--muted)]">{match ? formatMatchDate(match.date) : formatMatchDate(pronostic.created_at)}</p>
+                    </div>
+                    <p className="text-lg font-black tracking-tight text-[var(--accent-strong)]">{pronostic.home_score} - {pronostic.away_score}</p>
+                  </div>
+                </article>
+              )
+            })}
           </div>
         </section>
       </div>
