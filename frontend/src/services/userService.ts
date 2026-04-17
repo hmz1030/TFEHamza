@@ -27,6 +27,11 @@ export interface ActivityData {
   }[]
 }
 
+export interface FavoriteClub {
+  id: number
+  team: Team
+}
+
 export const getMyActivity = () =>
   api.get<ActivityData>('/accounts/me/activity/')
 
@@ -37,7 +42,10 @@ export const unfollowUser = (followeeId: number) =>
   api.delete(`/accounts/unfollow/${followeeId}/`)
 
 export const addFavoriteClub = (teamId: number) =>
-  api.post<{ id: number; user: number; team: Team }>('/accounts/favorites/', { team: teamId })
+  api.post<{ id: number; user: number; team: Team }>('/accounts/favorites/add/', { team: teamId })
+
+export const getFavoriteClubs = () =>
+  api.get<FavoriteClub[]>('/accounts/favorites/')
 
 export const removeFavoriteClub = (teamId: number) =>
   api.delete(`/accounts/favorites/${teamId}/`)
