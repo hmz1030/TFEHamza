@@ -110,11 +110,13 @@ class DevSyncMatchesView(APIView):
             )
 
         try:
-            command_kwargs = {'stdout': stdout}
-            if target_date:
-                command_kwargs['date'] = target_date
-
-            call_command('sync_matches', **command_kwargs)
+            start_date = parse_date(target_date) if target_date else timezone.now().date()
+            for offset in range(days_ahead + 1):
+                command_kwargs = {
+                    'stdout': stdout,
+                    'date': (start_date + timedelta(days=offset)).isoformat(),
+                }
+                call_command('sync_matches', **command_kwargs)
         except Exception as exc:
             return Response(
                 {
