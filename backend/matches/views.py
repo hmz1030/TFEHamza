@@ -3,7 +3,9 @@ from io import StringIO
 from django.conf import settings
 from django.core.management import call_command
 from django.db import IntegrityError
-from django.db.models import Avg
+from django.contrib.auth import get_user_model
+from django.db.models import Avg, Sum
+from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
 from django.utils import timezone
@@ -13,6 +15,8 @@ from rest_framework.views import APIView
 from accounts.models import Badge
 from .models import Team, Player, Match, Rating, Vote, Pronostic
 from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer, PronosticSerializer
+
+User = get_user_model()
 
 def get_match_queryset():
     return Match.objects.annotate(
