@@ -22,6 +22,11 @@ function Profile() {
       .finally(() => setLoading(false))
   }, [])
 
+  const handleRemoveFavorite = async (teamId: number) => {
+    await removeFavoriteClub(teamId)
+    setFavorites((current) => current.filter((favorite) => favorite.team.id !== teamId))
+  }
+
   if (!user) return null
   if (loading) return <Loader label="Chargement du profil..." />
 
@@ -56,6 +61,23 @@ function Profile() {
             <p className="text-sm text-[var(--muted)]">Pronostics</p>
             <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.pronostics.length ?? 0}</p>
           </article>
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-[var(--text)]">Clubs favoris</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">Retrouve les equipes que tu suis de pres.</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {favorites.length === 0 ? (
+              <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
+                Aucun club favori pour le moment.
+              </div>
+            ) : favorites.map((favorite) => (
+              <FavoriteClubCard key={favorite.id} favorite={favorite} onRemove={handleRemoveFavorite} />
+            ))}
+          </div>
         </section>
       </div>
     </div>
