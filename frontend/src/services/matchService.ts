@@ -12,8 +12,11 @@ export const getMatchesByDate = (date: string) =>
 export const getTodayMatches = () =>
   api.get<Match[]>('/matches/today/')
 
-export const syncTodayMatches = (date?: string) =>
-  api.post<{ detail: string; output: string }>('/dev/sync-matches/', date ? { date } : {})
+export const syncTodayMatches = (date?: string, daysAhead = 0) =>
+  api.post<{ detail: string; output: string }>('/dev/sync-matches/', {
+    ...(date ? { date } : {}),
+    ...(daysAhead > 0 ? { days_ahead: daysAhead } : {}),
+  })
 
 export const syncMatchPlayers = (matchId: number) =>
   api.post<{ detail: string; output: string }>('/dev/sync-players/', { match_id: matchId })
