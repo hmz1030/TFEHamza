@@ -79,6 +79,28 @@ function Profile() {
             ))}
           </div>
         </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-[var(--text)]">Activite recente</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">Un apercu rapide de ce que tu as deja fait.</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+              <p className="text-sm font-semibold text-[var(--muted-strong)]">Dernieres notes</p>
+              <p className="mt-3 text-sm text-[var(--muted)]">{activity?.ratings.length ? `${activity.ratings.length} note(s) envoyee(s)` : 'Aucune note pour le moment.'}</p>
+            </article>
+            <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+              <p className="text-sm font-semibold text-[var(--muted-strong)]">Derniers votes</p>
+              <p className="mt-3 text-sm text-[var(--muted)]">{activity?.votes.length ? `${activity.votes.length} vote(s) MVP enregistre(s)` : 'Aucun vote pour le moment.'}</p>
+            </article>
+            <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+              <p className="text-sm font-semibold text-[var(--muted-strong)]">Derniers pronostics</p>
+              <p className="mt-3 text-sm text-[var(--muted)]">{activity?.pronostics.length ? `${activity.pronostics.length} pronostic(s) saisi(s)` : 'Aucun pronostic pour le moment.'}</p>
+            </article>
+          </div>
+        </section>
       </div>
     </div>
   )
