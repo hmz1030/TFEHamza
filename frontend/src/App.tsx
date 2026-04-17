@@ -7,6 +7,7 @@ import Leaderboard from './pages/Leaderboard'
 import Login from './pages/Login'
 import MatchDetail from './pages/MatchDetail'
 import Pronostics from './pages/Pronostics'
+import Profile from './pages/Profile'
 import Register from './pages/Register'
 import Loader from './components/ui/Loader'
 
@@ -31,6 +32,7 @@ function AppContent() {
           <Route path="/register" element={<Register />} />
           <Route path="/matches/:id" element={<MatchDetail />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/pronostics" element={<ProtectedRoute><Pronostics /></ProtectedRoute>} />
         </Routes>
       </main>
