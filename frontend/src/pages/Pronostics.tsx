@@ -94,10 +94,29 @@ function Pronostics() {
         ) : null}
 
         <section className="space-y-4">
-          <div>
-            <h2 className="text-2xl font-bold text-[var(--text)]">A venir</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">Pronostique rapidement les prochains matchs.</p>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold text-[var(--text)]">A venir</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">Pronostique rapidement les prochains matchs.</p>
+            </div>
+
+            {isDev ? (
+              <button
+                type="button"
+                onClick={handleSyncUpcoming}
+                disabled={syncLoading}
+                className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)] disabled:opacity-60"
+              >
+                {syncLoading ? 'Synchronisation...' : 'Sync 14 jours'}
+              </button>
+            ) : null}
           </div>
+
+          {syncMessage ? (
+            <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-4 text-sm text-[var(--muted-strong)]">
+              {syncMessage}
+            </div>
+          ) : null}
 
           <div className="space-y-4">
             {upcomingMatches.length === 0 ? (
