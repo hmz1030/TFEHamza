@@ -4,7 +4,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, UserSerializer, FollowSerializer, FavoriteClubSerializer
+from .serializers import RegisterSerializer, UserSerializer, FollowSerializer, FavoriteClubSerializer, FavoriteClubListSerializer
 from .models import Follow, FavoriteClub
 from matches.models import Rating, Vote, Pronostic
 from matches.serializers import RatingSerializer, VoteSerializer, PronosticSerializer
@@ -72,6 +72,14 @@ class FavoriteClubDeleteView(generics.DestroyAPIView):
 
     def get_object(self):
         return get_object_or_404(FavoriteClub, user=self.request.user, team_id=self.kwargs['team_id'])
+
+
+class FavoriteClubListView(generics.ListAPIView):
+    serializer_class = FavoriteClubListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return FavoriteClub.objects.filter(user=self.request.user).select_related('team')
 
 
 class MyActivityView(APIView):
