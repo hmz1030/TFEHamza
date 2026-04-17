@@ -22,6 +22,8 @@ function Pronostics() {
   const [matches, setMatches] = useState<Match[]>([])
   const [history, setHistory] = useState<PronosticType[]>([])
   const [loading, setLoading] = useState(true)
+  const [syncLoading, setSyncLoading] = useState(false)
+  const [syncMessage, setSyncMessage] = useState<string | null>(null)
   const [error, setError] = useState('')
 
   useEffect(() => {
