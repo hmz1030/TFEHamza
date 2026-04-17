@@ -7,11 +7,13 @@ export interface Badge {
   icon: string
 }
 
+export type BadgePreview = Pick<Badge, 'id' | 'name' | 'icon'>
+
 export interface User {
   id: number
   username: string
   email: string
-  badge: number | null
+  badge: BadgePreview | null
 }
 
 export interface Team {
@@ -74,11 +76,7 @@ export interface LeaderboardEntry {
   user: {
     id: number
     username: string
-    badge: null | {
-      id: number
-      name: string
-      icon: string
-    }
+    badge: BadgePreview | null
   }
   total_points: number
 }
