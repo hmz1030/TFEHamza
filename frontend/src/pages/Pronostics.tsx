@@ -63,6 +63,25 @@ function Pronostics() {
     setHistory(data.history)
   }
 
+  const handleSyncUpcoming = async () => {
+    setSyncLoading(true)
+    setSyncMessage(null)
+
+    try {
+      const response = await syncTodayMatches(undefined, 14)
+      await refetchHistory()
+      setSyncMessage(response.data.detail || 'Matchs a venir synchronises.')
+    } catch (syncError) {
+      if (axios.isAxiosError(syncError) && typeof syncError.response?.data?.detail === 'string') {
+        setSyncMessage(syncError.response.data.detail)
+      } else {
+        setSyncMessage('La synchronisation des prochains matchs a echoue.')
+      }
+    } finally {
+      setSyncLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-8">
