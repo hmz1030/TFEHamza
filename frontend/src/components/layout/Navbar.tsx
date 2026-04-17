@@ -18,6 +18,9 @@ function Navbar() {
         </Link>
 
         <div className="flex items-center gap-3 sm:gap-4">
+          <Link to="/leaderboard" className="text-sm font-medium text-[var(--muted)] transition hover:text-[var(--text)]">
+            Classement
+          </Link>
           {user ? (
             <>
               <Link to="/pronostics" className="text-sm font-medium text-[var(--muted)] transition hover:text-[var(--text)]">
