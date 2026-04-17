@@ -70,6 +70,19 @@ export interface Pronostic {
   created_at: string
 }
 
+export interface LeaderboardEntry {
+  user: {
+    id: number
+    username: string
+    badge: null | {
+      id: number
+      name: string
+      icon: string
+    }
+  }
+  total_points: number
+}
+
 // === Auth ===
 
 export interface AuthTokens {
