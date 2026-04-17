@@ -3,7 +3,7 @@ import re
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from .models import Follow, FavoriteClub
+from .models import Badge, Follow, FavoriteClub
 
 User = get_user_model()
 
@@ -51,7 +51,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+class BadgeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Badge
+        fields = ('id', 'name', 'min_rated_match', 'icon')
+        read_only_fields = fields
+
+
 class UserSerializer(serializers.ModelSerializer):
+    badge = BadgeSerializer(read_only=True)
+
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'badge')
