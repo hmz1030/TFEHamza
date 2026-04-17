@@ -36,6 +36,27 @@ function Profile() {
             <UserBadge badge={user.badge} />
           </div>
         </section>
+
+        {error ? (
+          <div className="rounded-[1.6rem] border border-[var(--danger)]/30 bg-[rgba(127,29,29,0.18)] p-4 text-sm text-[var(--danger)]">
+            {error}
+          </div>
+        ) : null}
+
+        <section className="grid gap-4 sm:grid-cols-3">
+          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+            <p className="text-sm text-[var(--muted)]">Notes</p>
+            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.ratings.length ?? 0}</p>
+          </article>
+          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+            <p className="text-sm text-[var(--muted)]">Votes MVP</p>
+            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.votes.length ?? 0}</p>
+          </article>
+          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+            <p className="text-sm text-[var(--muted)]">Pronostics</p>
+            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.pronostics.length ?? 0}</p>
+          </article>
+        </section>
       </div>
     </div>
   )
