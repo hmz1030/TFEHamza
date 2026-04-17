@@ -18,6 +18,14 @@ function formatMatchDate(date: string) {
   }).format(new Date(date))
 }
 
+async function loadPronosticsData() {
+  const [matchesResponse, activityResponse] = await Promise.all([getMatches(), getMyActivity()])
+  return {
+    matches: matchesResponse.data,
+    history: activityResponse.data.pronostics,
+  }
+}
+
 function Pronostics() {
   const [matches, setMatches] = useState<Match[]>([])
   const [history, setHistory] = useState<PronosticType[]>([])
@@ -27,10 +35,10 @@ function Pronostics() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    Promise.all([getMatches(), getMyActivity()])
-      .then(([matchesResponse, activityResponse]) => {
-        setMatches(matchesResponse.data)
-        setHistory(activityResponse.data.pronostics)
+    loadPronosticsData()
+      .then((data) => {
+        setMatches(data.matches)
+        setHistory(data.history)
       })
       .catch(() => setError("Impossible de charger les pronostics."))
       .finally(() => setLoading(false))
@@ -50,8 +58,9 @@ function Pronostics() {
   const matchById = new Map(matches.map((match) => [match.id, match]))
 
   const refetchHistory = async () => {
-    const activityResponse = await getMyActivity()
-    setHistory(activityResponse.data.pronostics)
+    const data = await loadPronosticsData()
+    setMatches(data.matches)
+    setHistory(data.history)
   }
 
   return (
