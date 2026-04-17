@@ -33,8 +33,10 @@ function Pronostics() {
 
   if (loading) return <Loader label="Chargement des pronostics..." />
 
+  const now = Date.now()
   const upcomingMatches = matches
     .filter((match) => match.status.toLowerCase() === 'scheduled')
+    .filter((match) => new Date(match.date).getTime() >= now)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
   const historyByDate = [...history]
