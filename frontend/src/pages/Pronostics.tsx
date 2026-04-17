@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
+import axios from 'axios'
 import PronosticForm from '../components/pronostic/PronosticForm'
 import Loader from '../components/ui/Loader'
 import type { Match, Pronostic as PronosticType } from '../types'
-import { getMatches } from '../services/matchService'
+import { getMatches, syncTodayMatches } from '../services/matchService'
 import { getMyActivity } from '../services/userService'
+
+const isDev = import.meta.env.DEV
 
 function formatMatchDate(date: string) {
   return new Intl.DateTimeFormat('fr-BE', {
