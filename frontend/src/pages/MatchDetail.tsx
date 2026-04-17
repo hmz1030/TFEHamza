@@ -113,7 +113,7 @@ function MatchDetail() {
                 disabled={syncingPlayers}
                 className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)] disabled:opacity-60"
               >
-                {syncingPlayers ? 'Sync des joueurs...' : 'Synchroniser les joueurs (dev)'}
+                {syncingPlayers ? 'Sync des joueurs...' : 'Synchron boutton dev'}
               </button>
             ) : null}
           </div>

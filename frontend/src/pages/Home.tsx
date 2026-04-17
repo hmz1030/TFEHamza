@@ -168,7 +168,7 @@ function Home() {
               >
                 {syncLoading
                   ? 'Synchronisation en cours...'
-                  : `Synchroniser le ${selectedDate} (dev)`}
+                  : `Synchron boutton dev`}
               </button>
             )}
           </div>
