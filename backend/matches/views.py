@@ -209,3 +209,27 @@ class VoteListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Vote.objects.filter(match_id=self.kwargs['match_id'])
+
+
+class LeaderboardView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        users = User.objects.filter(pronostics__isnull=False).select_related('badge').annotate(
+            total_points=Coalesce(Sum('pronostics__points'), 0)
+        ).order_by('-total_points', 'username').distinct()
+
+        data = [{
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'badge': None if not user.badge else {
+                    'id': user.badge.id,
+                    'name': user.badge.name,
+                    'icon': user.badge.icon,
+                },
+            },
+            'total_points': user.total_points,
+        } for user in users]
+
+        return Response(data)
