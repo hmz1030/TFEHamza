@@ -1,4 +1,5 @@
 import type { LeaderboardEntry } from '../../types'
+import UserBadge from '../user/UserBadge'
 
 interface LeaderboardTableProps {
   entries: LeaderboardEntry[]
@@ -26,9 +27,9 @@ function LeaderboardTable({ entries }: LeaderboardTableProps) {
             <span className="text-lg font-bold text-[var(--text)]">{index + 1}</span>
             <div>
               <p className="font-semibold text-[var(--text)]">{entry.user.username}</p>
-              {entry.user.badge ? (
-                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{entry.user.badge.name}</p>
-              ) : null}
+              <div className="mt-2">
+                <UserBadge badge={entry.user.badge} />
+              </div>
             </div>
             <span className="text-right text-lg font-black tracking-tight text-[var(--accent-strong)]">
               {entry.total_points}
