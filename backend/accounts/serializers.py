@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from .models import Badge, Follow, FavoriteClub
+from matches.serializers import TeamSerializer
 
 User = get_user_model()
 
@@ -77,3 +78,12 @@ class FavoriteClubSerializer(serializers.ModelSerializer):
         model = FavoriteClub
         fields = ('id', 'user', 'team')
         read_only_fields = ('user',)
+
+
+class FavoriteClubListSerializer(serializers.ModelSerializer):
+    team = TeamSerializer(read_only=True)
+
+    class Meta:
+        model = FavoriteClub
+        fields = ('id', 'team')
+        read_only_fields = fields
