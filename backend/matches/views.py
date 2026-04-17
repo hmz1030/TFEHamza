@@ -93,10 +93,19 @@ class DevSyncMatchesView(APIView):
 
         stdout = StringIO()
         target_date = request.data.get('date')
+        days_ahead = request.data.get('days_ahead', 0)
 
         if target_date and not parse_date(target_date):
             return Response(
                 {'detail': 'Le format de date attendu est YYYY-MM-DD.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            days_ahead = int(days_ahead)
+        except (TypeError, ValueError):
+            return Response(
+                {'detail': 'days_ahead doit etre un entier.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
