@@ -20,6 +20,19 @@ function LeaderboardTable({ entries }: LeaderboardTableProps) {
         <span>Joueur</span>
         <span className="text-right">Points</span>
       </div>
+      <div className="divide-y divide-[var(--line)]">
+        {entries.map((entry, index) => (
+          <div key={entry.user.id} className="grid grid-cols-[72px_1fr_120px] gap-4 px-5 py-4">
+            <span className="text-lg font-bold text-[var(--text)]">{index + 1}</span>
+            <div>
+              <p className="font-semibold text-[var(--text)]">{entry.user.username}</p>
+            </div>
+            <span className="text-right text-lg font-black tracking-tight text-[var(--accent-strong)]">
+              {entry.total_points}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
