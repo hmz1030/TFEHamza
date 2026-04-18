@@ -41,6 +41,12 @@ class MeView(generics.RetrieveAPIView):
         return self.request.user
 
 
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.select_related('badge')
+    serializer_class = PublicUserSerializer
+    permission_classes = [permissions.AllowAny]
+
+
 class FollowView(generics.CreateAPIView):
     serializer_class = FollowSerializer
     permission_classes = [permissions.IsAuthenticated]
