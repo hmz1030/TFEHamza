@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import FavoriteClubCard from '../components/user/FavoriteClubCard'
 import UserBadge from '../components/user/UserBadge'
 import Loader from '../components/ui/Loader'
 import { useAuth } from '../context/AuthContext'
 import { getFavoriteClubs, getMyActivity, removeFavoriteClub, type ActivityData, type FavoriteClub } from '../services/userService'
+import { getTeams } from '../services/teamService'
+import type { Team } from '../types'
 
 function Profile() {
   const { user } = useAuth()
