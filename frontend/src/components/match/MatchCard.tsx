@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Match } from '../../types'
+import { isFinished, isLive, isScheduled } from '../../utils/matchStatus'
 
 interface MatchCardProps {
   match: Match
@@ -13,9 +14,7 @@ function formatMatchTime(date: string) {
 }
 
 function getStatusConfig(status: string) {
-  const normalizedStatus = status.toLowerCase()
-
-  if (normalizedStatus.includes('live') || normalizedStatus.includes('direct') || normalizedStatus.includes('progress')) {
+  if (isLive(status)) {
     return {
       badge: 'En direct',
       badgeClasses: 'border-[rgba(121,182,141,0.24)] bg-[rgba(121,182,141,0.12)] text-[var(--success)]',
@@ -24,7 +23,7 @@ function getStatusConfig(status: string) {
     }
   }
 
-  if (normalizedStatus.includes('finish') || normalizedStatus.includes('term')) {
+  if (isFinished(status)) {
     return {
       badge: 'Terminé',
       badgeClasses: 'border-[var(--line)] bg-[rgba(255,255,255,0.04)] text-[var(--muted-strong)]',
@@ -60,7 +59,7 @@ function getRatingConfig(averageRating: number | null) {
 function MatchCard({ match }: MatchCardProps) {
   const { badge, badgeClasses, scoreAccent, showLiveDot } = getStatusConfig(match.status)
   const ratingConfig = getRatingConfig(match.average_rating)
-  const isScheduled = badge === 'À venir'
+  const scheduled = isScheduled(match.status)
 
   return (
     <Link
@@ -96,7 +95,7 @@ function MatchCard({ match }: MatchCardProps) {
         </div>
 
         <div className="min-w-[92px] text-center">
-          {isScheduled ? (
+          {scheduled ? (
             <>
               <div className="text-3xl font-bold text-[var(--text)]">
                 {formatMatchTime(match.date)}
@@ -153,3 +152,5 @@ function MatchCard({ match }: MatchCardProps) {
 }
 
 export default MatchCard
+
+
