@@ -20,10 +20,11 @@ function Profile() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    Promise.all([getFavoriteClubs(), getMyActivity()])
-      .then(([favoritesResponse, activityResponse]) => {
+    Promise.all([getFavoriteClubs(), getMyActivity(), getTeams()])
+      .then(([favoritesResponse, activityResponse, teamsResponse]) => {
         setFavorites(favoritesResponse.data)
         setActivity(activityResponse.data)
+        setTeams(teamsResponse.data)
       })
       .catch(() => setError('Impossible de charger le profil.'))
       .finally(() => setLoading(false))
