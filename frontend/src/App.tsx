@@ -9,6 +9,7 @@ import MatchDetail from './pages/MatchDetail'
 import Pronostics from './pages/Pronostics'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
+import UserPublic from './pages/UserPublic'
 import Loader from './components/ui/Loader'
 
 const AUTH_ROUTES = ['/login', '/register']
@@ -34,6 +35,7 @@ function AppContent() {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/pronostics" element={<ProtectedRoute><Pronostics /></ProtectedRoute>} />
+          <Route path="/users/:id" element={<UserPublic />} />
         </Routes>
       </main>
     </>
