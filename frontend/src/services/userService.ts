@@ -1,5 +1,5 @@
 import api from './api'
-import type { PublicUser, User, Team } from '../types'
+import type { PublicUser, Team } from '../types'
 
 export interface ActivityData {
   ratings: {
