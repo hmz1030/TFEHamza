@@ -16,6 +16,12 @@ export interface User {
   badge: BadgePreview | null
 }
 
+export interface PublicUser {
+  id: number
+  username: string
+  badge: BadgePreview | null
+}
+
 export interface Team {
   id: number
   name: string
