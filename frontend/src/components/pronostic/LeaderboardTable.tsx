@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
 import type { LeaderboardEntry } from '../../types'
 import UserBadge from '../user/UserBadge'
+import UserProfileLink from '../user/UserProfileLink'
 
 interface LeaderboardTableProps {
   entries: LeaderboardEntry[]
@@ -27,9 +27,9 @@ function LeaderboardTable({ entries }: LeaderboardTableProps) {
           <div key={entry.user.id} className="grid grid-cols-[72px_1fr_120px] gap-4 px-5 py-4">
             <span className="text-lg font-bold text-[var(--text)]">{index + 1}</span>
             <div>
-              <Link to={`/users/${entry.user.id}`} className="font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
+              <UserProfileLink userId={entry.user.id} className="font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
                 {entry.user.username}
-              </Link>
+              </UserProfileLink>
               <div className="mt-2">
                 <UserBadge badge={entry.user.badge} />
               </div>
