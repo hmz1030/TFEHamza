@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import UserBadge from '../components/user/UserBadge'
 import Loader from '../components/ui/Loader'
 import type { ActivityData } from '../services/userService'
+import { getMatches } from '../services/matchService'
 import { getUser, getUserActivity } from '../services/userService'
-import type { PublicUser } from '../types'
+import type { Match, PublicUser } from '../types'
 
 function UserPublic() {
   const { id } = useParams()
