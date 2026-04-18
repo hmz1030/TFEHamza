@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import PronosticForm from '../components/pronostic/PronosticForm'
 import PronosticList from '../components/pronostic/PronosticList'
+import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import ScoreBadge from '../components/match/ScoreBadge'
 import RatingForm from '../components/rating/RatingForm'
 import RatingList from '../components/rating/RatingList'
 import VoteForm from '../components/vote/VoteForm'
 import VoteResults from '../components/vote/VoteResults'
 import Loader from '../components/ui/Loader'
+import { useAuth } from '../context/AuthContext'
 import { useMatch } from '../hooks/useMatch'
 import { useMatchPlayers } from '../hooks/useMatchPlayers'
 import { syncMatchPlayers } from '../services/matchService'
@@ -25,6 +27,7 @@ function formatMatchDate(date: string) {
 }
 
 function MatchDetail() {
+  const { user } = useAuth()
   const { id } = useParams()
   const matchId = Number(id)
   const { match, ratings, votes, pronostics, loading, error, refetch } = useMatch(matchId)
@@ -50,6 +53,8 @@ function MatchDetail() {
       setSyncingPlayers(false)
     }
   }
+
+  const myPronostic = pronostics.find((pronostic) => pronostic.user === user?.id)
 
   return (
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
@@ -90,7 +95,11 @@ function MatchDetail() {
 
         <section id="pronostics" className="space-y-4">
           <h2 className="text-3xl font-bold text-[var(--text)]">Pronostics</h2>
-          <PronosticForm matchId={match.id} status={match.status} onCreated={refetch} />
+          {myPronostic ? (
+            <PronosticSummaryCard pronostic={myPronostic} match={match} title="Ton pronostic" />
+          ) : (
+            <PronosticForm matchId={match.id} status={match.status} onCreated={refetch} />
+          )}
           <PronosticList pronostics={pronostics} />
         </section>
 
