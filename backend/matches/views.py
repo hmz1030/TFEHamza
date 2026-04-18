@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from rest_framework import generics, permissions, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import Badge
@@ -167,7 +168,7 @@ class RatingCreateView(generics.CreateAPIView):
             serializer.save(user=self.request.user)
             #integrity error : permet de lever une exception si une erreur db est levée
         except IntegrityError:
-            raise generics.ValidationError("Vous avez déjà noté ce match.")
+            raise ValidationError("Vous avez déjà noté ce match.")
 
         # apres chaque rating, on check si le user merite un nouveau badge
         user = self.request.user
@@ -187,7 +188,7 @@ class VoteCreateView(generics.CreateAPIView):
         try:
             serializer.save(user=self.request.user)
         except IntegrityError:
-            raise generics.ValidationError("Vous avez déjà voté pour ce match.")
+            raise ValidationError("Vous avez déjà voté pour ce match.")
 
 
 class PronosticCreateView(generics.CreateAPIView):
@@ -198,7 +199,7 @@ class PronosticCreateView(generics.CreateAPIView):
         try:
             serializer.save(user=self.request.user)
         except IntegrityError:
-            raise generics.ValidationError("Vous avez déjà pronostiqué ce match.")
+            raise ValidationError("Vous avez déjà pronostiqué ce match.")
 
 
 class PronosticListView(generics.ListAPIView):

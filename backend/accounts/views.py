@@ -2,6 +2,7 @@ from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -55,7 +56,7 @@ class FollowView(generics.CreateAPIView):
         try:
             serializer.save(follower=self.request.user)
         except IntegrityError:
-            raise generics.ValidationError("Vous suivez déjà cet utilisateur.")
+            raise ValidationError("Vous suivez déjà cet utilisateur.")
 
 
 class UnfollowView(generics.DestroyAPIView):
@@ -73,7 +74,7 @@ class FavoriteClubCreateView(generics.CreateAPIView):
         try:
             serializer.save(user=self.request.user)
         except IntegrityError:
-            raise generics.ValidationError("Ce club est déjà dans vos favoris.")
+            raise ValidationError("Ce club est déjà dans vos favoris.")
 
 
 class FavoriteClubDeleteView(generics.DestroyAPIView):
