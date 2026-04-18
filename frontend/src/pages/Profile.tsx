@@ -104,7 +104,7 @@ function Profile() {
           </div>
         ) : null}
 
-        <section className="grid gap-4 sm:grid-cols-3">
+        <section className="grid gap-4 sm:grid-cols-4">
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm text-[var(--muted)]">Notes</p>
             <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.ratings.length ?? 0}</p>
@@ -116,6 +116,10 @@ function Profile() {
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm text-[var(--muted)]">Pronostics</p>
             <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.pronostics.length ?? 0}</p>
+          </article>
+          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+            <p className="text-sm text-[var(--muted)]">Points</p>
+            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{totalPoints}</p>
           </article>
         </section>
 
