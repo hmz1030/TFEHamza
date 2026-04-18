@@ -109,6 +109,31 @@ function Profile() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
+            {showClubPicker ? (
+              <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-4 md:col-span-2">
+                <input
+                  type="text"
+                  value={teamQuery}
+                  onChange={(event) => setTeamQuery(event.target.value)}
+                  placeholder="Rechercher une equipe..."
+                  className="w-full rounded-[1rem] border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent)]"
+                />
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {filteredTeams.map((team) => (
+                    <button
+                      key={team.id}
+                      type="button"
+                      disabled={addingFavorite}
+                      onClick={() => handleAddFavorite(team)}
+                      className="flex items-center justify-between rounded-[1rem] border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-left text-sm text-[var(--text)] transition hover:border-[var(--line-strong)] disabled:opacity-60"
+                    >
+                      <span>{team.name}</span>
+                      <span className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{team.league}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             {favorites.length === 0 ? (
               <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
                 Aucun club favori pour le moment.
