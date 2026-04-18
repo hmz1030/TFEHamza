@@ -32,6 +32,10 @@ function UserPublic() {
     () => activity?.pronostics.reduce((sum, pronostic) => sum + (pronostic.points ?? 0), 0) ?? 0,
     [activity],
   )
+  const matchById = useMemo(
+    () => new Map(matches.map((match) => [match.id, match])),
+    [matches],
+  )
 
   if (loading) return <Loader label="Chargement du profil..." />
   if (error || !user) return <div className="px-4 py-10 text-center text-[var(--danger)]">{error || 'Profil introuvable.'}</div>
@@ -52,6 +56,28 @@ function UserPublic() {
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Votes MVP</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.votes.length ?? 0}</p></article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Pronostics</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.pronostics.length ?? 0}</p></article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Points</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{totalPoints}</p></article>
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-[var(--text)]">Pronostics récents</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">Retrouve ses derniers scores joués et les résultats des matchs.</p>
+          </div>
+
+          <div className="space-y-4">
+            {activity?.pronostics.length ? activity.pronostics.map((pronostic) => (
+              <PronosticSummaryCard
+                key={pronostic.id}
+                pronostic={pronostic}
+                match={matchById.get(pronostic.match)}
+                title={`${user.username} a joué`}
+              />
+            )) : (
+              <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
+                Aucun pronostic visible pour le moment.
+              </div>
+            )}
+          </div>
         </section>
       </div>
     </div>
