@@ -163,19 +163,17 @@ function Profile() {
             <p className="mt-1 text-sm text-[var(--muted)]">Un apercu rapide de ce que tu as deja fait.</p>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-              <p className="text-sm font-semibold text-[var(--muted-strong)]">Dernieres notes</p>
-              <p className="mt-3 text-sm text-[var(--muted)]">{activity?.ratings.length ? `${activity.ratings.length} note(s) envoyee(s)` : 'Aucune note pour le moment.'}</p>
-            </article>
-            <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-              <p className="text-sm font-semibold text-[var(--muted-strong)]">Derniers votes</p>
-              <p className="mt-3 text-sm text-[var(--muted)]">{activity?.votes.length ? `${activity.votes.length} vote(s) MVP enregistre(s)` : 'Aucun vote pour le moment.'}</p>
-            </article>
-            <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-              <p className="text-sm font-semibold text-[var(--muted-strong)]">Derniers pronostics</p>
-              <p className="mt-3 text-sm text-[var(--muted)]">{activity?.pronostics.length ? `${activity.pronostics.length} pronostic(s) saisi(s)` : 'Aucun pronostic pour le moment.'}</p>
-            </article>
+          <div className="flex flex-wrap gap-3">
+            <button type="button" onClick={() => setActiveTab('ratings')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'ratings' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes notes</button>
+            <button type="button" onClick={() => setActiveTab('votes')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'votes' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes votes</button>
+            <button type="button" onClick={() => setActiveTab('pronostics')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'pronostics' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes pronostics</button>
+          </div>
+
+          <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+            <p className="text-sm font-semibold text-[var(--muted-strong)]">
+              {activeTab === 'ratings' ? 'Dernieres notes' : activeTab === 'votes' ? 'Derniers votes' : 'Derniers pronostics'}
+            </p>
+            <p className="mt-3 text-sm text-[var(--muted)]">{activityLabel}</p>
           </div>
         </section>
       </div>
