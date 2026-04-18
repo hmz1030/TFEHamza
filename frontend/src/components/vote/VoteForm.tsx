@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import { getMatchPlayers } from '../../services/matchService'
 import { createVote } from '../../services/voteService'
 import type { Match, Player } from '../../types'
+import { isFinished } from '../../utils/matchStatus'
 
 interface VoteFormProps {
   match: Match
@@ -17,7 +18,7 @@ function VoteForm({ match, players: initialPlayers = [], onCreated }: VoteFormPr
   const [loading, setLoading] = useState(false)
   const [loadingPlayers, setLoadingPlayers] = useState(true)
   const [error, setError] = useState('')
-  const isFinished = match.status.toLowerCase().includes('finish')
+  const finished = isFinished(match.status)
 
   useEffect(() => {
     if (initialPlayers.length > 0) {
@@ -27,7 +28,7 @@ function VoteForm({ match, players: initialPlayers = [], onCreated }: VoteFormPr
       return
     }
 
-    if (!user || !isFinished || initialPlayers.length > 0) return
+    if (!user || !finished || initialPlayers.length > 0) return
     let active = true
     void getMatchPlayers(match.id).then(({ data }) => {
       if (!active) return
@@ -36,9 +37,9 @@ function VoteForm({ match, players: initialPlayers = [], onCreated }: VoteFormPr
       setLoadingPlayers(false)
     }).catch(() => active && (setError('Impossible de charger les joueurs.'), setLoadingPlayers(false)))
     return () => { active = false }
-  }, [initialPlayers.length, isFinished, match.id, user])
+  }, [finished, initialPlayers.length, match.id, user])
 
-  if (!user || !isFinished) return null
+  if (!user || !finished) return null
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
