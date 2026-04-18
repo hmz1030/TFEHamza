@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { Pronostic } from '../../types'
 
 interface PronosticListProps {
@@ -29,7 +30,9 @@ function PronosticList({ pronostics }: PronosticListProps) {
         <article key={pronostic.id} className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-[var(--text)]">{pronostic.user_username}</p>
+              <Link to={`/users/${pronostic.user}`} className="text-sm font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
+                {pronostic.user_username}
+              </Link>
               <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{formatPronosticDate(pronostic.created_at)}</p>
             </div>
             <div className="text-right">
