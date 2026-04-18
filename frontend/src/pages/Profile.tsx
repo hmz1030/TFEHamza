@@ -13,6 +13,7 @@ function Profile() {
   const { user } = useAuth()
   const [favorites, setFavorites] = useState<FavoriteClub[]>([])
   const [activity, setActivity] = useState<ActivityData | null>(null)
+  const [matches, setMatches] = useState<Match[]>([])
   const [teams, setTeams] = useState<Team[]>([])
   const [loading, setLoading] = useState(true)
   const [addingFavorite, setAddingFavorite] = useState(false)
@@ -22,11 +23,12 @@ function Profile() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    Promise.all([getFavoriteClubs(), getMyActivity(), getTeams()])
-      .then(([favoritesResponse, activityResponse, teamsResponse]) => {
+    Promise.all([getFavoriteClubs(), getMyActivity(), getTeams(), getMatches()])
+      .then(([favoritesResponse, activityResponse, teamsResponse, matchesResponse]) => {
         setFavorites(favoritesResponse.data)
         setActivity(activityResponse.data)
         setTeams(teamsResponse.data)
+        setMatches(matchesResponse.data)
       })
       .catch(() => setError('Impossible de charger le profil.'))
       .finally(() => setLoading(false))
