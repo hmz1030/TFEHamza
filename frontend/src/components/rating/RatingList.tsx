@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
 import type { Rating } from '../../types'
+import UserProfileLink from '../user/UserProfileLink'
 
 interface RatingListProps {
   ratings: Rating[]
@@ -33,9 +33,9 @@ function RatingList({ ratings }: RatingListProps) {
         <article key={rating.id} className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <Link to={`/users/${rating.user}`} className="text-sm font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
+              <UserProfileLink userId={rating.user} className="text-sm font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
                 {rating.user_username}
-              </Link>
+              </UserProfileLink>
               <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">
                 {formatRatingDate(rating.created_at)}
               </p>
