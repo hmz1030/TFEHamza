@@ -61,6 +61,15 @@ function Profile() {
       .slice(0, 8)
   }, [favoriteTeamIds, teamQuery, teams])
 
+  const matchById = useMemo(
+    () => new Map(matches.map((match) => [match.id, match])),
+    [matches],
+  )
+  const totalPoints = useMemo(
+    () => activity?.pronostics.reduce((sum, pronostic) => sum + (pronostic.points ?? 0), 0) ?? 0,
+    [activity],
+  )
+
   const activityLabel =
     activeTab === 'ratings'
       ? activity?.ratings.length
