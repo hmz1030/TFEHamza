@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { createRating } from '../../services/ratingService'
+import { isFinished } from '../../utils/matchStatus'
 
 interface RatingFormProps {
   matchId: number
@@ -15,7 +16,7 @@ function RatingForm({ matchId, status, onCreated }: RatingFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  if (!user || status.toLowerCase() !== 'finished') return null
+  if (!user || !isFinished(status)) return null
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
