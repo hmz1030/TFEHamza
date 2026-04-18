@@ -94,9 +94,18 @@ function Profile() {
         </section>
 
         <section className="space-y-4">
-          <div>
-            <h2 className="text-2xl font-bold text-[var(--text)]">Clubs favoris</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">Retrouve les equipes que tu suis de pres.</p>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold text-[var(--text)]">Clubs favoris</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">Retrouve les equipes que tu suis de pres.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowClubPicker((current) => !current)}
+              className="rounded-full bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--bg-deep)] transition hover:bg-[var(--accent-strong)]"
+            >
+              {showClubPicker ? 'Fermer' : 'Ajouter'}
+            </button>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
