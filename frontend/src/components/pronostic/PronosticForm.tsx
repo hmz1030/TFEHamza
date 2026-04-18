@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { createPronostic } from '../../services/pronosticService'
+import { isScheduled } from '../../utils/matchStatus'
 
 interface PronosticFormProps {
   matchId: number
@@ -15,7 +16,7 @@ function PronosticForm({ matchId, status, onCreated }: PronosticFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  if (!user || status.toLowerCase() !== 'scheduled') return null
+  if (!user || !isScheduled(status)) return null
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
