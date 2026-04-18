@@ -1,5 +1,5 @@
 import api from './api'
-import type { User, Team } from '../types'
+import type { PublicUser, User, Team } from '../types'
 
 export interface ActivityData {
   ratings: {
@@ -51,4 +51,7 @@ export const removeFavoriteClub = (teamId: number) =>
   api.delete(`/accounts/favorites/${teamId}/`)
 
 export const getUser = (userId: number) =>
-  api.get<User>(`/accounts/users/${userId}/`)
+  api.get<PublicUser>(`/accounts/users/${userId}/`)
+
+export const getUserActivity = (userId: number) =>
+  api.get<ActivityData>(`/accounts/users/${userId}/activity/`)
