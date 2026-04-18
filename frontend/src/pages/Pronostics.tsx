@@ -5,6 +5,7 @@ import Loader from '../components/ui/Loader'
 import type { Match, Pronostic as PronosticType } from '../types'
 import { getMatches, syncTodayMatches } from '../services/matchService'
 import { getMyActivity } from '../services/userService'
+import { isScheduled } from '../utils/matchStatus'
 
 const isDev = import.meta.env.DEV
 
@@ -48,7 +49,7 @@ function Pronostics() {
 
   const now = Date.now()
   const upcomingMatches = matches
-    .filter((match) => match.status.toLowerCase() === 'scheduled')
+    .filter((match) => isScheduled(match.status))
     .filter((match) => new Date(match.date).getTime() >= now)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
