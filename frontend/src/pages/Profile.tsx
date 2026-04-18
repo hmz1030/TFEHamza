@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import FavoriteClubCard from '../components/user/FavoriteClubCard'
+import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import UserBadge from '../components/user/UserBadge'
 import Loader from '../components/ui/Loader'
 import { useAuth } from '../context/AuthContext'
 import { addFavoriteClub, getFavoriteClubs, getMyActivity, removeFavoriteClub, type ActivityData, type FavoriteClub } from '../services/userService'
+import { getMatches } from '../services/matchService'
 import { getTeams } from '../services/teamService'
-import type { Team } from '../types'
+import type { Match, Team } from '../types'
 
 function Profile() {
   const { user } = useAuth()
