@@ -104,3 +104,15 @@ class MyActivityView(APIView):
             'votes': VoteSerializer(Vote.objects.filter(user=user), many=True).data,
             'pronostics': PronosticSerializer(Pronostic.objects.filter(user=user), many=True).data,
         })
+
+
+class UserActivityView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, user_id):
+        user = get_object_or_404(User, pk=user_id)
+        return Response({
+            'ratings': RatingSerializer(Rating.objects.filter(user=user), many=True).data,
+            'votes': VoteSerializer(Vote.objects.filter(user=user), many=True).data,
+            'pronostics': PronosticSerializer(Pronostic.objects.filter(user=user), many=True).data,
+        })
