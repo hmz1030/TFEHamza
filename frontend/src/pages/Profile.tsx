@@ -11,7 +11,12 @@ function Profile() {
   const { user } = useAuth()
   const [favorites, setFavorites] = useState<FavoriteClub[]>([])
   const [activity, setActivity] = useState<ActivityData | null>(null)
+  const [teams, setTeams] = useState<Team[]>([])
   const [loading, setLoading] = useState(true)
+  const [addingFavorite, setAddingFavorite] = useState(false)
+  const [showClubPicker, setShowClubPicker] = useState(false)
+  const [teamQuery, setTeamQuery] = useState('')
+  const [activeTab, setActiveTab] = useState<'ratings' | 'votes' | 'pronostics'>('ratings')
   const [error, setError] = useState('')
 
   useEffect(() => {
