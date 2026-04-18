@@ -67,6 +67,15 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'badge')
         read_only_fields = fields
 
+
+class PublicUserSerializer(serializers.ModelSerializer):
+    badge = BadgeSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'badge')
+        read_only_fields = fields
+
 class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
