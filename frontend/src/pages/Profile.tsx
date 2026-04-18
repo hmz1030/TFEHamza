@@ -39,7 +39,7 @@ function Profile() {
     setAddingFavorite(true)
     try {
       const response = await addFavoriteClub(team.id)
-      setFavorites((current) => [...current, { id: response.data.id, team: response.data.team }])
+      setFavorites((current) => [...current, { id: response.data.id, team }])
       setShowClubPicker(false)
       setTeamQuery('')
     } finally {
