@@ -47,6 +47,16 @@ function Profile() {
     }
   }
 
+  const favoriteTeamIds = new Set(favorites.map((favorite) => favorite.team.id))
+  const filteredTeams = useMemo(() => {
+    const query = teamQuery.trim().toLowerCase()
+
+    return teams
+      .filter((team) => !favoriteTeamIds.has(team.id))
+      .filter((team) => !query || team.name.toLowerCase().includes(query))
+      .slice(0, 8)
+  }, [favoriteTeamIds, teamQuery, teams])
+
   if (!user) return null
   if (loading) return <Loader label="Chargement du profil..." />
 
