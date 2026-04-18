@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import PronosticForm from '../components/pronostic/PronosticForm'
+import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import Loader from '../components/ui/Loader'
 import type { Match, Pronostic as PronosticType } from '../types'
+import { useAuth } from '../context/AuthContext'
 import { getMatches, syncTodayMatches } from '../services/matchService'
 import { getMyActivity } from '../services/userService'
 import { isScheduled } from '../utils/matchStatus'
@@ -28,6 +30,7 @@ async function loadPronosticsData() {
 }
 
 function Pronostics() {
+  const { user } = useAuth()
   const [matches, setMatches] = useState<Match[]>([])
   const [history, setHistory] = useState<PronosticType[]>([])
   const [loading, setLoading] = useState(true)
@@ -57,6 +60,7 @@ function Pronostics() {
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
   const matchById = new Map(matches.map((match) => [match.id, match]))
+  const myPronosticByMatchId = new Map(history.map((pronostic) => [pronostic.match, pronostic]))
 
   const refetchHistory = async () => {
     const data = await loadPronosticsData()
@@ -132,7 +136,11 @@ function Pronostics() {
                     <p className="mt-2 text-lg font-semibold text-[var(--text)]">{match.home_team.name} vs {match.away_team.name}</p>
                   </div>
                 </div>
-                <PronosticForm matchId={match.id} status={match.status} onCreated={refetchHistory} />
+                {myPronosticByMatchId.get(match.id) ? (
+                  <PronosticSummaryCard pronostic={myPronosticByMatchId.get(match.id)!} match={match} title={user ? 'Pronostic déjà envoyé' : undefined} />
+                ) : (
+                  <PronosticForm matchId={match.id} status={match.status} onCreated={refetchHistory} />
+                )}
               </article>
             ))}
           </div>
@@ -152,18 +160,10 @@ function Pronostics() {
             ) : historyByDate.map((pronostic) => {
               const match = matchById.get(pronostic.match)
               return (
-                <article key={pronostic.id} className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-lg font-semibold text-[var(--text)]">{match ? `${match.home_team.name} vs ${match.away_team.name}` : `Match #${pronostic.match}`}</p>
-                      <p className="mt-2 text-sm text-[var(--muted)]">{match ? formatMatchDate(match.date) : formatMatchDate(pronostic.created_at)}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-lg font-black tracking-tight text-[var(--accent-strong)]">{pronostic.home_score} - {pronostic.away_score}</p>
-                      <p className="mt-2 text-xs font-medium text-[var(--muted)]">{pronostic.points === null ? 'Points en attente' : `${pronostic.points} point${pronostic.points > 1 ? 's' : ''}`}</p>
-                    </div>
-                  </div>
-                </article>
+                <div key={pronostic.id} className="space-y-2">
+                  <p className="text-sm text-[var(--muted)]">{match ? formatMatchDate(match.date) : formatMatchDate(pronostic.created_at)}</p>
+                  <PronosticSummaryCard pronostic={pronostic} match={match} title="Ton pronostic" />
+                </div>
               )
             })}
           </div>
