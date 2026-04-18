@@ -57,6 +57,19 @@ function Profile() {
       .slice(0, 8)
   }, [favoriteTeamIds, teamQuery, teams])
 
+  const activityLabel =
+    activeTab === 'ratings'
+      ? activity?.ratings.length
+        ? `${activity.ratings.length} note(s) envoyee(s)`
+        : 'Aucune note pour le moment.'
+      : activeTab === 'votes'
+        ? activity?.votes.length
+          ? `${activity.votes.length} vote(s) MVP enregistre(s)`
+          : 'Aucun vote pour le moment.'
+        : activity?.pronostics.length
+          ? `${activity.pronostics.length} pronostic(s) saisi(s)`
+          : 'Aucun pronostic pour le moment.'
+
   if (!user) return null
   if (loading) return <Loader label="Chargement du profil..." />
 
