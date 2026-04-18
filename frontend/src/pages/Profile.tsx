@@ -190,7 +190,20 @@ function Profile() {
             <p className="text-sm font-semibold text-[var(--muted-strong)]">
               {activeTab === 'ratings' ? 'Dernieres notes' : activeTab === 'votes' ? 'Derniers votes' : 'Derniers pronostics'}
             </p>
-            <p className="mt-3 text-sm text-[var(--muted)]">{activityLabel}</p>
+            {activeTab === 'pronostics' && activity?.pronostics.length ? (
+              <div className="mt-4 space-y-4">
+                {activity.pronostics.map((pronostic) => (
+                  <PronosticSummaryCard
+                    key={pronostic.id}
+                    pronostic={pronostic}
+                    match={matchById.get(pronostic.match)}
+                    title="Pronostic envoyé"
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-sm text-[var(--muted)]">{activityLabel}</p>
+            )}
           </div>
         </section>
       </div>
