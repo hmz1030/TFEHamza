@@ -13,14 +13,16 @@ function UserPublic() {
   const userId = Number(id)
   const [user, setUser] = useState<PublicUser | null>(null)
   const [activity, setActivity] = useState<ActivityData | null>(null)
+  const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    Promise.all([getUser(userId), getUserActivity(userId)])
-      .then(([userResponse, activityResponse]) => {
+    Promise.all([getUser(userId), getUserActivity(userId), getMatches()])
+      .then(([userResponse, activityResponse, matchesResponse]) => {
         setUser(userResponse.data)
         setActivity(activityResponse.data)
+        setMatches(matchesResponse.data)
       })
       .catch(() => setError("Impossible de charger ce profil."))
       .finally(() => setLoading(false))
