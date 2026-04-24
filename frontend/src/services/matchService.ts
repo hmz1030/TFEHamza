@@ -21,6 +21,27 @@ export const syncTodayMatches = (date?: string, daysAhead = 0) =>
 export const syncMatchPlayers = (matchId: number) =>
   api.post<{ detail: string; output: string }>('/dev/sync-players/', { match_id: matchId })
 
+export const syncLiveScores = (date?: string, force = false) =>
+  api.post<{ detail: string; output: string }>('/dev/sync-live-scores/', {
+    ...(date ? { date } : {}),
+    ...(force ? { force: true } : {}),
+  })
+
+export const syncLineups = (options?: {
+  matchId?: number
+  all?: boolean
+  windowBeforeHours?: number
+  recentHours?: number
+}) =>
+  api.post<{ detail: string; output: string }>('/dev/sync-lineups/', {
+    ...(options?.matchId ? { match_id: options.matchId } : {}),
+    ...(options?.all ? { all: true } : {}),
+    ...(options?.windowBeforeHours !== undefined
+      ? { window_before_hours: options.windowBeforeHours }
+      : {}),
+    ...(options?.recentHours !== undefined ? { recent_hours: options.recentHours } : {}),
+  })
+
 export const getMatch = (id: number) =>
   api.get<Match>(`/matches/${id}/`)
 

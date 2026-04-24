@@ -38,6 +38,7 @@ class Match(models.Model):
     away_score = models.IntegerField(default=0)
     status = models.CharField(max_length=20, default='scheduled')
     mvp = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, blank=True, related_name='mvp_matches')
+    lineup_synced_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         db_table = 'match'

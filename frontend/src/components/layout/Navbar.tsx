@@ -46,7 +46,7 @@ function Navbar() {
               </Link>
               <Link
                 to="/register"
-                className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--bg-deep)] transition hover:bg-[var(--accent-strong)]"
+                className="rounded-full bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--bg-deep)] no-underline transition hover:bg-[var(--accent-strong)] hover:text-[var(--bg-deep)] hover:no-underline"
               >
                 Inscription
               </Link>

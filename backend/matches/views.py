@@ -1,5 +1,4 @@
 from io import StringIO
-from datetime import timedelta
 
 from django.conf import settings
 from django.core.management import call_command
@@ -21,9 +20,12 @@ from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, Rati
 User = get_user_model()
 
 def get_match_queryset():
-    return Match.objects.annotate(
-        average_rating=Avg('ratings__score')
-    ).order_by('date')
+    return (
+        Match.objects
+        .select_related('home_team', 'away_team', 'mvp')
+        .annotate(average_rating=Avg('ratings__score'))
+        .order_by('date')
+    )
 
 
 class TeamListView(generics.ListAPIView):
@@ -110,14 +112,22 @@ class DevSyncMatchesView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        if days_ahead < 0 or days_ahead > 21:
+            return Response(
+                {'detail': 'days_ahead doit etre compris entre 0 et 21.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         try:
             start_date = parse_date(target_date) if target_date else timezone.now().date()
-            for offset in range(days_ahead + 1):
-                command_kwargs = {
-                    'stdout': stdout,
-                    'date': (start_date + timedelta(days=offset)).isoformat(),
-                }
-                call_command('sync_matches', **command_kwargs)
+            command_kwargs = {
+                'stdout': stdout,
+                'date': start_date.isoformat(),
+                'days_ahead': days_ahead,
+            }
+            if request.data.get('delete_missing'):
+                command_kwargs['delete_missing'] = True
+            call_command('sync_matches', **command_kwargs)
         except Exception as exc:
             return Response(
                 {
@@ -157,6 +167,82 @@ class DevSyncPlayersView(APIView):
             return Response({'detail': str(exc), 'output': stdout.getvalue()}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({'detail': 'Synchronisation des joueurs terminee.', 'output': stdout.getvalue()}, status=status.HTTP_200_OK)
+
+
+class DevSyncLiveScoresView(APIView):
+    """Refresh ultra-leger : scores + statuts des matchs d'une date."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        if not settings.DEBUG:
+            return Response(
+                {'detail': 'Cet endpoint est disponible uniquement en mode développement.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        stdout = StringIO()
+        command_kwargs = {'stdout': stdout}
+
+        target_date = request.data.get('date')
+        if target_date and not parse_date(target_date):
+            return Response(
+                {'detail': 'Le format de date attendu est YYYY-MM-DD.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if target_date:
+            command_kwargs['date'] = target_date
+        if request.data.get('force'):
+            command_kwargs['force'] = True
+
+        try:
+            call_command('sync_live_scores', **command_kwargs)
+        except Exception as exc:
+            return Response(
+                {'detail': 'Le refresh live a echoue.', 'error': str(exc), 'output': stdout.getvalue()},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(
+            {'detail': 'Refresh live termine.', 'output': stdout.getvalue()},
+            status=status.HTTP_200_OK,
+        )
+
+
+class DevSyncLineupsView(APIView):
+    """Sync des lineups sur la fenetre utile (live / imminents / recents)."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        if not settings.DEBUG:
+            return Response(
+                {'detail': 'Cet endpoint est disponible uniquement en mode développement.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        stdout = StringIO()
+        command_kwargs = {'stdout': stdout}
+
+        if request.data.get('match_id'):
+            command_kwargs['match_id'] = request.data['match_id']
+        if request.data.get('all'):
+            command_kwargs['all'] = True
+        if request.data.get('window_before_hours') is not None:
+            command_kwargs['window_before_hours'] = int(request.data['window_before_hours'])
+        if request.data.get('recent_hours') is not None:
+            command_kwargs['recent_hours'] = int(request.data['recent_hours'])
+
+        try:
+            call_command('sync_lineups', **command_kwargs)
+        except Exception as exc:
+            return Response(
+                {'detail': 'La sync des lineups a echoue.', 'error': str(exc), 'output': stdout.getvalue()},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(
+            {'detail': 'Sync des lineups terminee.', 'output': stdout.getvalue()},
+            status=status.HTTP_200_OK,
+        )
 
 
 class RatingCreateView(generics.CreateAPIView):

@@ -7,6 +7,16 @@ interface PronosticSummaryCardProps {
   title?: string
 }
 
+function formatMatchDate(date: string) {
+  return new Intl.DateTimeFormat('fr-BE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(date))
+}
+
 function PronosticSummaryCard({ pronostic, match, title }: PronosticSummaryCardProps) {
   const hasFinalScore = typeof match?.home_score === 'number' && typeof match?.away_score === 'number'
   const showFinalScore = hasFinalScore && isFinished(match?.status ?? '')
@@ -17,9 +27,14 @@ function PronosticSummaryCard({ pronostic, match, title }: PronosticSummaryCardP
         <div>
           <p className="text-sm font-semibold text-[var(--muted-strong)]">{title || pronostic.user_username}</p>
           {match ? (
-            <p className="mt-2 text-lg font-semibold text-[var(--text)]">
-              {match.home_team.name} vs {match.away_team.name}
-            </p>
+            <>
+              <p className="mt-2 text-lg font-semibold text-[var(--text)]">
+                {match.home_team.name} vs {match.away_team.name}
+              </p>
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                {formatMatchDate(match.date)}
+              </p>
+            </>
           ) : null}
         </div>
         <div className="text-right">
