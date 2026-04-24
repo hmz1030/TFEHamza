@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext'
 import { createRating } from '../../services/ratingService'
 import { isFinished } from '../../utils/matchStatus'
@@ -27,8 +28,11 @@ function RatingForm({ matchId, status, onCreated }: RatingFormProps) {
       setComment('')
       setScore(7)
       await onCreated?.()
+      toast.success('Note publiee.')
     } catch {
-      setError("Impossible d'envoyer la note.")
+      const message = "Impossible d'envoyer la note."
+      setError(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }

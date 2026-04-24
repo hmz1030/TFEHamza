@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext'
 import { createPronostic } from '../../services/pronosticService'
 import { isScheduled } from '../../utils/matchStatus'
@@ -25,8 +26,11 @@ function PronosticForm({ matchId, status, onCreated }: PronosticFormProps) {
     try {
       await createPronostic({ match: matchId, home_score: homeScore, away_score: awayScore })
       await onCreated?.()
+      toast.success('Pronostic enregistre.')
     } catch {
-      setError("Impossible d'envoyer ton pronostic.")
+      const message = "Impossible d'envoyer ton pronostic."
+      setError(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }
