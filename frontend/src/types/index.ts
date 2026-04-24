@@ -20,6 +20,7 @@ export interface PublicUser {
   id: number
   username: string
   badge: BadgePreview | null
+  is_following: boolean
 }
 
 export interface Team {

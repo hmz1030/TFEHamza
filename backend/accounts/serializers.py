@@ -70,11 +70,19 @@ class UserSerializer(serializers.ModelSerializer):
 
 class PublicUserSerializer(serializers.ModelSerializer):
     badge = BadgeSerializer(read_only=True)
+    is_following = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'badge')
+        fields = ('id', 'username', 'badge', 'is_following')
         read_only_fields = fields
+
+    def get_is_following(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated or request.user == obj:
+            return False
+
+        return Follow.objects.filter(follower=request.user, followee=obj).exists()
 
 class FollowSerializer(serializers.ModelSerializer):
     class Meta:
