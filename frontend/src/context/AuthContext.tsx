@@ -15,22 +15,22 @@ const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem('access_token')))
 
   // Au chargement, si un token existe, on recupere le profil
   useEffect(() => {
     const token = localStorage.getItem('access_token')
-    if (token) {
-      authService.getMe()
-        .then(setUser)
-        .catch(() => {
-          localStorage.removeItem('access_token')
-          localStorage.removeItem('refresh_token')
-        })
-        .finally(() => setLoading(false))
-    } else {
-      setLoading(false)
+    if (!token) {
+      return
     }
+
+    authService.getMe()
+      .then(setUser)
+      .catch(() => {
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
+      })
+      .finally(() => setLoading(false))
   }, [])
 
   const login = async (username: string, password: string) => {
@@ -62,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext)
   if (!context) {
