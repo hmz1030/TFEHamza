@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
+import FollowButton from '../components/user/FollowButton'
 import UserBadge from '../components/user/UserBadge'
 import Loader from '../components/ui/Loader'
 import type { ActivityData } from '../services/userService'
@@ -45,9 +46,18 @@ function UserPublic() {
       <div className="mx-auto max-w-6xl space-y-8">
         <section className="rounded-[2rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">Profil utilisateur</p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--text)]">{user.username}</h1>
-          <div className="mt-4">
-            <UserBadge badge={user.badge} />
+          <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-bold tracking-tight text-[var(--text)]">{user.username}</h1>
+              <div className="mt-4">
+                <UserBadge badge={user.badge} />
+              </div>
+            </div>
+            <FollowButton
+              userId={user.id}
+              initialFollowing={user.is_following}
+              onChange={(isFollowing) => setUser((current) => current ? { ...current, is_following: isFollowing } : current)}
+            />
           </div>
         </section>
 
