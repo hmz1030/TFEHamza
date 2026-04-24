@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext'
 import { useMatch } from '../hooks/useMatch'
 import { useMatchPlayers } from '../hooks/useMatchPlayers'
 import { syncMatchPlayers } from '../services/matchService'
+import Field from '../components/field/Field'
 
 const isDev = import.meta.env.DEV
 
@@ -128,6 +129,7 @@ function MatchDetail() {
           </div>
           <VoteForm match={match} players={players} onCreated={refetch} />
           <VoteResults votes={votes} players={players} />
+          <Field />
         </section>
       </div>
     </div>
