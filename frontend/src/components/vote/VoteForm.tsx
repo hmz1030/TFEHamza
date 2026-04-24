@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext'
 import { getMatchPlayers } from '../../services/matchService'
 import { createVote } from '../../services/voteService'
@@ -11,7 +12,9 @@ interface VoteFormProps {
   onCreated?: () => Promise<void> | void
 }
 
-function VoteForm({ match, players: initialPlayers = [], onCreated }: VoteFormProps) {
+const EMPTY_PLAYERS: Player[] = []
+
+function VoteForm({ match, players: initialPlayers = EMPTY_PLAYERS, onCreated }: VoteFormProps) {
   const { user } = useAuth()
   const [players, setPlayers] = useState<Player[]>(initialPlayers)
   const [selectedPlayer, setSelectedPlayer] = useState('')
@@ -37,7 +40,7 @@ function VoteForm({ match, players: initialPlayers = [], onCreated }: VoteFormPr
       setLoadingPlayers(false)
     }).catch(() => active && (setError('Impossible de charger les joueurs.'), setLoadingPlayers(false)))
     return () => { active = false }
-  }, [finished, initialPlayers.length, match.id, user])
+  }, [finished, initialPlayers, match.id, user])
 
   if (!user || !finished) return null
 
@@ -49,8 +52,11 @@ function VoteForm({ match, players: initialPlayers = [], onCreated }: VoteFormPr
     try {
       await createVote({ match: match.id, player: Number(selectedPlayer) })
       await onCreated?.()
+      toast.success('Vote enregistre.')
     } catch {
-      setError("Impossible d'envoyer ton vote.")
+      const message = "Impossible d'envoyer ton vote."
+      setError(message)
+      toast.error(message)
     } finally {
       setLoading(false)
     }

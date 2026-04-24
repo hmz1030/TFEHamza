@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import FavoriteClubCard from '../components/user/FavoriteClubCard'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import UserBadge from '../components/user/UserBadge'
@@ -35,8 +36,13 @@ function Profile() {
   }, [])
 
   const handleRemoveFavorite = async (teamId: number) => {
-    await removeFavoriteClub(teamId)
-    setFavorites((current) => current.filter((favorite) => favorite.team.id !== teamId))
+    try {
+      await removeFavoriteClub(teamId)
+      setFavorites((current) => current.filter((favorite) => favorite.team.id !== teamId))
+      toast.success('Club retire des favoris.')
+    } catch {
+      toast.error('Impossible de retirer ce club.')
+    }
   }
 
   const handleAddFavorite = async (team: Team) => {
@@ -46,12 +52,18 @@ function Profile() {
       setFavorites((current) => [...current, { id: response.data.id, team }])
       setShowClubPicker(false)
       setTeamQuery('')
+      toast.success('Club ajoute aux favoris.')
+    } catch {
+      toast.error("Impossible d'ajouter ce club.")
     } finally {
       setAddingFavorite(false)
     }
   }
 
-  const favoriteTeamIds = new Set(favorites.map((favorite) => favorite.team.id))
+  const favoriteTeamIds = useMemo(
+    () => new Set(favorites.map((favorite) => favorite.team.id)),
+    [favorites],
+  )
   const filteredTeams = useMemo(() => {
     const query = teamQuery.trim().toLowerCase()
 
