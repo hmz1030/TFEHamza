@@ -28,6 +28,32 @@ def get_match_queryset():
     )
 
 
+def is_finished_status(status):
+    value = status.strip().lower()
+    return 'finish' in value or 'term' in value or value in {'ft', 'aet', 'pen'}
+
+
+def get_result(home_score, away_score):
+    if home_score > away_score:
+        return 'home'
+    if away_score > home_score:
+        return 'away'
+    return 'draw'
+
+
+def calculate_pronostic_points(pronostic):
+    match = pronostic.match
+    if pronostic.home_score == match.home_score and pronostic.away_score == match.away_score:
+        return 3
+
+    predicted_result = get_result(pronostic.home_score, pronostic.away_score)
+    actual_result = get_result(match.home_score, match.away_score)
+    if predicted_result == actual_result:
+        return 1
+
+    return 0
+
+
 class TeamListView(generics.ListAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
@@ -286,6 +312,48 @@ class PronosticCreateView(generics.CreateAPIView):
             serializer.save(user=self.request.user)
         except IntegrityError:
             raise ValidationError("Vous avez déjà pronostiqué ce match.")
+
+
+class PronosticPointsCalculationView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        match_id = request.data.get('match')
+        pronostics = Pronostic.objects.select_related('match', 'user')
+
+        if match_id is not None:
+            try:
+                match_id = int(match_id)
+            except (TypeError, ValueError):
+                return Response(
+                    {'detail': 'match doit etre un identifiant entier.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            pronostics = pronostics.filter(match_id=match_id)
+
+        updated_count = 0
+        skipped_count = 0
+
+        for pronostic in pronostics:
+            if not is_finished_status(pronostic.match.status):
+                skipped_count += 1
+                continue
+
+            points = calculate_pronostic_points(pronostic)
+            if pronostic.points != points:
+                pronostic.points = points
+                pronostic.save(update_fields=['points'])
+                updated_count += 1
+
+        return Response({
+            'updated': updated_count,
+            'skipped': skipped_count,
+            'scoring': {
+                'exact_score': 3,
+                'correct_result': 1,
+                'wrong_result': 0,
+            },
+        })
 
 
 class PronosticListView(generics.ListAPIView):
