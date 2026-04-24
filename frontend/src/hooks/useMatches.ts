@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Match } from '../types'
 import { getMatchesByDate, getTodayMatches } from '../services/matchService'
 
@@ -22,7 +22,7 @@ export function useMatches(selectedDate?: string): UseMatchesResult {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchMatches = async (canUpdate = () => true) => {
+  const fetchMatches = useCallback(async (canUpdate: () => boolean = () => true) => {
     try {
       if (canUpdate()) {
         setLoading(true)
@@ -43,7 +43,7 @@ export function useMatches(selectedDate?: string): UseMatchesResult {
         setLoading(false)
       }
     }
-  }
+  }, [selectedDate])
 
   useEffect(() => {
     let isActive = true
@@ -53,7 +53,7 @@ export function useMatches(selectedDate?: string): UseMatchesResult {
     return () => {
       isActive = false
     }
-  }, [selectedDate])
+  }, [fetchMatches])
 
   return { matches, loading, error, refetch: () => fetchMatches() }
 }
