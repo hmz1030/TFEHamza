@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { Match, Pronostic, Rating, Vote } from '../types'
 import { getMatch } from '../services/matchService'
 import { getPronostics } from '../services/pronosticService'
@@ -23,7 +23,7 @@ export function useMatch(matchId: number): UseMatchResult {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchMatchData = async (canUpdate = () => true) => {
+  const fetchMatchData = useCallback(async (canUpdate: () => boolean = () => true) => {
     if (!Number.isInteger(matchId) || matchId <= 0) {
       if (canUpdate()) {
         setMatch(null)
@@ -65,7 +65,7 @@ export function useMatch(matchId: number): UseMatchResult {
         setLoading(false)
       }
     }
-  }
+  }, [matchId])
 
   useEffect(() => {
     let isActive = true
@@ -75,7 +75,7 @@ export function useMatch(matchId: number): UseMatchResult {
     return () => {
       isActive = false
     }
-  }, [matchId])
+  }, [fetchMatchData])
 
   return {
     match,
