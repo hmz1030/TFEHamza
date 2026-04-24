@@ -1,8 +1,10 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Navbar from './components/layout/Navbar'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import Home from './pages/Home'
+import Favorites from './pages/Favorites'
 import Leaderboard from './pages/Leaderboard'
 import Login from './pages/Login'
 import MatchDetail from './pages/MatchDetail'
@@ -34,6 +36,7 @@ function AppContent() {
           <Route path="/matches/:id" element={<MatchDetail />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           <Route path="/pronostics" element={<ProtectedRoute><Pronostics /></ProtectedRoute>} />
           <Route path="/users/:id" element={<UserPublic />} />
         </Routes>
@@ -47,6 +50,28 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <AppContent />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: '#141c24',
+              border: '1px solid #2d3a46',
+              color: '#e8e3d9',
+            },
+            success: {
+              iconTheme: {
+                primary: '#6ea07c',
+                secondary: '#070c11',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#c56d64',
+                secondary: '#070c11',
+              },
+            },
+          }}
+        />
       </AuthProvider>
     </BrowserRouter>
   )
