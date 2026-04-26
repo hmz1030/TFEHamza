@@ -21,6 +21,8 @@ class Player(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='players')
     position = models.CharField(max_length=50, blank=True, default='')
     image = models.URLField(blank=True, default='')
+    number = models.PositiveIntegerField(null=True, blank=True)
+    age = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         db_table = 'player'
