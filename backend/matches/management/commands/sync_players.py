@@ -8,7 +8,8 @@ plutot `sync_lineups`.
 from django.core.management.base import BaseCommand
 
 from matches.models import Match
-from matches.sync_services import SyncError, sync_lineup_for_match
+from matches.sync.http import SyncError
+from matches.sync.lineups import sync_lineup_for_match
 
 
 class Command(BaseCommand):
