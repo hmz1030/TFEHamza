@@ -1,12 +1,3 @@
-from decouple import config
-
-
-LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS = frozenset(
-    x.strip()
-    for x in config('LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS', default='').split(',')
-    if x.strip()
-)
-
 TARGET_LEAGUES = {
     'Premier League': {'aliases': ('premier league',), 'countries': ('england',)},
     'La Liga': {'aliases': ('la liga', 'laliga'), 'countries': ('spain',)},
@@ -74,11 +65,3 @@ def get_league_name(api_league_name, api_country_name):
         if country in cfg['countries'] and any(alias == name for alias in cfg['aliases']):
             return league_name
     return None
-
-
-def league_allowed_by_id(api_league_id):
-    """Si LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS est defini, seul l'ID compte."""
-    if not LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS:
-        return True
-    lid = (api_league_id or '').strip()
-    return lid in LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS

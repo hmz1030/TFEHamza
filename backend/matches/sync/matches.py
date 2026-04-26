@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from matches.models import Match
 from matches.sync.http import api_get, parse_int
-from matches.sync.leagues import get_league_name, league_allowed_by_id
+from matches.sync.leagues import get_league_name
 from matches.sync.teams import find_or_create_team
 
 
@@ -19,11 +19,6 @@ def fetch_matches_for_date(target_date):
 def _filter_target_match(match_data):
     """Retourne (league_name, api_id) si le match est cible, sinon None."""
     league_block = match_data.get('league') or {}
-    api_league_id = str(league_block.get('id', '') or '').strip()
-
-    if not league_allowed_by_id(api_league_id):
-        return None
-
     league_name = get_league_name(
         league_block.get('name', ''),
         league_block.get('country', ''),
