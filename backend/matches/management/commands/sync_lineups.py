@@ -126,9 +126,12 @@ class Command(BaseCommand):
         skipped = 0
         errored = 0
 
-        for match in queryset:
+        for index, match in enumerate(queryset, start=1):
+            label = f'[{index}/{total}] {match.home_team} vs {match.away_team}'
+
             if _should_skip_finished(match):
                 skipped += 1
+                self.stdout.write(f'{label} -> deja sync, skip')
                 continue
 
             try:
@@ -137,17 +140,18 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(str(exc)))
                 return
             except requests.RequestException as exc:
-                self.stdout.write(self.style.WARNING(
-                    f'  Erreur reseau sur match {match.pk} ({match.api_id}): {exc} - skip'
-                ))
                 errored += 1
+                self.stdout.write(self.style.WARNING(f'{label} -> erreur reseau: {exc}'))
                 continue
 
             if count is None:
                 skipped += 1
+                self.stdout.write(f'{label} -> lineup indisponible')
                 continue
+
             synced_matches += 1
             synced_players += count
+            self.stdout.write(self.style.SUCCESS(f'{label} -> {count} joueur(s)'))
 
         self.stdout.write(self.style.SUCCESS(
             f'Termine : {synced_matches} lineup(s) synchronise(s), '
