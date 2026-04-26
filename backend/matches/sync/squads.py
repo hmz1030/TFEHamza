@@ -1,5 +1,5 @@
 from matches.models import Player
-from matches.sync.http import api_get
+from matches.sync.http import api_get, parse_int
 
 
 def fetch_team_squad(team_api_id, season=None):
@@ -8,16 +8,6 @@ def fetch_team_squad(team_api_id, season=None):
     if season:
         params['season'] = season
     return api_get('team_squad.php', params)
-
-
-def _parse_optional_int(raw):
-    """Parse une valeur potentiellement vide/'-' en int ou None."""
-    if raw in (None, '', '-'):
-        return None
-    try:
-        return int(str(raw).strip())
-    except (ValueError, TypeError):
-        return None
 
 
 def sync_squad_for_team(team):
@@ -44,8 +34,8 @@ def sync_squad_for_team(team):
             'team': team,
             'image': (raw.get('image') or '').strip(),
             'position': (raw.get('position') or '').strip(),
-            'number': _parse_optional_int(raw.get('number')),
-            'age': _parse_optional_int(raw.get('age')),
+            'number': parse_int(raw.get('number'), default=None),
+            'age': parse_int(raw.get('age'), default=None),
         }
         _, was_created = Player.objects.update_or_create(
             api_id=api_id,
