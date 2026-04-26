@@ -29,7 +29,6 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(
             f"Scheduler sync demarre en mode {settings.APP_MODE} "
-            f"(tick {tick_seconds}s). Ctrl+C pour arreter."
         ))
 
         try:
