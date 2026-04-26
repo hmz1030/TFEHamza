@@ -19,6 +19,7 @@ from datetime import timedelta
 from django.core.management.base import BaseCommand
 
 from matches.models import Match
+from matches.pronostics import update_pronostic_points
 from matches.sync.http import SyncError
 from matches.sync.matches import (
     _filter_target_match,
@@ -155,6 +156,12 @@ class Command(BaseCommand):
                     .exclude(api_id__in=valid_api_ids)
                     .delete()[0]
                 )
+
+        points_result = update_pronostic_points(target_date=target_date)
+        if points_result['updated']:
+            self.stdout.write(
+                f"  {points_result['updated']} pronostic(s) mis a jour pour cette date."
+            )
 
         return {
             'created': created,
