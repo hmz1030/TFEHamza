@@ -6,8 +6,7 @@ import LeagueFilter, { type LeagueFilterValue } from '../components/match/League
 import MatchList from '../components/match/MatchList'
 import { useMatches } from '../hooks/useMatches'
 import { syncTodayMatches } from '../services/matchService'
-
-const isDev = import.meta.env.DEV
+import { devToolsEnabled } from '../utils/devTools'
 
 function formatDateForInput(date: Date) {
   const year = date.getFullYear()
@@ -159,7 +158,7 @@ function Home() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <LeagueFilter selectedLeague={selectedLeague} onSelectLeague={setSelectedLeague} />
 
-            {isDev && (
+            {devToolsEnabled && (
               <button
                 type="button"
                 onClick={handleDevRefresh}

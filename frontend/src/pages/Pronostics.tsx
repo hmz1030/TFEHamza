@@ -8,8 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import { getMatches, syncTodayMatches } from '../services/matchService'
 import { getMyActivity } from '../services/userService'
 import { isScheduled } from '../utils/matchStatus'
-
-const isDev = import.meta.env.DEV
+import { devToolsEnabled } from '../utils/devTools'
 
 function formatMatchDate(date: string) {
   return new Intl.DateTimeFormat('fr-BE', {
@@ -133,7 +132,7 @@ function Pronostics() {
               <p className="mt-1 text-sm text-[var(--muted)]">Pronostique rapidement les prochains matchs.</p>
             </div>
 
-            {isDev ? (
+            {devToolsEnabled ? (
               <button
                 type="button"
                 onClick={handleSyncUpcoming}

@@ -13,8 +13,7 @@ import { useAuth } from '../context/AuthContext'
 import { useMatch } from '../hooks/useMatch'
 import { useMatchPlayers } from '../hooks/useMatchPlayers'
 import { syncLineups, syncSquads } from '../services/matchService'
-
-const isDev = import.meta.env.DEV
+import { devToolsEnabled } from '../utils/devTools'
 
 function formatMatchDate(date: string) {
   return new Intl.DateTimeFormat('fr-BE', {
@@ -125,7 +124,7 @@ function MatchDetail() {
         <section id="votes" className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h2 className="text-3xl font-bold text-[var(--text)]">Vote MVP</h2>
-            {isDev ? (
+            {devToolsEnabled ? (
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
