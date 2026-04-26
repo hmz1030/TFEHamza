@@ -385,39 +385,51 @@ def get_sub_in_ids(events):
 
 
 def players_who_played(side_data, sub_in_ids):
-    """Retourne titulaires + seulement les remplacants entres en jeu."""
-    players = list(side_data.get('starting') or [])
-    for sub in (side_data.get('subs') or []):
-        pid = str(sub.get('id') or '').strip()
+    """Retourne titulaires + seulement les remplacants entres en jeu.
+
+    Chaque entree porte un flag `is_starter` que l'on conserve pour
+    alimenter MatchPlayer.is_starter en aval.
+    """
+    players = []
+    for raw in side_data.get('starting') or []:
+        players.append({**raw, 'is_starter': True})
+    for raw in side_data.get('subs') or []:
+        pid = str(raw.get('id') or '').strip()
         if pid in sub_in_ids:
-            players.append(sub)
+            players.append({**raw, 'is_starter': False})
     return players
 
 
 def ensure_players(team, raw_players):
-    players = []
+    """Cree/maj les Player et renvoie la liste de paires (Player, raw_player).
+
+    On conserve le raw_player pour pouvoir set MatchPlayer.is_starter ensuite,
+    et pour stocker l'URL `image` fournie par l'API.
+    """
+    pairs = []
     for raw_player in raw_players:
         api_id = str(raw_player.get('id') or '').strip()
         name = (raw_player.get('name') or '').strip()
         if not api_id or not name:
             continue
+        image = (raw_player.get('image') or '').strip()
         player, _ = Player.objects.update_or_create(
             api_id=api_id,
-            defaults={'name': name, 'team': team},
+            defaults={'name': name, 'team': team, 'image': image},
         )
-        players.append(player)
-    return players
+        pairs.append((player, raw_player))
+    return pairs
 
 
-def sync_match_players(match, players):
+def sync_match_players(match, pairs):
+    """Synchronise MatchPlayer a partir d'une liste de (Player, raw_player)."""
+    players = [pair[0] for pair in pairs]
     MatchPlayer.objects.filter(match=match).exclude(player__in=players).delete()
-    for player in players:
-        MatchPlayer.objects.update_or_create(match=match, player=player,
-            defaults={
-                'is_starter': player['is_starter'],
-                'number': player['number'],
-                'position': player['position'],
-            },
+    for player, raw in pairs:
+        MatchPlayer.objects.update_or_create(
+            match=match,
+            player=player,
+            defaults={'is_starter': bool(raw.get('is_starter'))},
         )
 
 
@@ -440,13 +452,13 @@ def sync_lineup_for_match(match):
     home_played = players_who_played(lineups['home'], sub_in_ids)
     away_played = players_who_played(lineups['away'], sub_in_ids)
 
-    home_players = ensure_players(match.home_team, home_played)
-    away_players = ensure_players(match.away_team, away_played)
-    all_players = home_players + away_players
+    home_pairs = ensure_players(match.home_team, home_played)
+    away_pairs = ensure_players(match.away_team, away_played)
+    all_pairs = home_pairs + away_pairs
 
-    sync_match_players(match, all_players)
+    sync_match_players(match, all_pairs)
 
     match.lineup_synced_at = timezone.now()
     match.save(update_fields=['lineup_synced_at'])
 
-    return len(all_players)
+    return len(all_pairs)
