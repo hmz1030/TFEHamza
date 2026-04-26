@@ -35,6 +35,7 @@ export interface Player {
   id: number
   name: string
   team: number
+  image: string
 }
 
 export interface Match {

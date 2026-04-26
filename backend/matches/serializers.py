@@ -11,7 +11,7 @@ class TeamSerializer(serializers.ModelSerializer):
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
-        fields = ('id', 'name', 'team')
+        fields = ('id', 'name', 'team', 'image')
 
 
 class MatchSerializer(serializers.ModelSerializer):
