@@ -24,6 +24,16 @@ def _save_if_changed(team, changed):
     return team
 
 
+def _set_field(team, field, value, overwrite=True):
+    if not value:
+        return False
+    current = getattr(team, field)
+    if current == value or (current and not overwrite):
+        return False
+    setattr(team, field, value)
+    return True
+
+
 def find_or_create_team(team_data, league_name):
     """Trouve ou cree une Team depuis le bloc home/away Live Football API."""
     api_id = str(team_data.get('id') or '').strip()
@@ -33,13 +43,8 @@ def find_or_create_team(team_data, league_name):
     if api_id:
         team = Team.objects.filter(api_id=api_id).first()
         if team:
-            changed = False
-            if name and team.name != name:
-                team.name = name
-                changed = True
-            if logo and team.logo != logo:
-                team.logo = logo
-                changed = True
+            changed = _set_field(team, 'name', name)
+            changed = _set_field(team, 'logo', logo) or changed
             if league_name != 'Champions League' and team.league != league_name:
                 team.league = league_name
                 changed = True
@@ -53,9 +58,7 @@ def find_or_create_team(team_data, league_name):
                 _release_api_id_from_other(api_id, existing_team)
                 existing_team.api_id = api_id
                 changed = True
-            if logo and not existing_team.logo:
-                existing_team.logo = logo
-                changed = True
+            changed = _set_field(existing_team, 'logo', logo, overwrite=False) or changed
             return _save_if_changed(existing_team, changed)
 
     team = Team.objects.filter(name__iexact=name, league=league_name).first()
@@ -65,9 +68,7 @@ def find_or_create_team(team_data, league_name):
             _release_api_id_from_other(api_id, team)
             team.api_id = api_id
             changed = True
-        if logo and team.logo != logo:
-            team.logo = logo
-            changed = True
+        changed = _set_field(team, 'logo', logo) or changed
         return _save_if_changed(team, changed)
 
     return Team.objects.create(
