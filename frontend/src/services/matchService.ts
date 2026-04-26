@@ -1,5 +1,5 @@
 import api from './api'
-import type { Match, Player } from '../types'
+import type { Match, MatchPlayer } from '../types'
 
 export const getMatches = () =>
   api.get<Match[]>('/matches/')
@@ -42,8 +42,21 @@ export const syncLineups = (options?: {
     ...(options?.recentHours !== undefined ? { recent_hours: options.recentHours } : {}),
   })
 
+export const syncSquads = (options?: {
+  matchId?: number
+  teamApiId?: string
+  league?: string
+  all?: boolean
+}) =>
+  api.post<{ detail: string; output: string }>('/dev/sync-squads/', {
+    ...(options?.matchId ? { match_id: options.matchId } : {}),
+    ...(options?.teamApiId ? { team_api_id: options.teamApiId } : {}),
+    ...(options?.league ? { league: options.league } : {}),
+    ...(options?.all ? { all: true } : {}),
+  })
+
 export const getMatch = (id: number) =>
   api.get<Match>(`/matches/${id}/`)
 
 export const getMatchPlayers = (matchId: number) =>
-  api.get<Player[]>(`/matches/${matchId}/players/`)
+  api.get<MatchPlayer[]>(`/matches/${matchId}/players/`)

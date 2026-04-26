@@ -36,6 +36,15 @@ export interface Player {
   name: string
   team: number
   image: string
+  position: string
+  number: number | null
+  age: number | null
+}
+
+export interface MatchPlayer {
+  id: number
+  player: Player
+  is_starter: boolean
 }
 
 export interface Match {
