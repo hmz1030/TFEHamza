@@ -20,7 +20,8 @@ from django.db.models import Q
 from django.utils import timezone
 
 from matches.models import Match
-from matches.sync_services import SyncError, sync_lineup_for_match
+from matches.sync.http import SyncError
+from matches.sync.lineups import sync_lineup_for_match
 
 
 LIVE_STATUS_REGEX = r'(live|direct|progress|half|1h|2h|^ht$)'
