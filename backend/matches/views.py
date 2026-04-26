@@ -271,6 +271,43 @@ class DevSyncLineupsView(APIView):
         )
 
 
+class DevSyncSquadsView(APIView):
+    """Sync des squads (image / position / number / age) via team_squad.php."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        if not settings.DEBUG:
+            return Response(
+                {'detail': 'Cet endpoint est disponible uniquement en mode développement.'},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        stdout = StringIO()
+        command_kwargs = {'stdout': stdout}
+
+        if request.data.get('team_api_id'):
+            command_kwargs['team_api_id'] = request.data['team_api_id']
+        if request.data.get('match_id'):
+            command_kwargs['match_id'] = int(request.data['match_id'])
+        if request.data.get('league'):
+            command_kwargs['league'] = request.data['league']
+        if request.data.get('all'):
+            command_kwargs['all'] = True
+
+        try:
+            call_command('sync_squads', **command_kwargs)
+        except Exception as exc:
+            return Response(
+                {'detail': 'La sync des squads a echoue.', 'error': str(exc), 'output': stdout.getvalue()},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(
+            {'detail': 'Sync des squads terminee.', 'output': stdout.getvalue()},
+            status=status.HTTP_200_OK,
+        )
+
+
 class RatingCreateView(generics.CreateAPIView):
     serializer_class = RatingSerializer
     permission_classes = [permissions.IsAuthenticated]
