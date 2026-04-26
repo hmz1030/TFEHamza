@@ -18,9 +18,6 @@ export const syncTodayMatches = (date?: string, daysAhead = 0) =>
     ...(daysAhead > 0 ? { days_ahead: daysAhead } : {}),
   })
 
-export const syncMatchPlayers = (matchId: number) =>
-  api.post<{ detail: string; output: string }>('/dev/sync-players/', { match_id: matchId })
-
 export const syncLiveScores = (date?: string, force = false) =>
   api.post<{ detail: string; output: string }>('/dev/sync-live-scores/', {
     ...(date ? { date } : {}),
