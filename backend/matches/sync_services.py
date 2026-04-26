@@ -460,6 +460,73 @@ def sync_match_players(match, pairs):
         )
 
 
+# Helpers pour la synchron des squads (rosters)
+
+
+def fetch_team_squad(team_api_id, season=None):
+    """Recupere le squad complet d'une equipe (team_squad.php)."""
+    params = {'team_id': team_api_id}
+    if season:
+        params['season'] = season
+    return api_get('team_squad.php', params)
+
+
+def _parse_optional_int(raw):
+    """Parse une valeur potentiellement vide/'-' en int ou None."""
+    if raw in (None, '', '-'):
+        return None
+    try:
+        return int(str(raw).strip())
+    except (ValueError, TypeError):
+        return None
+
+
+def sync_squad_for_team(team):
+    """Synchronise les Player de `team` depuis team_squad.php.
+
+    Renseigne image / position / number / age et associe les joueurs a la
+    bonne equipe. Ne supprime aucun joueur (les MatchPlayer historiques
+    doivent rester intacts).
+
+    Retourne (created, updated) ou None si l'API ne renvoie rien
+    d'exploitable.
+    """
+    if not team.api_id:
+        return None
+    data = fetch_team_squad(team.api_id)
+    if data is None:
+        return None
+
+    squad = data.get('squad') or []
+    if not squad:
+        return (0, 0)
+
+    created = 0
+    updated = 0
+    for raw in squad:
+        api_id = str(raw.get('id') or '').strip()
+        name = (raw.get('name') or '').strip()
+        if not api_id or not name:
+            continue
+        defaults = {
+            'name': name,
+            'team': team,
+            'image': (raw.get('image') or '').strip(),
+            'position': (raw.get('position') or '').strip(),
+            'number': _parse_optional_int(raw.get('number')),
+            'age': _parse_optional_int(raw.get('age')),
+        }
+        _, was_created = Player.objects.update_or_create(
+            api_id=api_id,
+            defaults=defaults,
+        )
+        if was_created:
+            created += 1
+        else:
+            updated += 1
+    return (created, updated)
+
+
 def sync_lineup_for_match(match):
     """Synchronise les joueurs d'un match (titulaires + subs entres en jeu).
 
