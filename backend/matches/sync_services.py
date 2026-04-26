@@ -20,6 +20,7 @@ from matches.models import Match, MatchPlayer, Player, Team
 
 LIVE_FOOTBALL_API_KEY = config('LIVE_FOOTBALL_API_KEY', default='')
 BASE_URL = 'https://live-football-api.com/api/v1'
+TEAM_LOGO_URL = 'https://live-football-api.com/teams/{api_id}.png'
 
 LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS = frozenset(
     x.strip()
@@ -141,19 +142,73 @@ def _find_existing_team(team_name):
     return Team.objects.filter(name__iexact=team_name).order_by('-logo', 'id').first()
 
 
-def find_or_create_team(team_name, league_name):
-    team_name = (team_name or '').strip()
+def _team_logo_url(api_id):
+    api_id = (api_id or '').strip()
+    if not api_id:
+        return ''
+    return TEAM_LOGO_URL.format(api_id=api_id)
+
+
+def find_or_create_team(team_data, league_name):
+    """Trouve ou cree une Team depuis le bloc home/away d'un payload Live Football API.
+
+    `team_data` doit contenir au minimum `name` ; `id` (alphanumerique) sert
+    a remplir Team.api_id et a construire le logo officiel.
+    """
+    api_id = str(team_data.get('id') or '').strip()
+    name = (team_data.get('name') or '').strip()
+    logo = _team_logo_url(api_id)
+
+    if api_id:
+        team = Team.objects.filter(api_id=api_id).first()
+        if team:
+            changed = False
+            if name and team.name != name:
+                team.name = name
+                changed = True
+            if logo and team.logo != logo:
+                team.logo = logo
+                changed = True
+            if league_name != 'Champions League' and team.league != league_name:
+                team.league = league_name
+                changed = True
+            if changed:
+                team.save()
+            return team
 
     if league_name == 'Champions League':
-        existing_team = _find_existing_team(team_name)
+        existing_team = _find_existing_team(name)
         if existing_team:
+            changed = False
+            if api_id and not existing_team.api_id:
+                existing_team.api_id = api_id
+                changed = True
+            if logo and not existing_team.logo:
+                existing_team.logo = logo
+                changed = True
+            if changed:
+                existing_team.save()
             return existing_team
 
-    team = Team.objects.filter(name__iexact=team_name, league=league_name).first()
+    team = Team.objects.filter(name__iexact=name, league=league_name).first()
     if team:
+        changed = False
+        if api_id and not team.api_id:
+            team.api_id = api_id
+            changed = True
+        if logo and team.logo != logo:
+            team.logo = logo
+            changed = True
+        if changed:
+            team.save()
         return team
 
-    return Team.objects.create(name=team_name, league=league_name)
+    return Team.objects.create(
+        api_id=api_id or None,
+        name=name,
+        league=league_name,
+        logo=logo,
+    )
 
 
 def api_get(endpoint, params):
@@ -220,13 +275,13 @@ def upsert_match_full(match_data, target_date):
         return None
     league_name, api_id = filtered
 
-    home_name = match_data.get('home', {}).get('name', '')
-    away_name = match_data.get('away', {}).get('name', '')
-    if not home_name or not away_name:
+    home_data = match_data.get('home') or {}
+    away_data = match_data.get('away') or {}
+    if not home_data.get('name') or not away_data.get('name'):
         return None
 
-    home_team = find_or_create_team(home_name, league_name)
-    away_team = find_or_create_team(away_name, league_name)
+    home_team = find_or_create_team(home_data, league_name)
+    away_team = find_or_create_team(away_data, league_name)
 
     kickoff = match_data.get('kickoff', '00:00')
     match_datetime = timezone.datetime.combine(
@@ -235,8 +290,8 @@ def upsert_match_full(match_data, target_date):
         tzinfo=dt_timezone.utc,
     )
 
-    home_score = _parse_int(match_data.get('home', {}).get('score', 0))
-    away_score = _parse_int(match_data.get('away', {}).get('score', 0))
+    home_score = _parse_int(home_data.get('score', 0))
+    away_score = _parse_int(away_data.get('score', 0))
     status_data = match_data.get('status', {})
     status = status_data.get('status', 'scheduled')
 
@@ -357,7 +412,13 @@ def ensure_players(team, raw_players):
 def sync_match_players(match, players):
     MatchPlayer.objects.filter(match=match).exclude(player__in=players).delete()
     for player in players:
-        MatchPlayer.objects.get_or_create(match=match, player=player)
+        MatchPlayer.objects.update_or_create(match=match, player=player,
+            defaults={
+                'is_starter': player['is_starter'],
+                'number': player['number'],
+                'position': player['position'],
+            },
+        )
 
 
 def sync_lineup_for_match(match):
