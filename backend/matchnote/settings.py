@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,7 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-9abt2r+e48!94ua@+tl_4ldcvh421-u1gc4pux)b*r=ts1(4*@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+APP_MODE = config('APP_MODE', default='development')
+DEBUG = APP_MODE != 'production'
+ENABLE_SYNC_ENDPOINTS = config('ENABLE_SYNC_ENDPOINTS', default=DEBUG, cast=bool)
+ENABLE_SYNC_SCHEDULER = config('ENABLE_SYNC_SCHEDULER', default=False, cast=bool)
 
 ALLOWED_HOSTS = []
 
