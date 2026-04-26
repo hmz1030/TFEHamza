@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Team, Player, Match, Rating, Vote, Pronostic
+from .models import Team, Player, Match, MatchPlayer, Rating, Vote, Pronostic
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -11,7 +11,15 @@ class TeamSerializer(serializers.ModelSerializer):
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
-        fields = ('id', 'name', 'team', 'image')
+        fields = ('id', 'name', 'team', 'image', 'position', 'number', 'age')
+
+
+class MatchPlayerSerializer(serializers.ModelSerializer):
+    player = PlayerSerializer(read_only=True)
+
+    class Meta:
+        model = MatchPlayer
+        fields = ('id', 'player', 'is_starter')
 
 
 class MatchSerializer(serializers.ModelSerializer):

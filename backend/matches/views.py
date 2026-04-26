@@ -14,8 +14,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import Badge
-from .models import Team, Player, Match, Rating, Vote, Pronostic
-from .serializers import TeamSerializer, PlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer, PronosticSerializer
+from .models import Team, Player, Match, MatchPlayer, Rating, Vote, Pronostic
+from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer, PronosticSerializer
 
 User = get_user_model()
 
@@ -93,12 +93,17 @@ class MatchDetailView(generics.RetrieveAPIView):
     
 
 class MatchPlayerListView(generics.ListAPIView):
-    serializer_class = PlayerSerializer
+    serializer_class = MatchPlayerSerializer
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         match = get_object_or_404(Match, pk=self.kwargs['match_id'])
-        return Player.objects.filter(match_players__match=match).order_by('team_id', 'name').distinct()
+        return (
+            MatchPlayer.objects
+            .filter(match=match)
+            .select_related('player', 'player__team')
+            .order_by('player__team_id', '-is_starter', 'player__number', 'player__name')
+        )
 
 
 class TodayMatchListView(generics.ListAPIView):
