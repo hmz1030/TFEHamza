@@ -10,7 +10,7 @@ commande `sync_live_scores`.
 
 Workflow (par date) :
 - On recupere les matchs du jour via matches.php
-- Pour chaque match dans une ligue cible : create ou update (via sync_services)
+- Pour chaque match dans une ligue cible : create ou update (via matches.sync)
 - Suppression des matchs obsoletes uniquement si --delete-missing est passe
 """
 
@@ -19,8 +19,8 @@ from datetime import timedelta
 from django.core.management.base import BaseCommand
 
 from matches.models import Match
-from matches.sync_services import (
-    SyncError,
+from matches.sync.http import SyncError
+from matches.sync.matches import (
     _filter_target_match,
     fetch_matches_for_date,
     resolve_target_date,
