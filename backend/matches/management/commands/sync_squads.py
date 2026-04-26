@@ -18,7 +18,8 @@ import requests
 from django.core.management.base import BaseCommand
 
 from matches.models import Match, Team
-from matches.sync_services import SyncError, sync_squad_for_team
+from matches.sync.http import SyncError
+from matches.sync.squads import sync_squad_for_team
 
 
 def _is_lfa_api_id(value):
