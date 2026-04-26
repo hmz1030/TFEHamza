@@ -20,6 +20,7 @@ class Player(models.Model):
     name = models.CharField(max_length=100)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='players')
     position = models.CharField(max_length=50, blank=True, default='')
+    image = models.URLField(blank=True, default='')
 
     class Meta:
         db_table = 'player'
@@ -50,6 +51,7 @@ class Match(models.Model):
 class MatchPlayer(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='match_players')
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='match_players')
+    is_starter = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'match_player'
