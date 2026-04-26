@@ -14,6 +14,7 @@ Cela evite des appels API inutiles la nuit ou entre deux journees.
 from django.core.management.base import BaseCommand
 
 from matches.models import Match
+from matches.pronostics import update_pronostic_points
 from matches.sync.http import SyncError
 from matches.sync.matches import (
     fetch_matches_for_date,
@@ -67,7 +68,10 @@ class Command(BaseCommand):
                 continue
             refreshed += 1
 
+        points_result = update_pronostic_points(target_date=target_date)
+
         self.stdout.write(self.style.SUCCESS(
             f"Refresh live termine pour {target_date.isoformat()} : "
-            f"{refreshed} match(s) verifie(s)."
+            f"{refreshed} match(s) verifie(s), "
+            f"{points_result['updated']} pronostic(s) mis a jour."
         ))
