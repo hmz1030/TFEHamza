@@ -47,7 +47,7 @@ def _normalize_country(raw):
         'gb': 'england',
         'deutschland': 'germany',
         'espana': 'spain',
-        'espaÃ±a': 'spain',
+        'españa': 'spain',
         'italia': 'italy',
     }
     return mapping.get(c, c)
