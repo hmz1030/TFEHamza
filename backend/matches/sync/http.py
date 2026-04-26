@@ -34,3 +34,12 @@ def api_get(endpoint, params):
     if not payload.get('success'):
         return None
     return payload.get('data') or {}
+
+
+def parse_int(raw, default=0):
+    if raw in (None, '', '-'):
+        return default
+    try:
+        return int(str(raw).strip())
+    except (ValueError, TypeError):
+        return default
