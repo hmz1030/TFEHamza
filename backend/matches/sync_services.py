@@ -211,8 +211,16 @@ def find_or_create_team(team_data, league_name):
     )
 
 
+TRANSIENT_HTTP_STATUSES = frozenset({500, 502, 503, 504})
+
+
 def api_get(endpoint, params):
-    """Appelle un endpoint de Live Football API avec la cle d'API globale."""
+    """Appelle un endpoint de Live Football API avec la cle d'API globale.
+
+    Retourne None pour les erreurs transientes (timeout, connexion coupee,
+    5xx) afin de ne pas faire crasher un batch complet sur un hoquet
+    ponctuel de l'API. Les erreurs persistantes (4xx) restent levees.
+    """
     if not LIVE_FOOTBALL_API_KEY:
         raise SyncError("LIVE_FOOTBALL_API_KEY manquante dans .env")
 
@@ -220,7 +228,14 @@ def api_get(endpoint, params):
     params['api_key'] = LIVE_FOOTBALL_API_KEY
     params.setdefault('lang', 'en')
 
-    response = requests.get(f'{BASE_URL}/{endpoint}', params=params, timeout=20)
+    try:
+        response = requests.get(f'{BASE_URL}/{endpoint}', params=params, timeout=20)
+    except (requests.Timeout, requests.ConnectionError):
+        return None
+
+    if response.status_code in TRANSIENT_HTTP_STATUSES:
+        return None
+
     response.raise_for_status()
     payload = response.json()
     if not payload.get('success'):

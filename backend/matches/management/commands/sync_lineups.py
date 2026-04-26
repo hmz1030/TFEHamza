@@ -14,6 +14,7 @@ Avec `--all`, bypass le filtre et tente tous les matchs (comportement de
 
 from datetime import timedelta
 
+import requests
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.utils import timezone
@@ -123,24 +124,33 @@ class Command(BaseCommand):
         synced_matches = 0
         synced_players = 0
         skipped = 0
+        errored = 0
 
-        try:
-            for match in queryset:
-                if _should_skip_finished(match):
-                    skipped += 1
-                    continue
+        for match in queryset:
+            if _should_skip_finished(match):
+                skipped += 1
+                continue
 
+            try:
                 count = sync_lineup_for_match(match)
-                if count is None:
-                    skipped += 1
-                    continue
-                synced_matches += 1
-                synced_players += count
-        except SyncError as exc:
-            self.stdout.write(self.style.ERROR(str(exc)))
-            return
+            except SyncError as exc:
+                self.stdout.write(self.style.ERROR(str(exc)))
+                return
+            except requests.RequestException as exc:
+                self.stdout.write(self.style.WARNING(
+                    f'  Erreur reseau sur match {match.pk} ({match.api_id}): {exc} - skip'
+                ))
+                errored += 1
+                continue
+
+            if count is None:
+                skipped += 1
+                continue
+            synced_matches += 1
+            synced_players += count
 
         self.stdout.write(self.style.SUCCESS(
             f'Termine : {synced_matches} lineup(s) synchronise(s), '
-            f'{synced_players} joueur(s), {skipped} lineup(s) indisponible(s).'
+            f'{synced_players} joueur(s), {skipped} indisponible(s), '
+            f'{errored} en erreur reseau.'
         ))
