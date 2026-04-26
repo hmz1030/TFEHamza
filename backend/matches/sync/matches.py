@@ -3,7 +3,7 @@ from datetime import date, timezone as dt_timezone
 from django.utils import timezone
 
 from matches.models import Match
-from matches.sync.http import api_get
+from matches.sync.http import api_get, parse_int
 from matches.sync.leagues import get_league_name, league_allowed_by_id
 from matches.sync.teams import find_or_create_team
 
@@ -14,13 +14,6 @@ def fetch_matches_for_date(target_date):
     if data is None:
         return []
     return data.get('matches', []) or []
-
-
-def _parse_int(raw, default=0):
-    try:
-        return int(raw) if raw not in (None, '') else default
-    except (ValueError, TypeError):
-        return default
 
 
 def _filter_target_match(match_data):
@@ -74,8 +67,8 @@ def upsert_match_full(match_data, target_date):
             'league': league_name,
             'home_team': home_team,
             'away_team': away_team,
-            'home_score': _parse_int(home_data.get('score', 0)),
-            'away_score': _parse_int(away_data.get('score', 0)),
+            'home_score': parse_int(home_data.get('score', 0)),
+            'away_score': parse_int(away_data.get('score', 0)),
             'status': (match_data.get('status') or {}).get('status', 'scheduled'),
         },
     )
@@ -94,8 +87,8 @@ def update_match_live_data(match_data):
     except Match.DoesNotExist:
         return None
 
-    home_score = _parse_int(match_data.get('home', {}).get('score', 0))
-    away_score = _parse_int(match_data.get('away', {}).get('score', 0))
+    home_score = parse_int(match_data.get('home', {}).get('score', 0))
+    away_score = parse_int(match_data.get('away', {}).get('score', 0))
     new_status = (match_data.get('status') or {}).get('status', match.status)
 
     dirty = False
