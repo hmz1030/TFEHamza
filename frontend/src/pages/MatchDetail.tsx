@@ -6,14 +6,13 @@ import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import ScoreBadge from '../components/match/ScoreBadge'
 import RatingForm from '../components/rating/RatingForm'
 import RatingList from '../components/rating/RatingList'
-import VoteForm from '../components/vote/VoteForm'
+import MvpVoteSection from '../components/vote/MvpVoteSection'
 import VoteResults from '../components/vote/VoteResults'
 import Loader from '../components/ui/Loader'
 import { useAuth } from '../context/AuthContext'
 import { useMatch } from '../hooks/useMatch'
 import { useMatchPlayers } from '../hooks/useMatchPlayers'
-import { syncMatchPlayers } from '../services/matchService'
-import Field from '../components/field/Field'
+import { syncLineups, syncSquads } from '../services/matchService'
 
 const isDev = import.meta.env.DEV
 
@@ -32,8 +31,8 @@ function MatchDetail() {
   const { id } = useParams()
   const matchId = Number(id)
   const { match, ratings, votes, pronostics, loading, error, refetch } = useMatch(matchId)
-  const { players, loadingPlayers, refetchPlayers } = useMatchPlayers(matchId)
-  const [syncingPlayers, setSyncingPlayers] = useState(false)
+  const { matchPlayers, players, loadingPlayers, refetchPlayers } = useMatchPlayers(matchId)
+  const [syncing, setSyncing] = useState<null | 'lineups' | 'squads'>(null)
 
   if (loading) return <Loader label="Chargement du match..." />
 
@@ -45,13 +44,23 @@ function MatchDetail() {
     )
   }
 
-  const handleSyncPlayers = async () => {
-    setSyncingPlayers(true)
+  const handleSyncLineups = async () => {
+    setSyncing('lineups')
     try {
-      await syncMatchPlayers(match.id)
+      await syncLineups({ matchId: match.id })
       await refetchPlayers()
     } finally {
-      setSyncingPlayers(false)
+      setSyncing(null)
+    }
+  }
+
+  const handleSyncSquads = async () => {
+    setSyncing('squads')
+    try {
+      await syncSquads({ matchId: match.id })
+      await refetchPlayers()
+    } finally {
+      setSyncing(null)
     }
   }
 
@@ -116,20 +125,35 @@ function MatchDetail() {
         <section id="votes" className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <h2 className="text-3xl font-bold text-[var(--text)]">Vote MVP</h2>
-            {isDev && players.length === 0 && !loadingPlayers ? (
-              <button
-                type="button"
-                onClick={handleSyncPlayers}
-                disabled={syncingPlayers}
-                className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)] disabled:opacity-60"
-              >
-                {syncingPlayers ? 'Sync des joueurs...' : 'Synchron boutton dev'}
-              </button>
+            {isDev ? (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleSyncLineups}
+                  disabled={syncing !== null}
+                  className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-xs font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)] disabled:opacity-60"
+                >
+                  {syncing === 'lineups' ? 'Sync lineup...' : 'Dev: sync lineup'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSyncSquads}
+                  disabled={syncing !== null}
+                  className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-xs font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)] disabled:opacity-60"
+                >
+                  {syncing === 'squads' ? 'Sync squad...' : 'Dev: sync squad'}
+                </button>
+              </div>
             ) : null}
           </div>
-          <VoteForm match={match} players={players} onCreated={refetch} />
+          <MvpVoteSection
+            match={match}
+            matchPlayers={matchPlayers}
+            votes={votes}
+            loadingPlayers={loadingPlayers}
+            onCreated={refetch}
+          />
           <VoteResults votes={votes} players={players} />
-          <Field />
         </section>
       </div>
     </div>
