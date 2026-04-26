@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TeamListView, TeamDetailView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncPlayersView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView
+from .views import TeamListView, TeamDetailView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView
 
 urlpatterns = [
     path('teams/', TeamListView.as_view(), name='team-list'),
@@ -8,7 +8,6 @@ urlpatterns = [
     path('matches/', MatchListView.as_view(), name='match-list'),
     path('matches/today/', TodayMatchListView.as_view(), name='match-today'),
     path('dev/sync-matches/', DevSyncMatchesView.as_view(), name='dev-sync-matches'),
-    path('dev/sync-players/', DevSyncPlayersView.as_view(), name='dev-sync-players'),
     path('dev/sync-live-scores/', DevSyncLiveScoresView.as_view(), name='dev-sync-live-scores'),
     path('dev/sync-lineups/', DevSyncLineupsView.as_view(), name='dev-sync-lineups'),
     path('dev/sync-squads/', DevSyncSquadsView.as_view(), name='dev-sync-squads'),
