@@ -14,8 +14,8 @@ Cela evite des appels API inutiles la nuit ou entre deux journees.
 from django.core.management.base import BaseCommand
 
 from matches.models import Match
-from matches.sync_services import (
-    SyncError,
+from matches.sync.http import SyncError
+from matches.sync.matches import (
     fetch_matches_for_date,
     resolve_target_date,
     update_match_live_data,
