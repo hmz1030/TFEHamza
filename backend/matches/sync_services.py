@@ -142,6 +142,16 @@ def _find_existing_team(team_name):
     return Team.objects.filter(name__iexact=team_name).order_by('-logo', 'id').first()
 
 
+def _release_api_id_from_other(api_id, keep_team):
+    """Libere `api_id` s'il est tenu par une autre Team que `keep_team`.
+
+    Necessaire pour pouvoir reattribuer un api_id sans violer la contrainte
+    unique : utile lors de la migration depuis API-Football vers Live Football
+    API ou si l'API change l'identifiant d'une equipe.
+    """
+    Team.objects.filter(api_id=api_id).exclude(pk=keep_team.pk).update(api_id=None)
+
+
 def _team_logo_url(api_id):
     api_id = (api_id or '').strip()
     if not api_id:
@@ -180,7 +190,8 @@ def find_or_create_team(team_data, league_name):
         existing_team = _find_existing_team(name)
         if existing_team:
             changed = False
-            if api_id and not existing_team.api_id:
+            if api_id and existing_team.api_id != api_id:
+                _release_api_id_from_other(api_id, existing_team)
                 existing_team.api_id = api_id
                 changed = True
             if logo and not existing_team.logo:
@@ -193,7 +204,8 @@ def find_or_create_team(team_data, league_name):
     team = Team.objects.filter(name__iexact=name, league=league_name).first()
     if team:
         changed = False
-        if api_id and not team.api_id:
+        if api_id and team.api_id != api_id:
+            _release_api_id_from_other(api_id, team)
             team.api_id = api_id
             changed = True
         if logo and team.logo != logo:
