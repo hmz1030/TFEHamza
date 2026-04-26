@@ -20,6 +20,11 @@ from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer
 
 User = get_user_model()
 
+
+def sync_endpoints_enabled():
+    return settings.DEBUG and settings.ENABLE_SYNC_ENDPOINTS
+
+
 def get_match_queryset():
     return (
         Match.objects
@@ -94,7 +99,7 @@ class DevSyncMatchesView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        if not settings.DEBUG:
+        if not sync_endpoints_enabled():
             return Response(
                 {'detail': 'Cet endpoint est disponible uniquement en mode développement.'},
                 status=status.HTTP_403_FORBIDDEN,
@@ -158,7 +163,7 @@ class DevSyncLiveScoresView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        if not settings.DEBUG:
+        if not sync_endpoints_enabled():
             return Response(
                 {'detail': 'Cet endpoint est disponible uniquement en mode développement.'},
                 status=status.HTTP_403_FORBIDDEN,
@@ -197,7 +202,7 @@ class DevSyncLineupsView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        if not settings.DEBUG:
+        if not sync_endpoints_enabled():
             return Response(
                 {'detail': 'Cet endpoint est disponible uniquement en mode développement.'},
                 status=status.HTTP_403_FORBIDDEN,
@@ -234,7 +239,7 @@ class DevSyncSquadsView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        if not settings.DEBUG:
+        if not sync_endpoints_enabled():
             return Response(
                 {'detail': 'Cet endpoint est disponible uniquement en mode développement.'},
                 status=status.HTTP_403_FORBIDDEN,
