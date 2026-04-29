@@ -49,6 +49,15 @@ class Command(BaseCommand):
             days_ahead=21,
         )
 
+        self._run_daily_after(
+            key='squads_21d',
+            now=now,
+            last_runs=last_runs,
+            hour=4,
+            command='sync_squads',
+            upcoming_days=21,
+        )
+
         if 8 <= now.hour <= 23:
             self._run_every(
                 key='calendar_2d',
@@ -57,6 +66,15 @@ class Command(BaseCommand):
                 interval=timedelta(hours=3),
                 command='sync_matches',
                 days_ahead=1,
+            )
+            # Squads = infos lentes (poste/numero/age), donc ptit rattrapage suffit.
+            self._run_every(
+                key='squads_2d',
+                now=now,
+                last_runs=last_runs,
+                interval=timedelta(hours=6),
+                command='sync_squads',
+                upcoming_days=2,
             )
 
         self._run_every(
