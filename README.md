@@ -3,7 +3,10 @@
 Projet de fin d'etudes.
 
 ## Modes de sync locaux
-
+ car je voulais tester le comportement en prod sans bouton sync dev pour voir comment ca donne en prod
+ les matchs a venir sont sync pour les 21 prochains jours 
+ pour les matchs du jour, tous les3h ya un update
+ et les matchs en direct toutes les 1 minutes ! 
 Mode developpement classique :
 
 ```env
