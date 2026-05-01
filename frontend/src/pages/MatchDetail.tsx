@@ -77,21 +77,43 @@ function MatchDetail() {
               </p>
             </div>
 
-            <div className="mt-8 grid items-center gap-6 text-center md:grid-cols-[1fr_auto_1fr]">
-              <div>
-                <p className="text-xl font-bold text-[var(--text)] sm:text-3xl">{match.home_team.name}</p>
+            {/* Conteneur principal Flexbox */}
+            <div className="flex flex-row items-center justify-between w-full max-w-2xl mx-auto gap-2">
+
+              {/* 1. Équipe à domicile (prend un tiers de l'espace) */}
+              <div className="flex flex-col items-center flex-1">
+                <img
+                  src={match.home_team.logo}
+                  alt={`Logo ${match.home_team.name}`}
+                  className="w-10 h-10 object-contain mb-2 sm:w-16 sm:h-16"
+                />
+                <p className="text-center text-sm font-bold text-[var(--text)] sm:text-xl">
+                  {match.home_team.name}
+                </p>
               </div>
-              <div>
-                <p className="text-5xl font-bold text-[var(--text)] sm:text-6xl">
+
+              {/* 2. Score et date (au centre) */}
+              <div className="flex flex-col items-center px-2">
+                <p className="text-3xl font-bold whitespace-nowrap text-[var(--text)] sm:text-5xl">
                   {match.home_score} - {match.away_score}
                 </p>
-                <p className="mt-3 text-xs uppercase tracking-[0.28em] text-[var(--muted)]">
+                <p className="mt-1 text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] sm:text-xs sm:mt-3">
                   {formatMatchDate(match.date)}
                 </p>
               </div>
-              <div>
-                <p className="text-xl font-bold text-[var(--text)] sm:text-3xl">{match.away_team.name}</p>
+
+              {/* 3. Équipe à l'extérieur (prend un tiers de l'espace) */}
+              <div className="flex flex-col items-center flex-1">
+                <img
+                  src={match.away_team.logo}
+                  alt={`Logo ${match.away_team.name}`}
+                  className="w-10 h-10 object-contain mb-2 sm:w-16 sm:h-16"
+                />
+                <p className="text-center text-sm font-bold text-[var(--text)] sm:text-xl">
+                  {match.away_team.name}
+                </p>
               </div>
+
             </div>
           </div>
         </section>
