@@ -17,16 +17,16 @@ type PositionLabel = (typeof POSITION_LABELS)[number]
 
 const HOME_LINE_X: Record<PositionLabel, number> = {
   GK: 94,
-  DF: 78,
-  MF: 62,
-  FW: 52,
+  DF: 82,
+  MF: 70,
+  FW: 55,
 }
 
 const AWAY_LINE_X: Record<PositionLabel, number> = {
   GK: 6,
-  DF: 22,
-  MF: 38,
-  FW: 48,
+  DF: 15,
+  MF: 29,
+  FW: 43,
 }
 
 function normalizePosition(raw: string): PositionLabel | null {
@@ -161,7 +161,7 @@ function PlayerToken({
       style={{ left: `${x}%`, top: `${y}%` }}
     >
       <div
-        className={`relative h-10 w-10 overflow-visible rounded-full transition-transform ${baseRing} ${sideTint} hover:scale-110 sm:h-12 sm:w-12`}
+        className={`relative h-10 w-10 overflow-visible rounded-full transition-transform ${baseRing} ${sideTint}`}
       >
         <div className="h-full w-full overflow-hidden rounded-full">
           {player.image ? (
