@@ -17,16 +17,16 @@ type PositionLabel = (typeof POSITION_LABELS)[number]
 
 const HOME_LINE_X: Record<PositionLabel, number> = {
   GK: 94,
-  DF: 82,
-  MF: 70,
-  FW: 55,
+  DF: 80,
+  MF: 68,
+  FW: 58, // Écarté du centre
 }
 
 const AWAY_LINE_X: Record<PositionLabel, number> = {
   GK: 6,
-  DF: 15,
-  MF: 29,
-  FW: 43,
+  DF: 20,
+  MF: 32,
+  FW: 42, // Écarté du centre
 }
 
 function normalizePosition(raw: string): PositionLabel | null {
@@ -157,8 +157,14 @@ function PlayerToken({
       type="button"
       disabled={disabled}
       onClick={() => onSelect?.(player)}
-      className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 outline-none disabled:cursor-not-allowed"
-      style={{ left: `${x}%`, top: `${y}%` }}
+      // Sur mobile : X = top, Y = left. Sur PC (md:) : X = left, Y = top.
+      className="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col 
+      items-center gap-1 outline-none disabled:cursor-not-allowed left-[var(--pos-y)] 
+      top-[var(--pos-x)] md:left-[var(--pos-x)] md:top-[var(--pos-y)]"
+      style={{
+        '--pos-x': `${x}%`,
+        '--pos-y': `${y}%`,
+      } as React.CSSProperties}
     >
       <div
         className={`relative h-10 w-10 overflow-visible rounded-full transition-transform ${baseRing} ${sideTint}`}
@@ -227,26 +233,42 @@ function Field({
         <span>{homeTeam.name}</span>
       </div>
 
-      <div
-        className="relative mx-auto aspect-[4/3] w-full max-w-[760px] overflow-hidden rounded-[1.6rem] border border-white/30 shadow-[0_24px_60px_rgba(0,0,0,0.45)]"
-        style={{
-          background:
-            'repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 36px, transparent 36px 72px), linear-gradient(90deg, #1f7a3a 0%, #145c2c 100%)',
-        }}
-      >
+      <div className="relative mx-auto aspect-[3/4] md:aspect-[4/3] w-full max-w-[760px] overflow-hidden rounded-[1.6rem] border border-white/30 shadow-[0_24px_60px_rgba(0,0,0,0.45)] bg-[#145c2c]">
+        
+        {/* Background Pelouse Mobile (Vertical - de haut en bas) */}
+        <div 
+          className="absolute inset-0 block md:hidden"
+          style={{ background: 'repeating-linear-gradient(180deg, rgba(255,255,255,0.04) 0 36px, transparent 36px 72px), linear-gradient(180deg, #1f7a3a 0%, #145c2c 100%)' }}
+        />
+        
+        {/* Background Pelouse PC (Horizontal - de gauche à droite) */}
+        <div 
+          className="absolute inset-0 hidden md:block"
+          style={{ background: 'repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 36px, transparent 36px 72px), linear-gradient(90deg, #1f7a3a 0%, #145c2c 100%)' }}
+        />
+
+        {/* LIGNES DU TERRAIN */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute bottom-0 left-1/2 top-0 w-[2px] -translate-x-1/2 bg-white/60" />
+          {/* Ligne centrale */}
+          <div className="absolute bg-white/60 left-0 right-0 top-1/2 h-[2px] -translate-y-1/2 md:bottom-0 md:left-1/2 md:top-0 md:h-auto md:w-[2px] md:-translate-x-1/2 md:translate-y-0" />
 
-          <div className="absolute left-1/2 top-1/2 h-[30%] w-[18%] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/60" />
+          {/* Cercle central */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/60 h-[18%] w-[30%] md:h-[30%] md:w-[18%]" />
 
-          <div className="absolute left-0 top-1/2 h-[56%] w-[18%] -translate-y-1/2 border-2 border-l-0 border-white/60" />
-          <div className="absolute right-0 top-1/2 h-[56%] w-[18%] -translate-y-1/2 border-2 border-r-0 border-white/60" />
+          {/* Surface Away (Haut sur mobile, Gauche sur PC) */}
+          <div className="absolute top-0 left-1/2 w-[56%] h-[18%] -translate-x-1/2 border-2 border-t-0 border-white/60 md:left-0 md:top-1/2 md:h-[56%] md:w-[18%] md:-translate-y-1/2 md:translate-x-0 md:border-l-0 md:border-t-2" />
+          
+          <div className="absolute bottom-0 left-1/2 w-[56%] h-[18%] -translate-x-1/2 border-2 border-b-0 border-white/60 md:left-auto md:right-0 md:bottom-auto md:top-1/2 md:h-[56%] md:w-[18%] md:-translate-y-1/2 md:translate-x-0 md:border-r-0 md:border-b-2" />
 
-          <div className="absolute left-0 top-1/2 h-[28%] w-[8%] -translate-y-1/2 border-2 border-l-0 border-white/60" />
-          <div className="absolute right-0 top-1/2 h-[28%] w-[8%] -translate-y-1/2 border-2 border-r-0 border-white/60" />
+          {/* 6 mètres Away */}
+          <div className="absolute top-0 left-1/2 w-[28%] h-[8%] -translate-x-1/2 border-2 border-t-0 border-white/60 md:left-0 md:top-1/2 md:h-[28%] md:w-[8%] md:-translate-y-1/2 md:translate-x-0 md:border-l-0 md:border-t-2" />
+          
+          <div className="absolute bottom-0 left-1/2 w-[28%] h-[8%] -translate-x-1/2 border-2 border-b-0 border-white/60 md:left-auto md:right-0 md:bottom-auto md:top-1/2 md:h-[28%] md:w-[8%] md:-translate-y-1/2 md:translate-x-0 md:border-r-0 md:border-b-2" />
 
-          <div className="absolute left-0 top-1/2 h-[18%] w-[2px] -translate-y-1/2 bg-white/80" />
-          <div className="absolute right-0 top-1/2 h-[18%] w-[2px] -translate-y-1/2 bg-white/80" />
+          {/* But Away */}
+          <div className="absolute top-0 left-1/2 w-[18%] h-[2px] -translate-x-1/2 bg-white/80 md:left-0 md:top-1/2 md:h-[18%] md:w-[2px] md:-translate-y-1/2 md:translate-x-0" />
+          
+          <div className="absolute bottom-0 left-1/2 w-[18%] h-[2px] -translate-x-1/2 bg-white/80 md:left-auto md:right-0 md:bottom-auto md:top-1/2 md:h-[18%] md:w-[2px] md:-translate-y-1/2 md:translate-x-0" />
         </div>
 
         {placements.map((placement) => (
