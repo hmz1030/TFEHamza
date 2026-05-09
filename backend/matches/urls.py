@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TeamListView, TeamDetailView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView
+from .views import TeamListView, TeamDetailView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView
 
 urlpatterns = [
     path('teams/', TeamListView.as_view(), name='team-list'),
@@ -15,10 +15,12 @@ urlpatterns = [
     path('matches/<int:match_id>/players/', MatchPlayerListView.as_view(), name='match-players'),
     path('matches/<int:match_id>/pronostics/', PronosticListView.as_view(), name='pronostic-list'),
     path('matches/<int:match_id>/ratings/', RatingListView.as_view(), name='rating-list'),
+    path('matches/<int:match_id>/comments/', CommentListView.as_view(), name='comment-list'),
     path('matches/<int:match_id>/votes/', VoteListView.as_view(), name='vote-list'),
     path('pronostics/leaderboard/', LeaderboardView.as_view(), name='pronostic-leaderboard'),
     path('pronostics/calculate-points/', PronosticPointsCalculationView.as_view(), name='pronostic-calculate-points'),
     path('ratings/', RatingCreateView.as_view(), name='rating-create'),
+    path('comments/', CommentCreateView.as_view(), name='comment-create'),
     path('votes/', VoteCreateView.as_view(), name='vote-create'),
     path('pronostics/', PronosticCreateView.as_view(), name='pronostic-create'),
 ]

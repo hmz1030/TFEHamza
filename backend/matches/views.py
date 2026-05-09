@@ -14,9 +14,9 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import Badge
-from .models import Team, Player, Match, MatchPlayer, Rating, Vote, Pronostic
+from .models import Team, Player, Match, MatchPlayer, Rating, Comment, Vote, Pronostic
 from .pronostics import update_pronostic_points
-from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, RatingSerializer, VoteSerializer, PronosticSerializer
+from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, RatingSerializer, CommentSerializer, VoteSerializer, PronosticSerializer
 
 User = get_user_model()
 
@@ -292,6 +292,14 @@ class RatingCreateView(generics.CreateAPIView):
             user.save()
 
 
+class CommentCreateView(generics.CreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
 class VoteCreateView(generics.CreateAPIView):
     serializer_class = VoteSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -355,6 +363,19 @@ class RatingListView(generics.ListAPIView):
 
     def get_queryset(self):
         return Rating.objects.filter(match_id=self.kwargs['match_id'])
+
+
+class CommentListView(generics.ListAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return (
+            Comment.objects
+            .filter(match_id=self.kwargs['match_id'])
+            .select_related('user', 'match', 'parent')
+            .order_by('created_at')
+        )
     
 class VoteListView(generics.ListAPIView):
     serializer_class = VoteSerializer
