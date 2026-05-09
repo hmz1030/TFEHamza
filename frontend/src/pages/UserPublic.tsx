@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import CommentSummaryCard from '../components/comment/CommentSummaryCard'
 import { useParams } from 'react-router-dom'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import FollowButton from '../components/user/FollowButton'
@@ -61,11 +62,29 @@ function UserPublic() {
           </div>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-5">
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Notes</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.ratings.length ?? 0}</p></article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Votes MVP</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.votes.length ?? 0}</p></article>
+          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Commentaires</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.comments.length ?? 0}</p></article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Pronostics</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.pronostics.length ?? 0}</p></article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Points</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{totalPoints}</p></article>
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-[var(--text)]">Commentaires récents</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">Ses réactions sur les matchs.</p>
+          </div>
+
+          <div className="space-y-4">
+            {activity?.comments.length ? activity.comments.map((comment) => (
+              <CommentSummaryCard key={comment.id} comment={comment} match={matchById.get(comment.match)} title={`${user.username} a commenté`} />
+            )) : (
+              <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
+                Aucun commentaire visible pour le moment.
+              </div>
+            )}
+          </div>
         </section>
 
         <section className="space-y-4">
