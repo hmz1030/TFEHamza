@@ -56,6 +56,9 @@ entity Player {
     api_id : String (nullable, unique)
     name : String
     position : String
+    image : String
+    number : Integer (nullable)
+    age : Integer (nullable)
     team_id : Integer <<FK>>
 }
 
@@ -80,6 +83,15 @@ entity Match {
     away_score : Integer
     status : String
     mvp_id : Integer <<FK>> (nullable)
+    lineup_synced_at : DateTime (nullable)
+}
+
+entity MatchPlayer {
+    * id : Integer <<PK>>
+    --
+    match_id : Integer <<FK>>
+    player_id : Integer <<FK>>
+    is_starter : Boolean
 }
 
 entity Rating {
@@ -90,6 +102,17 @@ entity Rating {
     user_id : Integer <<FK>>
     match_id : Integer <<FK>>
     created_at : DateTime
+}
+
+entity Comment {
+    * id : Integer <<PK>>
+    --
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+    parent_id : Integer <<FK>> (nullable)
+    content : Text
+    created_at : DateTime
+    updated_at : DateTime
 }
 
 entity Vote {
@@ -118,6 +141,7 @@ User ||--o| Badge
 User ||--o{ Follow : "follower"
 User ||--o{ FavoriteClub
 User ||--o{ Rating
+User ||--o{ Comment
 User ||--o{ Vote
 User ||--o{ Pronostic
 
@@ -126,10 +150,15 @@ Team ||--o{ FavoriteClub
 Team ||--o{ Match : "home/away"
 
 Match ||--o{ Rating
+Match ||--o{ Comment
+Match ||--o{ MatchPlayer
 Match ||--o{ Vote
 Match ||--o{ Pronostic
 Match |o--o| Player : "MVP"
 
+Player ||--o{ MatchPlayer
 Player ||--o{ Vote
+
+Comment ||--o{ Comment : "replies"
 
 @enduml
