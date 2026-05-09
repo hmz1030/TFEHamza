@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Match, Pronostic, Rating, Vote } from '../types'
+import type { Comment, Match, Pronostic, Rating, Vote } from '../types'
 import { getMatch } from '../services/matchService'
+import { getComments } from '../services/commentService'
 import { getPronostics } from '../services/pronosticService'
 import { getRatings } from '../services/ratingService'
 import { getVotes } from '../services/voteService'
@@ -8,6 +9,7 @@ import { getVotes } from '../services/voteService'
 interface UseMatchResult {
   match: Match | null
   ratings: Rating[]
+  comments: Comment[]
   votes: Vote[]
   pronostics: Pronostic[]
   loading: boolean
@@ -18,6 +20,7 @@ interface UseMatchResult {
 export function useMatch(matchId: number): UseMatchResult {
   const [match, setMatch] = useState<Match | null>(null)
   const [ratings, setRatings] = useState<Rating[]>([])
+  const [comments, setComments] = useState<Comment[]>([])
   const [votes, setVotes] = useState<Vote[]>([])
   const [pronostics, setPronostics] = useState<Pronostic[]>([])
   const [loading, setLoading] = useState(true)
@@ -28,6 +31,7 @@ export function useMatch(matchId: number): UseMatchResult {
       if (canUpdate()) {
         setMatch(null)
         setRatings([])
+        setComments([])
         setVotes([])
         setPronostics([])
         setError('Identifiant de match invalide.')
@@ -43,9 +47,10 @@ export function useMatch(matchId: number): UseMatchResult {
         setError(null)
       }
 
-      const [matchResponse, ratingsResponse, votesResponse, pronosticsResponse] = await Promise.all([
+      const [matchResponse, ratingsResponse, commentsResponse, votesResponse, pronosticsResponse] = await Promise.all([
         getMatch(matchId),
         getRatings(matchId),
+        getComments(matchId),
         getVotes(matchId),
         getPronostics(matchId),
       ])
@@ -53,6 +58,7 @@ export function useMatch(matchId: number): UseMatchResult {
       if (canUpdate()) {
         setMatch(matchResponse.data)
         setRatings(ratingsResponse.data)
+        setComments(commentsResponse.data)
         setVotes(votesResponse.data)
         setPronostics(pronosticsResponse.data)
       }
@@ -80,6 +86,7 @@ export function useMatch(matchId: number): UseMatchResult {
   return {
     match,
     ratings,
+    comments,
     votes,
     pronostics,
     loading,
