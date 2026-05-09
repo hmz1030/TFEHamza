@@ -80,6 +80,22 @@ class Rating(models.Model):
         return f"{self.user.username} - {self.match} : {self.score}/10"
 
 
+class Comment(models.Model):
+    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='comments')
+    match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='comments')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'comment'
+        ordering = ('created_at',)
+
+    def __str__(self):
+        return f"{self.user} - {self.match} : {self.content[:40]}"
+
+
 class Vote(models.Model):
     user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='votes')
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='votes')

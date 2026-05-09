@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Team, Player, Match, MatchPlayer, Rating, Vote, Pronostic
+from .models import Team, Player, Match, MatchPlayer, Rating, Comment, Vote, Pronostic
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -40,6 +40,22 @@ class RatingSerializer(serializers.ModelSerializer):
         model = Rating
         fields = ('id', 'score', 'comment', 'user', 'user_username', 'match', 'created_at')
         read_only_fields = ('user', 'created_at')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    user_username = serializers.CharField(source='user.username', read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ('id', 'user', 'user_username', 'match', 'parent', 'content', 'created_at', 'updated_at')
+        read_only_fields = ('user', 'created_at', 'updated_at')
+
+    def validate(self, data):
+        parent = data.get('parent')
+        match = data.get('match')
+        if parent and parent.match_id != match.id:
+            raise serializers.ValidationError("La réponse doit viser un commentaire du même match.")
+        return data
 
 
 class VoteSerializer(serializers.ModelSerializer):
