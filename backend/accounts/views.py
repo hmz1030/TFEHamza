@@ -8,8 +8,8 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .serializers import RegisterSerializer, UserSerializer, PublicUserSerializer, FollowSerializer, FavoriteClubSerializer, FavoriteClubListSerializer
 from .models import Follow, FavoriteClub
-from matches.models import Rating, Vote, Pronostic
-from matches.serializers import RatingSerializer, VoteSerializer, PronosticSerializer
+from matches.models import Rating, Comment, Vote, Pronostic
+from matches.serializers import RatingSerializer, CommentSerializer, VoteSerializer, PronosticSerializer
 
 User = get_user_model()
 
@@ -102,6 +102,7 @@ class MyActivityView(APIView):
         return Response({
             #many= true => signfieq qu'on attend une liste d'objets et pas un seul objet
             'ratings': RatingSerializer(Rating.objects.filter(user=user), many=True).data,
+            'comments': CommentSerializer(Comment.objects.filter(user=user), many=True).data,
             'votes': VoteSerializer(Vote.objects.filter(user=user), many=True).data,
             'pronostics': PronosticSerializer(Pronostic.objects.filter(user=user), many=True).data,
         })
@@ -114,6 +115,7 @@ class UserActivityView(APIView):
         user = get_object_or_404(User, pk=user_id)
         return Response({
             'ratings': RatingSerializer(Rating.objects.filter(user=user), many=True).data,
+            'comments': CommentSerializer(Comment.objects.filter(user=user), many=True).data,
             'votes': VoteSerializer(Vote.objects.filter(user=user), many=True).data,
             'pronostics': PronosticSerializer(Pronostic.objects.filter(user=user), many=True).data,
         })
