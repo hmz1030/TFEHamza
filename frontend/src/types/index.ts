@@ -70,6 +70,17 @@ export interface Rating {
   created_at: string
 }
 
+export interface Comment {
+  id: number
+  user: number
+  user_username: string
+  match: number
+  parent: number | null
+  content: string
+  created_at: string
+  updated_at: string
+}
+
 export interface Vote {
   id: number
   user: number
