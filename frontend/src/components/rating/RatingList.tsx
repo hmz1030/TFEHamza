@@ -45,7 +45,7 @@ function RatingList({ ratings }: RatingListProps) {
             </div>
           </div>
           <p className="mt-4 text-sm leading-6 text-[var(--muted-strong)]">
-            {rating.comment || 'Aucun commentaire laissé.'}
+            {rating.comment ? 'Avis affiché dans la discussion.' : 'Aucun avis associé à cette note.'}
           </p>
         </article>
       ))}
