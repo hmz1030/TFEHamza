@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import FavoriteClubCard from '../components/user/FavoriteClubCard'
+import CommentSummaryCard from '../components/comment/CommentSummaryCard'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import UserBadge from '../components/user/UserBadge'
 import Loader from '../components/ui/Loader'
@@ -20,7 +21,7 @@ function Profile() {
   const [addingFavorite, setAddingFavorite] = useState(false)
   const [showClubPicker, setShowClubPicker] = useState(false)
   const [teamQuery, setTeamQuery] = useState('')
-  const [activeTab, setActiveTab] = useState<'ratings' | 'votes' | 'pronostics'>('ratings')
+  const [activeTab, setActiveTab] = useState<'ratings' | 'comments' | 'votes' | 'pronostics'>('ratings')
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -87,6 +88,10 @@ function Profile() {
       ? activity?.ratings.length
         ? `${activity.ratings.length} note(s) envoyee(s)`
         : 'Aucune note pour le moment.'
+      : activeTab === 'comments'
+        ? activity?.comments.length
+          ? `${activity.comments.length} commentaire(s) publie(s)`
+          : 'Aucun commentaire pour le moment.'
       : activeTab === 'votes'
         ? activity?.votes.length
           ? `${activity.votes.length} vote(s) MVP enregistre(s)`
@@ -116,7 +121,7 @@ function Profile() {
           </div>
         ) : null}
 
-        <section className="grid gap-4 sm:grid-cols-4">
+        <section className="grid gap-4 sm:grid-cols-5">
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm text-[var(--muted)]">Notes</p>
             <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.ratings.length ?? 0}</p>
@@ -124,6 +129,10 @@ function Profile() {
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm text-[var(--muted)]">Votes MVP</p>
             <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.votes.length ?? 0}</p>
+          </article>
+          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+            <p className="text-sm text-[var(--muted)]">Commentaires</p>
+            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.comments.length ?? 0}</p>
           </article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm text-[var(--muted)]">Pronostics</p>
@@ -194,15 +203,22 @@ function Profile() {
 
           <div className="flex flex-wrap gap-3">
             <button type="button" onClick={() => setActiveTab('ratings')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'ratings' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes notes</button>
+            <button type="button" onClick={() => setActiveTab('comments')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'comments' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes commentaires</button>
             <button type="button" onClick={() => setActiveTab('votes')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'votes' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes votes</button>
             <button type="button" onClick={() => setActiveTab('pronostics')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'pronostics' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes pronostics</button>
           </div>
 
           <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm font-semibold text-[var(--muted-strong)]">
-              {activeTab === 'ratings' ? 'Dernieres notes' : activeTab === 'votes' ? 'Derniers votes' : 'Derniers pronostics'}
+              {activeTab === 'ratings' ? 'Dernieres notes' : activeTab === 'comments' ? 'Derniers commentaires' : activeTab === 'votes' ? 'Derniers votes' : 'Derniers pronostics'}
             </p>
-            {activeTab === 'pronostics' && activity?.pronostics.length ? (
+            {activeTab === 'comments' && activity?.comments.length ? (
+              <div className="mt-4 space-y-4">
+                {activity.comments.map((comment) => (
+                  <CommentSummaryCard key={comment.id} comment={comment} match={matchById.get(comment.match)} title="Commentaire publié" />
+                ))}
+              </div>
+            ) : activeTab === 'pronostics' && activity?.pronostics.length ? (
               <div className="mt-4 space-y-4">
                 {activity.pronostics.map((pronostic) => (
                   <PronosticSummaryCard
