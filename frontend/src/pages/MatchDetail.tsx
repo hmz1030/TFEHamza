@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
+import CommentForm from '../components/comment/CommentForm'
+import DiscussionFeed from '../components/comment/DiscussionFeed'
 import PronosticForm from '../components/pronostic/PronosticForm'
 import PronosticList from '../components/pronostic/PronosticList'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
@@ -29,7 +31,7 @@ function MatchDetail() {
   const { user } = useAuth()
   const { id } = useParams()
   const matchId = Number(id)
-  const { match, ratings, votes, pronostics, loading, error, refetch } = useMatch(matchId)
+  const { match, ratings, comments, votes, pronostics, loading, error, refetch } = useMatch(matchId)
   const { matchPlayers, players, loadingPlayers, refetchPlayers } = useMatchPlayers(matchId)
   const [syncing, setSyncing] = useState<null | 'lineups' | 'squads'>(null)
 
@@ -119,10 +121,20 @@ function MatchDetail() {
         </section>
 
         <nav className="flex flex-wrap gap-3">
+          <a href="#discussion" className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">Discussion</a>
           <a href="#pronostics" className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">Pronostics</a>
           <a href="#ratings" className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">Notes</a>
           <a href="#votes" className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">Vote MVP</a>
         </nav>
+
+        <section id="discussion" className="space-y-4">
+          <div>
+            <h2 className="text-3xl font-bold text-[var(--text)]">Discussion</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">Réagis au match en direct, puis retrouve aussi les avis notés après le coup de sifflet final.</p>
+          </div>
+          <CommentForm matchId={match.id} onCreated={refetch} />
+          <DiscussionFeed matchId={match.id} comments={comments} ratings={ratings} onCreated={refetch} />
+        </section>
 
         <section id="pronostics" className="space-y-4">
           <h2 className="text-3xl font-bold text-[var(--text)]">Pronostics</h2>
