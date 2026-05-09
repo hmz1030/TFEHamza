@@ -1,5 +1,5 @@
 import api from './api'
-import type { PublicUser, Team } from '../types'
+import type { Comment, PublicUser, Team } from '../types'
 
 export interface ActivityData {
   ratings: {
@@ -9,6 +9,7 @@ export interface ActivityData {
     match: number
     created_at: string
   }[]
+  comments: Comment[]
   votes: {
     id: number
     match: number
