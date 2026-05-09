@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { Comment, Rating } from '../../types'
 import UserProfileLink from '../user/UserProfileLink'
@@ -28,6 +28,12 @@ function DiscussionFeed({ matchId, comments, ratings, onCreated }: DiscussionFee
   const [searchParams] = useSearchParams()
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
   const focusedCommentId = Number(searchParams.get('comment'))
+
+  useEffect(() => {
+    if (!focusedCommentId) return
+    const target = document.getElementById(`comment-${focusedCommentId}`)
+    target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [comments, focusedCommentId])
 
   const repliesByParent = new Map<number, Comment[]>()
   comments.filter((comment) => comment.parent).forEach((reply) => {
