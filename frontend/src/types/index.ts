@@ -45,6 +45,10 @@ export interface MatchPlayer {
   id: number
   player: Player
   is_starter: boolean
+  goals: number
+  assists: number
+  subbed_in: boolean
+  subbed_out: boolean
 }
 
 export interface Match {
