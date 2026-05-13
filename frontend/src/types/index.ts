@@ -74,6 +74,8 @@ export interface Rating {
   created_at: string
 }
 
+export type CommentReactionValue = 'like' | 'dislike'
+
 export interface Comment {
   id: number
   user: number
@@ -81,6 +83,9 @@ export interface Comment {
   match: number
   parent: number | null
   content: string
+  likes_count: number
+  dislikes_count: number
+  my_reaction: CommentReactionValue | null
   created_at: string
   updated_at: string
 }
