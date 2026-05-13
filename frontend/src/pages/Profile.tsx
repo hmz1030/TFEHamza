@@ -4,16 +4,17 @@ import FavoriteClubCard from '../components/user/FavoriteClubCard'
 import CommentSummaryCard from '../components/comment/CommentSummaryCard'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import FollowStats from '../components/user/FollowStats'
+import UserAvatar from '../components/user/UserAvatar'
 import UserBadge from '../components/user/UserBadge'
 import Loader from '../components/ui/Loader'
 import { useAuth } from '../context/AuthContext'
-import { addFavoriteClub, getFavoriteClubs, getMyActivity, removeFavoriteClub, type ActivityData, type FavoriteClub } from '../services/userService'
+import { addFavoriteClub, getFavoriteClubs, getMyActivity, removeFavoriteClub, updateProfile, type ActivityData, type FavoriteClub } from '../services/userService'
 import { getMatches } from '../services/matchService'
 import { getTeams } from '../services/teamService'
 import type { Match, Team } from '../types'
 
 function Profile() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [favorites, setFavorites] = useState<FavoriteClub[]>([])
   const [activity, setActivity] = useState<ActivityData | null>(null)
   const [matches, setMatches] = useState<Match[]>([])
@@ -24,6 +25,11 @@ function Profile() {
   const [teamQuery, setTeamQuery] = useState('')
   const [activeTab, setActiveTab] = useState<'ratings' | 'comments' | 'votes' | 'pronostics'>('ratings')
   const [error, setError] = useState('')
+  const [editingProfile, setEditingProfile] = useState(false)
+  const [profileBio, setProfileBio] = useState('')
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState('')
+  const [savingProfile, setSavingProfile] = useState(false)
 
   useEffect(() => {
     Promise.all([getFavoriteClubs(), getMyActivity(), getTeams(), getMatches()])
@@ -36,6 +42,22 @@ function Profile() {
       .catch(() => setError('Impossible de charger le profil.'))
       .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    setProfileBio(user?.bio ?? '')
+  }, [user?.bio])
+
+  useEffect(() => {
+    if (!avatarFile) {
+      setAvatarPreview('')
+      return
+    }
+
+    const nextPreview = URL.createObjectURL(avatarFile)
+    setAvatarPreview(nextPreview)
+
+    return () => URL.revokeObjectURL(nextPreview)
+  }, [avatarFile])
 
   const handleRemoveFavorite = async (teamId: number) => {
     try {
@@ -59,6 +81,25 @@ function Profile() {
       toast.error("Impossible d'ajouter ce club.")
     } finally {
       setAddingFavorite(false)
+    }
+  }
+
+  const handleSaveProfile = async () => {
+    const data = new FormData()
+    data.append('bio', profileBio.trim())
+    if (avatarFile) data.append('avatar', avatarFile)
+
+    setSavingProfile(true)
+    try {
+      const response = await updateProfile(data)
+      updateUser(response.data)
+      setAvatarFile(null)
+      setEditingProfile(false)
+      toast.success('Profil mis a jour.')
+    } catch {
+      toast.error('Impossible de mettre a jour le profil.')
+    } finally {
+      setSavingProfile(false)
     }
   }
 
@@ -108,13 +149,74 @@ function Profile() {
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-8">
         <section className="rounded-[2rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-6">
-          <p className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">Mon profil</p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--text)]">{user.username}</h1>
-          <p className="mt-2 text-sm text-[var(--muted)]">{user.email}</p>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <UserBadge badge={user.badge} />
-            <FollowStats followersCount={user.followers_count} followingCount={user.following_count} />
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <UserAvatar username={user.username} avatarUrl={avatarPreview || user.avatar_url} size="lg" />
+              <div>
+                <p className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">Mon profil</p>
+                <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--text)]">{user.username}</h1>
+                <p className="mt-2 text-sm text-[var(--muted)]">{user.email}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <UserBadge badge={user.badge} />
+                  <FollowStats followersCount={user.followers_count} followingCount={user.following_count} />
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setEditingProfile((current) => !current)}
+              className="self-start rounded-full border border-[var(--line)] px-4 py-2.5 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+            >
+              {editingProfile ? 'Fermer' : 'Modifier mon profil'}
+            </button>
           </div>
+
+          {user.bio ? (
+            <p className="mt-5 max-w-3xl text-sm leading-6 text-[var(--muted-strong)]">{user.bio}</p>
+          ) : (
+            <p className="mt-5 text-sm text-[var(--muted)]">Aucune biographie pour le moment.</p>
+          )}
+
+          {editingProfile ? (
+            <div className="mt-5 space-y-4 rounded-[1.4rem] border border-[var(--line)] bg-[rgba(255,255,255,0.03)] p-4">
+              <div>
+                <label htmlFor="profile-bio" className="text-sm font-semibold text-[var(--muted-strong)]">
+                  Biographie
+                </label>
+                <textarea
+                  id="profile-bio"
+                  value={profileBio}
+                  onChange={(event) => setProfileBio(event.target.value)}
+                  rows={4}
+                  maxLength={500}
+                  className="mt-2 w-full rounded-[1rem] border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent)]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="profile-avatar" className="text-sm font-semibold text-[var(--muted-strong)]">
+                  Photo de profil
+                </label>
+                <input
+                  id="profile-avatar"
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)}
+                  className="mt-2 block w-full text-sm text-[var(--muted-strong)] file:mr-4 file:rounded-full file:border-0 file:bg-[var(--accent)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[var(--bg-deep)]"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => void handleSaveProfile()}
+                disabled={savingProfile}
+                className="rounded-full bg-[var(--accent)] px-5 py-2.5 text-sm font-semibold text-[var(--bg-deep)] transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {savingProfile ? 'Enregistrement...' : 'Enregistrer'}
+              </button>
+            </div>
+          ) : null}
         </section>
 
         {error ? (
