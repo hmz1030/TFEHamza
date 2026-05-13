@@ -28,8 +28,14 @@ function CommentSummaryCard({ comment, match, title = 'Commentaire' }: CommentSu
         </div>
         <p className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{formatDate(comment.created_at)}</p>
       </div>
+
       <p className="mt-3 line-clamp-3 text-sm leading-6 text-[var(--muted-strong)]">{comment.content}</p>
-      {comment.parent ? <p className="mt-2 text-xs text-[var(--accent-strong)]">Réponse à un commentaire</p> : null}
+
+      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs font-semibold text-[var(--muted)]">
+        <span>{comment.likes_count} like{comment.likes_count > 1 ? 's' : ''}</span>
+        <span>{comment.dislikes_count} dislike{comment.dislikes_count > 1 ? 's' : ''}</span>
+        {comment.parent ? <span className="text-[var(--accent-strong)]">Réponse à un commentaire</span> : null}
+      </div>
     </Link>
   )
 }
