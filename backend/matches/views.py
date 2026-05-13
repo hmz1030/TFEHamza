@@ -14,7 +14,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import Badge
-from .models import Team, Player, Match, MatchPlayer, Rating, Comment, Vote, Pronostic
+from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, Vote, Pronostic
 from .pronostics import update_pronostic_points
 from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, RatingSerializer, CommentSerializer, VoteSerializer, PronosticSerializer
 
@@ -298,6 +298,47 @@ class CommentCreateView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class CommentReactionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, comment_id):
+        comment = get_object_or_404(Comment, pk=comment_id)
+        value = request.data.get('value')
+
+        if value not in (CommentReaction.LIKE, CommentReaction.DISLIKE):
+            return Response(
+                {'detail': 'Reaction invalide.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        reaction = CommentReaction.objects.filter(
+            user=request.user,
+            comment=comment,
+        ).first()
+
+        if reaction and reaction.value == value:
+            reaction.delete()
+            my_reaction = None
+        elif reaction:
+            reaction.value = value
+            reaction.save(update_fields=['value'])
+            my_reaction = value
+        else:
+            CommentReaction.objects.create(
+                user=request.user,
+                comment=comment,
+                value=value,
+            )
+            my_reaction = value
+
+        return Response({
+            'comment': comment.id,
+            'likes_count': comment.reactions.filter(value=CommentReaction.LIKE).count(),
+            'dislikes_count': comment.reactions.filter(value=CommentReaction.DISLIKE).count(),
+            'my_reaction': my_reaction,
+        })
 
 
 class VoteCreateView(generics.CreateAPIView):

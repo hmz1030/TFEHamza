@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Team, Player, Match, MatchPlayer, Rating, Comment, Vote, Pronostic
+from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, Vote, Pronostic
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -44,11 +44,40 @@ class RatingSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     user_username = serializers.CharField(source='user.username', read_only=True)
+    likes_count = serializers.SerializerMethodField()
+    dislikes_count = serializers.SerializerMethodField()
+    my_reaction = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ('id', 'user', 'user_username', 'match', 'parent', 'content', 'created_at', 'updated_at')
+        fields = (
+            'id',
+            'user',
+            'user_username',
+            'match',
+            'parent',
+            'content',
+            'likes_count',
+            'dislikes_count',
+            'my_reaction',
+            'created_at',
+            'updated_at',
+        )
         read_only_fields = ('user', 'created_at', 'updated_at')
+
+    def get_likes_count(self, obj):
+        return obj.reactions.filter(value=CommentReaction.LIKE).count()
+
+    def get_dislikes_count(self, obj):
+        return obj.reactions.filter(value=CommentReaction.DISLIKE).count()
+
+    def get_my_reaction(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return None
+
+        reaction = obj.reactions.filter(user=request.user).first()
+        return reaction.value if reaction else None
 
     def validate(self, data):
         parent = data.get('parent')

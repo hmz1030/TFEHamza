@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TeamListView, TeamDetailView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView
+from .views import TeamListView, TeamDetailView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, CommentReactionView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView
 
 urlpatterns = [
     path('teams/', TeamListView.as_view(), name='team-list'),
@@ -21,6 +21,7 @@ urlpatterns = [
     path('pronostics/calculate-points/', PronosticPointsCalculationView.as_view(), name='pronostic-calculate-points'),
     path('ratings/', RatingCreateView.as_view(), name='rating-create'),
     path('comments/', CommentCreateView.as_view(), name='comment-create'),
+    path('comments/<int:comment_id>/reaction/', CommentReactionView.as_view(), name='comment-reaction'),
     path('votes/', VoteCreateView.as_view(), name='vote-create'),
     path('pronostics/', PronosticCreateView.as_view(), name='pronostic-create'),
 ]
