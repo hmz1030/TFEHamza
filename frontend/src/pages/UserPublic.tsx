@@ -4,6 +4,7 @@ import CommentSummaryCard from '../components/comment/CommentSummaryCard'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import FollowButton from '../components/user/FollowButton'
 import FollowStats from '../components/user/FollowStats'
+import UserAvatar from '../components/user/UserAvatar'
 import UserBadge from '../components/user/UserBadge'
 import Loader from '../components/ui/Loader'
 import type { ActivityData } from '../services/userService'
@@ -69,11 +70,14 @@ function UserPublic() {
         <section className="rounded-[2rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">Profil utilisateur</p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-bold tracking-tight text-[var(--text)]">{user.username}</h1>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <UserBadge badge={user.badge} />
-                <FollowStats followersCount={user.followers_count} followingCount={user.following_count} />
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <UserAvatar username={user.username} avatarUrl={user.avatar_url} size="lg" />
+              <div>
+                <h1 className="text-4xl font-bold tracking-tight text-[var(--text)]">{user.username}</h1>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <UserBadge badge={user.badge} />
+                  <FollowStats followersCount={user.followers_count} followingCount={user.following_count} />
+                </div>
               </div>
             </div>
             <FollowButton
@@ -83,6 +87,11 @@ function UserPublic() {
               onChange={handleFollowChange}
             />
           </div>
+          {user.bio ? (
+            <p className="mt-5 max-w-3xl text-sm leading-6 text-[var(--muted-strong)]">{user.bio}</p>
+          ) : (
+            <p className="mt-5 text-sm text-[var(--muted)]">Aucune biographie pour le moment.</p>
+          )}
         </section>
 
         <section className="grid gap-4 sm:grid-cols-4">
