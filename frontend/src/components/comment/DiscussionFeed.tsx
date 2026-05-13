@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import type { Comment, Rating } from '../../types'
 import UserProfileLink from '../user/UserProfileLink'
 import CommentForm from './CommentForm'
+import CommentReactionButtons from './CommentReactionButtons'
 
 interface DiscussionFeedProps {
   matchId: number
@@ -28,6 +29,7 @@ function DiscussionFeed({ matchId, comments, ratings, onCreated }: DiscussionFee
   const [searchParams] = useSearchParams()
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
   const focusedCommentId = Number(searchParams.get('comment'))
+  const handleReactionUpdated = () => onCreated?.()
 
   useEffect(() => {
     if (!focusedCommentId) return
@@ -93,6 +95,13 @@ function DiscussionFeed({ matchId, comments, ratings, onCreated }: DiscussionFee
             </button>
           </div>
           <p className="mt-4 text-sm leading-6 text-[var(--muted-strong)]">{item.comment.content}</p>
+          <CommentReactionButtons
+            commentId={item.comment.id}
+            likesCount={item.comment.likes_count}
+            dislikesCount={item.comment.dislikes_count}
+            myReaction={item.comment.my_reaction}
+            onUpdated={handleReactionUpdated}
+          />
 
           {replyingTo === item.comment.id ? (
             <div className="mt-4">
@@ -105,6 +114,13 @@ function DiscussionFeed({ matchId, comments, ratings, onCreated }: DiscussionFee
               <UserProfileLink userId={reply.user} className="text-sm font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">{reply.user_username}</UserProfileLink>
               <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{formatDate(reply.created_at)}</p>
               <p className="mt-2 text-sm leading-6 text-[var(--muted-strong)]">{reply.content}</p>
+              <CommentReactionButtons
+                commentId={reply.id}
+                likesCount={reply.likes_count}
+                dislikesCount={reply.dislikes_count}
+                myReaction={reply.my_reaction}
+                onUpdated={handleReactionUpdated}
+              />
             </div>
           ))}
         </article>
