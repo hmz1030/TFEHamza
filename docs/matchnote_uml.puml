@@ -115,6 +115,15 @@ entity Comment {
     updated_at : DateTime
 }
 
+entity CommentReaction {
+    * id : Integer <<PK>>
+    --
+    user_id : Integer <<FK>>
+    comment_id : Integer <<FK>>
+    value : String
+    created_at : DateTime
+}
+
 entity Vote {
     * id : Integer <<PK>>
     --
@@ -142,6 +151,7 @@ User ||--o{ Follow : "follower"
 User ||--o{ FavoriteClub
 User ||--o{ Rating
 User ||--o{ Comment
+User ||--o{ CommentReaction
 User ||--o{ Vote
 User ||--o{ Pronostic
 
@@ -160,5 +170,6 @@ Player ||--o{ MatchPlayer
 Player ||--o{ Vote
 
 Comment ||--o{ Comment : "replies"
+Comment ||--o{ CommentReaction
 
 @enduml
