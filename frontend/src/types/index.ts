@@ -14,6 +14,8 @@ export interface User {
   username: string
   email: string
   badge: BadgePreview | null
+  followers_count: number
+  following_count: number
 }
 
 export interface PublicUser {
