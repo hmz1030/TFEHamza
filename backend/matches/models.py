@@ -54,6 +54,10 @@ class MatchPlayer(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='match_players')
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='match_players')
     is_starter = models.BooleanField(default=False)
+    goals = models.PositiveSmallIntegerField(default=0)
+    assists = models.PositiveSmallIntegerField(default=0)
+    subbed_in = models.BooleanField(default=False)
+    subbed_out = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'match_player'
