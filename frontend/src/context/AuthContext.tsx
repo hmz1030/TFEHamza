@@ -8,6 +8,7 @@ interface AuthContextType {
   loading: boolean
   login: (username: string, password: string) => Promise<void>
   register: (username: string, email: string, password: string) => Promise<void>
+  updateUser: (nextUser: User) => void
   logout: () => void
 }
 
@@ -49,6 +50,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(me)
   }
 
+  const updateUser = (nextUser: User) => {
+    setUser(nextUser)
+  }
+
   const logout = () => {
     localStorage.removeItem('access_token')
     localStorage.removeItem('refresh_token')
@@ -56,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   )
