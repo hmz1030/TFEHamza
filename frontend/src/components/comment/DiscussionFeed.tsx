@@ -4,11 +4,13 @@ import type { Comment, CommentReactionResult, Rating } from '../../types'
 import UserProfileLink from '../user/UserProfileLink'
 import CommentForm from './CommentForm'
 import CommentReactionButtons from './CommentReactionButtons'
+import CommentShareActions from './CommentShareActions'
 
 interface DiscussionFeedProps {
   matchId: number
   comments: Comment[]
   ratings: Rating[]
+  matchLabel?: string
   onCreated?: () => Promise<void> | void
   onReactionUpdated?: (payload: CommentReactionResult) => void
 }
@@ -26,7 +28,14 @@ function formatDate(date: string) {
   }).format(new Date(date))
 }
 
-function DiscussionFeed({ matchId, comments, ratings, onCreated, onReactionUpdated }: DiscussionFeedProps) {
+function DiscussionFeed({
+  matchId,
+  comments,
+  ratings,
+  matchLabel,
+  onCreated,
+  onReactionUpdated,
+}: DiscussionFeedProps) {
   const [searchParams] = useSearchParams()
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
   const focusedCommentId = Number(searchParams.get('comment'))
@@ -102,6 +111,7 @@ function DiscussionFeed({ matchId, comments, ratings, onCreated, onReactionUpdat
             myReaction={item.comment.my_reaction}
             onUpdated={onReactionUpdated}
           />
+          <CommentShareActions comment={item.comment} matchLabel={matchLabel} />
 
           {replyingTo === item.comment.id ? (
             <div className="mt-4">
@@ -121,6 +131,7 @@ function DiscussionFeed({ matchId, comments, ratings, onCreated, onReactionUpdat
                 myReaction={reply.my_reaction}
                 onUpdated={onReactionUpdated}
               />
+              <CommentShareActions comment={reply} matchLabel={matchLabel} />
             </div>
           ))}
         </article>

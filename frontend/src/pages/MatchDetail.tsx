@@ -76,6 +76,7 @@ function MatchDetail() {
   }
 
   const myPronostic = pronostics.find((pronostic) => pronostic.user === user?.id)
+  const matchLabel = `${match.home_team.name} - ${match.away_team.name}`
 
   return (
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
@@ -147,6 +148,7 @@ function MatchDetail() {
             matchId={match.id}
             comments={comments}
             ratings={ratings}
+            matchLabel={matchLabel}
             onCreated={refetch}
             onReactionUpdated={updateCommentReaction}
           />
