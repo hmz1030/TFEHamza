@@ -39,6 +39,18 @@ function UserPublic() {
     [matches],
   )
 
+  const handleFollowChange = (isFollowing: boolean) => {
+    setUser((current) => {
+      if (!current) return current
+
+      return {
+        ...current,
+        is_following: isFollowing,
+        followers_count: Math.max(0, current.followers_count + (isFollowing ? 1 : -1)),
+      }
+    })
+  }
+
   if (loading) return <Loader label="Chargement du profil..." />
   if (error || !user) return <div className="px-4 py-10 text-center text-[var(--danger)]">{error || 'Profil introuvable.'}</div>
 
@@ -57,12 +69,15 @@ function UserPublic() {
             <FollowButton
               userId={user.id}
               initialFollowing={user.is_following}
-              onChange={(isFollowing) => setUser((current) => current ? { ...current, is_following: isFollowing } : current)}
+              isFollowedBy={user.is_followed_by}
+              onChange={handleFollowChange}
             />
           </div>
         </section>
 
-        <section className="grid gap-4 sm:grid-cols-5">
+        <section className="grid gap-4 sm:grid-cols-7">
+          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Abonnés</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{user.followers_count}</p></article>
+          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Abonnements</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{user.following_count}</p></article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Notes</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.ratings.length ?? 0}</p></article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Votes MVP</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.votes.length ?? 0}</p></article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5"><p className="text-sm text-[var(--muted)]">Commentaires</p><p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.comments.length ?? 0}</p></article>
