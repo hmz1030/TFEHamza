@@ -7,10 +7,16 @@ import { followUser, unfollowUser } from '../../services/userService'
 interface FollowButtonProps {
   userId: number
   initialFollowing?: boolean
+  isFollowedBy?: boolean
   onChange?: (isFollowing: boolean) => void
 }
 
-function FollowButton({ userId, initialFollowing = false, onChange }: FollowButtonProps) {
+function FollowButton({
+  userId,
+  initialFollowing = false,
+  isFollowedBy = false,
+  onChange,
+}: FollowButtonProps) {
   const { user } = useAuth()
   const [isFollowing, setIsFollowing] = useState(initialFollowing)
   const [loading, setLoading] = useState(false)
@@ -59,8 +65,21 @@ function FollowButton({ userId, initialFollowing = false, onChange }: FollowButt
     }
   }
 
+  const buttonLabel = loading
+    ? 'En cours...'
+    : isFollowing
+      ? 'Ne plus suivre'
+      : isFollowedBy
+        ? 'Suivre en retour'
+        : 'Suivre'
+
   return (
     <div className="space-y-2">
+      {isFollowing && isFollowedBy ? (
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--success)]">
+          Vous vous suivez
+        </p>
+      ) : null}
       <button
         type="button"
         onClick={handleToggleFollow}
@@ -71,7 +90,7 @@ function FollowButton({ userId, initialFollowing = false, onChange }: FollowButt
             : 'bg-[var(--accent)] text-[var(--bg-deep)] hover:bg-[var(--accent-strong)]'
         }`}
       >
-        {loading ? 'En cours...' : isFollowing ? 'Ne plus suivre' : 'Suivre'}
+        {buttonLabel}
       </button>
       {error ? <p className="text-xs text-[var(--danger)]">{error}</p> : null}
     </div>
