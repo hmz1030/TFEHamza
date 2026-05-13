@@ -72,6 +72,7 @@ function getFallbackFormation(count: number): PositionLabel[] {
 }
 
 interface PlacedPlayer {
+  matchPlayer: MatchPlayer
   player: Player
   x: number
   y: number
@@ -92,12 +93,12 @@ function placePlayersForSide(
     .sort((a, b) => (a.player.number ?? 999) - (b.player.number ?? 999))
   const fallbackFormation = getFallbackFormation(sortedStarters.length)
 
-  const grouped = new Map<PositionLabel, Player[]>()
+  const grouped = new Map<PositionLabel, MatchPlayer[]>()
   POSITION_LABELS.forEach((label) => grouped.set(label, []))
 
   sortedStarters.forEach((mp, index) => {
     const label = normalizePosition(mp.player.position) ?? fallbackFormation[index] ?? 'MF'
-    grouped.get(label)!.push(mp.player)
+    grouped.get(label)!.push(mp)
   })
 
   const xMap = side === 'home' ? HOME_LINE_X : AWAY_LINE_X
@@ -111,12 +112,13 @@ function placePlayersForSide(
 
     lineup
       .slice()
-      .sort((a, b) => (a.number ?? 999) - (b.number ?? 999))
-      .forEach((player, index) => {
+      .sort((a, b) => (a.player.number ?? 999) - (b.player.number ?? 999))
+      .forEach((matchPlayer, index) => {
         const y = ((index + 1) * 100) / (count + 1)
 
         placed.push({
-          player,
+          matchPlayer,
+          player: matchPlayer.player,
           x: xMap[label],
           y,
           side,
@@ -126,6 +128,144 @@ function placePlayersForSide(
   })
 
   return placed
+}
+
+type EventBadgeType = 'goal' | 'assist' | 'sub-in' | 'sub-out'
+
+const EVENT_BADGE_STYLES: Record<EventBadgeType, string> = {
+  goal: 'bg-white text-slate-950 ring-black/25',
+  assist: 'bg-amber-300 text-slate-950 ring-black/25',
+  'sub-in': 'bg-emerald-500 text-white ring-white/25',
+  'sub-out': 'bg-red-500 text-white ring-white/25',
+}
+
+function EventIcon({ type }: { type: EventBadgeType }) {
+  if (type === 'goal') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3 w-3">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />
+        <path
+          d="M12 7.2 15.7 10 14.3 14.3h-4.6L8.3 10 12 7.2Z"
+          fill="currentColor"
+        />
+        <path
+          d="m5.5 10 2.8.2m10.2-.2-2.8.2M8.9 20l1.2-5.7m5 5.7-1.2-5.7"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      </svg>
+    )
+  }
+
+  if (type === 'assist') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3 w-3">
+        <path
+          d="M4 15.5c3.5.2 6.4-1.2 8.7-4.1l1.4-1.8 3.2 3.6 2.7.9c.7.2 1.1.8 1 1.5l-.2 1.3H7.3C5.7 16.9 4.7 16.5 4 15.5Z"
+          fill="currentColor"
+        />
+        <path
+          d="M9.2 16.9v2m4.1-2v2m4.1-2v2M13.5 9.6l-2-4.3"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    )
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3 w-3">
+      <path
+        d={
+          type === 'sub-in'
+            ? 'M12 4 5.5 10.5h4V20h5v-9.5h4L12 4Z'
+            : 'M12 20 5.5 13.5h4V4h5v9.5h4L12 20Z'
+        }
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
+function EventBadge({
+  type,
+  label,
+  count,
+}: {
+  type: EventBadgeType
+  label: string
+  count?: number
+}) {
+  return (
+    <span
+      title={label}
+      className={`flex h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[8px] font-black leading-none ring-1 shadow ${EVENT_BADGE_STYLES[type]}`}
+    >
+      <EventIcon type={type} />
+      {count && count > 2 ? <span className="ml-0.5">x{count}</span> : null}
+    </span>
+  )
+}
+
+function CountBadges({
+  type,
+  count,
+  label,
+}: {
+  type: EventBadgeType
+  count: number
+  label: string
+}) {
+  if (count <= 0) return null
+
+  if (count > 2) {
+    return <EventBadge type={type} label={label} count={count} />
+  }
+
+  return Array.from({ length: count }, (_, index) => (
+    <EventBadge key={`${type}-${index}`} type={type} label={label} />
+  ))
+}
+
+function PlayerEventBadges({
+  matchPlayer,
+  compact = false,
+}: {
+  matchPlayer: MatchPlayer
+  compact?: boolean
+}) {
+  const goals = matchPlayer.goals ?? 0
+  const assists = matchPlayer.assists ?? 0
+  const hasSubs = matchPlayer.subbed_in || matchPlayer.subbed_out
+
+  if (!goals && !assists && !hasSubs) return null
+
+  const scale = compact ? 'scale-90' : ''
+
+  return (
+    <span className={`pointer-events-none absolute inset-0 ${scale}`}>
+      <span className="absolute -top-2 -right-2 flex gap-0.5">
+        <CountBadges type="goal" count={goals} label={`${goals} but${goals > 1 ? 's' : ''}`} />
+      </span>
+
+      <span className="absolute -top-2 -left-2 flex gap-0.5">
+        <CountBadges
+          type="assist"
+          count={assists}
+          label={`${assists} passe${assists > 1 ? 's' : ''} decisive${assists > 1 ? 's' : ''}`}
+        />
+      </span>
+
+      <span className="absolute -bottom-2 -left-2 flex gap-0.5">
+        {matchPlayer.subbed_in ? <EventBadge type="sub-in" label="Entre en jeu" /> : null}
+        {matchPlayer.subbed_out ? <EventBadge type="sub-out" label="Sorti du terrain" /> : null}
+      </span>
+    </span>
+  )
 }
 
 interface PlayerTokenProps {
@@ -141,7 +281,7 @@ function PlayerToken({
   onSelect,
   disabled,
 }: PlayerTokenProps) {
-  const { player, x, y, side } = placement
+  const { matchPlayer, player, x, y, side } = placement
 
   const baseRing = selected
     ? 'ring-4 ring-[var(--accent)] shadow-[0_8px_24px_rgba(255,200,0,0.45)]'
@@ -189,6 +329,8 @@ function PlayerToken({
             {player.number}
           </span>
         ) : null}
+
+        <PlayerEventBadges matchPlayer={matchPlayer} />
       </div>
 
       <span className="max-w-[4.8rem] truncate rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white shadow-[0_2px_6px_rgba(0,0,0,0.4)] sm:max-w-[7rem] sm:text-[11px]">
@@ -305,20 +447,23 @@ function Field({
                   className="flex items-center gap-2 rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.04)] px-3 py-1.5 text-xs text-[var(--text)] transition disabled:cursor-not-allowed"
                 >
                   <span
-                    className={`relative block h-7 w-7 overflow-hidden rounded-full ${ring}`}
+                    className={`relative block h-7 w-7 overflow-visible rounded-full ${ring}`}
                   >
-                    {mp.player.image ? (
-                      <img
-                        src={mp.player.image}
-                        alt={mp.player.name}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="flex h-full w-full items-center justify-center bg-[rgba(255,255,255,0.06)] text-[10px] font-bold">
-                        {mp.player.number ?? '?'}
-                      </span>
-                    )}
+                    <span className="block h-full w-full overflow-hidden rounded-full">
+                      {mp.player.image ? (
+                        <img
+                          src={mp.player.image}
+                          alt={mp.player.name}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center bg-[rgba(255,255,255,0.06)] text-[10px] font-bold">
+                          {mp.player.number ?? '?'}
+                        </span>
+                      )}
+                    </span>
+                    <PlayerEventBadges matchPlayer={mp} compact />
                   </span>
 
                   <span className="font-medium">{mp.player.name}</span>
