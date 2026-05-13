@@ -63,11 +63,29 @@ class UserSerializer(serializers.ModelSerializer):
     badge = BadgeSerializer(read_only=True)
     followers_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
+    avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'badge', 'followers_count', 'following_count')
+        fields = (
+            'id',
+            'username',
+            'email',
+            'badge',
+            'bio',
+            'avatar_url',
+            'followers_count',
+            'following_count',
+        )
         read_only_fields = fields
+
+    def get_avatar_url(self, obj):
+        if not obj.avatar:
+            return ''
+
+        request = self.context.get('request')
+        url = obj.avatar.url
+        return request.build_absolute_uri(url) if request else url
 
     def get_followers_count(self, obj):
         return obj.followers.count()
@@ -78,6 +96,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class PublicUserSerializer(serializers.ModelSerializer):
     badge = BadgeSerializer(read_only=True)
+    avatar_url = serializers.SerializerMethodField()
     followers_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
     is_following = serializers.SerializerMethodField()
@@ -89,12 +108,22 @@ class PublicUserSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'badge',
+            'bio',
+            'avatar_url',
             'followers_count',
             'following_count',
             'is_following',
             'is_followed_by',
         )
         read_only_fields = fields
+
+    def get_avatar_url(self, obj):
+        if not obj.avatar:
+            return ''
+
+        request = self.context.get('request')
+        url = obj.avatar.url
+        return request.build_absolute_uri(url) if request else url
 
     def get_followers_count(self, obj):
         return obj.followers.count()
@@ -115,6 +144,12 @@ class PublicUserSerializer(serializers.ModelSerializer):
             return False
 
         return Follow.objects.filter(follower=obj, followee=request.user).exists()
+
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('bio', 'avatar')
 
 class FollowSerializer(serializers.ModelSerializer):
     class Meta:

@@ -3,10 +3,11 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, UserSerializer, PublicUserSerializer, FollowSerializer, FavoriteClubSerializer, FavoriteClubListSerializer
+from .serializers import RegisterSerializer, UserSerializer, PublicUserSerializer, ProfileUpdateSerializer, FollowSerializer, FavoriteClubSerializer, FavoriteClubListSerializer
 from .models import Follow, FavoriteClub
 from matches.models import Rating, Comment, Vote, Pronostic
 from matches.serializers import RatingSerializer, CommentSerializer, VoteSerializer, PronosticSerializer
@@ -40,6 +41,22 @@ class MeView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class ProfileUpdateView(generics.UpdateAPIView):
+    serializer_class = ProfileUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+    http_method_names = ['patch']
+
+    def get_object(self):
+        return self.request.user
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        serializer = UserSerializer(self.request.user, context={'request': request})
+        response.data = serializer.data
+        return response
 
 
 class UserDetailView(generics.RetrieveAPIView):
