@@ -100,6 +100,28 @@ class Comment(models.Model):
         return f"{self.user} - {self.match} : {self.content[:40]}"
 
 
+class CommentReaction(models.Model):
+    LIKE = 'like'
+    DISLIKE = 'dislike'
+
+    REACTION_CHOICES = (
+        (LIKE, 'Like'),
+        (DISLIKE, 'Dislike'),
+    )
+
+    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='comment_reactions')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='reactions')
+    value = models.CharField(max_length=10, choices=REACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'comment_reaction'
+        unique_together = ('user', 'comment')
+
+    def __str__(self):
+        return f"{self.user} {self.value} {self.comment_id}"
+
+
 class Vote(models.Model):
     user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='votes')
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='votes')
