@@ -1,4 +1,6 @@
 import { useMemo } from 'react'
+import bootIcon from '../../assets/boot.png'
+import footballIcon from '../../assets/football.png'
 import type { MatchPlayer, Player, Team } from '../../types'
 
 type Side = 'home' | 'away'
@@ -142,38 +144,13 @@ const EVENT_BADGE_STYLES: Record<EventBadgeType, string> = {
 function EventIcon({ type }: { type: EventBadgeType }) {
   if (type === 'goal') {
     return (
-      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3 w-3">
-        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />
-        <path
-          d="M12 7.2 15.7 10 14.3 14.3h-4.6L8.3 10 12 7.2Z"
-          fill="currentColor"
-        />
-        <path
-          d="m5.5 10 2.8.2m10.2-.2-2.8.2M8.9 20l1.2-5.7m5 5.7-1.2-5.7"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-        />
-      </svg>
+      <img src={footballIcon} alt="" aria-hidden="true" className="h-3 w-3 object-contain" />
     )
   }
 
   if (type === 'assist') {
     return (
-      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3 w-3">
-        <path
-          d="M4 15.5c3.5.2 6.4-1.2 8.7-4.1l1.4-1.8 3.2 3.6 2.7.9c.7.2 1.1.8 1 1.5l-.2 1.3H7.3C5.7 16.9 4.7 16.5 4 15.5Z"
-          fill="currentColor"
-        />
-        <path
-          d="M9.2 16.9v2m4.1-2v2m4.1-2v2M13.5 9.6l-2-4.3"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-      </svg>
+      <img src={bootIcon} alt="" aria-hidden="true" className="h-3 w-3 object-contain" />
     )
   }
 
