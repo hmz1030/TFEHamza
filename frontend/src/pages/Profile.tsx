@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import FavoriteClubCard from '../components/user/FavoriteClubCard'
 import CommentSummaryCard from '../components/comment/CommentSummaryCard'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
+import FollowStats from '../components/user/FollowStats'
 import UserBadge from '../components/user/UserBadge'
 import Loader from '../components/ui/Loader'
 import { useAuth } from '../context/AuthContext'
@@ -110,8 +111,9 @@ function Profile() {
           <p className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">Mon profil</p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--text)]">{user.username}</h1>
           <p className="mt-2 text-sm text-[var(--muted)]">{user.email}</p>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <UserBadge badge={user.badge} />
+            <FollowStats followersCount={user.followers_count} followingCount={user.following_count} />
           </div>
         </section>
 
@@ -121,15 +123,7 @@ function Profile() {
           </div>
         ) : null}
 
-        <section className="grid gap-4 sm:grid-cols-7">
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-            <p className="text-sm text-[var(--muted)]">Abonnés</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{user.followers_count}</p>
-          </article>
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-            <p className="text-sm text-[var(--muted)]">Abonnements</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{user.following_count}</p>
-          </article>
+        <section className="grid gap-4 sm:grid-cols-4">
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm text-[var(--muted)]">Notes</p>
             <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.ratings.length ?? 0}</p>
@@ -141,10 +135,6 @@ function Profile() {
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm text-[var(--muted)]">Commentaires</p>
             <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.comments.length ?? 0}</p>
-          </article>
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-            <p className="text-sm text-[var(--muted)]">Pronostics</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.pronostics.length ?? 0}</p>
           </article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm text-[var(--muted)]">Points</p>
