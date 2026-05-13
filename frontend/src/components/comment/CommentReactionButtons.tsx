@@ -2,21 +2,14 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext'
 import { reactToComment } from '../../services/commentService'
-import type { CommentReactionValue } from '../../types'
-
-interface CommentReactionPayload {
-  comment: number
-  likes_count: number
-  dislikes_count: number
-  my_reaction: CommentReactionValue | null
-}
+import type { CommentReactionResult, CommentReactionValue } from '../../types'
 
 interface CommentReactionButtonsProps {
   commentId: number
   likesCount: number
   dislikesCount: number
   myReaction: CommentReactionValue | null
-  onUpdated?: (payload: CommentReactionPayload) => Promise<void> | void
+  onUpdated?: (payload: CommentReactionResult) => Promise<void> | void
 }
 
 function ThumbIcon({ direction }: { direction: 'up' | 'down' }) {

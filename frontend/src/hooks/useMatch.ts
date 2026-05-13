@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Comment, Match, Pronostic, Rating, Vote } from '../types'
+import type { Comment, CommentReactionResult, Match, Pronostic, Rating, Vote } from '../types'
 import { getMatch } from '../services/matchService'
 import { getComments } from '../services/commentService'
 import { getPronostics } from '../services/pronosticService'
@@ -15,6 +15,7 @@ interface UseMatchResult {
   loading: boolean
   error: string | null
   refetch: () => Promise<void>
+  updateCommentReaction: (payload: CommentReactionResult) => void
 }
 
 export function useMatch(matchId: number): UseMatchResult {
@@ -73,6 +74,21 @@ export function useMatch(matchId: number): UseMatchResult {
     }
   }, [matchId])
 
+  const updateCommentReaction = useCallback((payload: CommentReactionResult) => {
+    setComments((current) =>
+      current.map((comment) =>
+        comment.id === payload.comment
+          ? {
+              ...comment,
+              likes_count: payload.likes_count,
+              dislikes_count: payload.dislikes_count,
+              my_reaction: payload.my_reaction,
+            }
+          : comment,
+      ),
+    )
+  }, [])
+
   useEffect(() => {
     let isActive = true
 
@@ -92,5 +108,6 @@ export function useMatch(matchId: number): UseMatchResult {
     loading,
     error,
     refetch: () => fetchMatchData(),
+    updateCommentReaction,
   }
 }

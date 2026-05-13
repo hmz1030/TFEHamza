@@ -31,7 +31,17 @@ function MatchDetail() {
   const { user } = useAuth()
   const { id } = useParams()
   const matchId = Number(id)
-  const { match, ratings, comments, votes, pronostics, loading, error, refetch } = useMatch(matchId)
+  const {
+    match,
+    ratings,
+    comments,
+    votes,
+    pronostics,
+    loading,
+    error,
+    refetch,
+    updateCommentReaction,
+  } = useMatch(matchId)
   const { matchPlayers, players, loadingPlayers, refetchPlayers } = useMatchPlayers(matchId)
   const [syncing, setSyncing] = useState<null | 'lineups' | 'squads'>(null)
 
@@ -133,7 +143,13 @@ function MatchDetail() {
             <p className="mt-1 text-sm text-[var(--muted)]">Réagis au match en direct, puis retrouve aussi les avis notés après le coup de sifflet final.</p>
           </div>
           <CommentForm matchId={match.id} onCreated={refetch} />
-          <DiscussionFeed matchId={match.id} comments={comments} ratings={ratings} onCreated={refetch} />
+          <DiscussionFeed
+            matchId={match.id}
+            comments={comments}
+            ratings={ratings}
+            onCreated={refetch}
+            onReactionUpdated={updateCommentReaction}
+          />
         </section>
 
         <section id="pronostics" className="space-y-4">

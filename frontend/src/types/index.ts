@@ -76,6 +76,13 @@ export interface Rating {
 
 export type CommentReactionValue = 'like' | 'dislike'
 
+export interface CommentReactionResult {
+  comment: number
+  likes_count: number
+  dislikes_count: number
+  my_reaction: CommentReactionValue | null
+}
+
 export interface Comment {
   id: number
   user: number

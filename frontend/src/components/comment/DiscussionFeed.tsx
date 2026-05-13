@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import type { Comment, Rating } from '../../types'
+import type { Comment, CommentReactionResult, Rating } from '../../types'
 import UserProfileLink from '../user/UserProfileLink'
 import CommentForm from './CommentForm'
 import CommentReactionButtons from './CommentReactionButtons'
@@ -10,6 +10,7 @@ interface DiscussionFeedProps {
   comments: Comment[]
   ratings: Rating[]
   onCreated?: () => Promise<void> | void
+  onReactionUpdated?: (payload: CommentReactionResult) => void
 }
 
 type FeedItem =
@@ -25,11 +26,10 @@ function formatDate(date: string) {
   }).format(new Date(date))
 }
 
-function DiscussionFeed({ matchId, comments, ratings, onCreated }: DiscussionFeedProps) {
+function DiscussionFeed({ matchId, comments, ratings, onCreated, onReactionUpdated }: DiscussionFeedProps) {
   const [searchParams] = useSearchParams()
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
   const focusedCommentId = Number(searchParams.get('comment'))
-  const handleReactionUpdated = () => onCreated?.()
 
   useEffect(() => {
     if (!focusedCommentId) return
@@ -100,7 +100,7 @@ function DiscussionFeed({ matchId, comments, ratings, onCreated }: DiscussionFee
             likesCount={item.comment.likes_count}
             dislikesCount={item.comment.dislikes_count}
             myReaction={item.comment.my_reaction}
-            onUpdated={handleReactionUpdated}
+            onUpdated={onReactionUpdated}
           />
 
           {replyingTo === item.comment.id ? (
@@ -119,7 +119,7 @@ function DiscussionFeed({ matchId, comments, ratings, onCreated }: DiscussionFee
                 likesCount={reply.likes_count}
                 dislikesCount={reply.dislikes_count}
                 myReaction={reply.my_reaction}
-                onUpdated={handleReactionUpdated}
+                onUpdated={onReactionUpdated}
               />
             </div>
           ))}
