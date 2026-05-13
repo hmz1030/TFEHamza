@@ -14,6 +14,8 @@ export interface User {
   username: string
   email: string
   badge: BadgePreview | null
+  bio: string
+  avatar_url: string
   followers_count: number
   following_count: number
 }
@@ -22,6 +24,8 @@ export interface PublicUser {
   id: number
   username: string
   badge: BadgePreview | null
+  bio: string
+  avatar_url: string
   followers_count: number
   following_count: number
   is_following: boolean

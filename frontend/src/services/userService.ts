@@ -1,5 +1,5 @@
 import api from './api'
-import type { Comment, PublicUser, Team } from '../types'
+import type { Comment, PublicUser, Team, User } from '../types'
 
 export interface ActivityData {
   ratings: {
@@ -35,6 +35,11 @@ export interface FavoriteClub {
 
 export const getMyActivity = () =>
   api.get<ActivityData>('/accounts/me/activity/')
+
+export const updateProfile = (data: FormData) =>
+  api.patch<User>('/accounts/me/profile/', data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
 
 export const followUser = (followeeId: number) =>
   api.post('/accounts/follow/', { followee: followeeId })
