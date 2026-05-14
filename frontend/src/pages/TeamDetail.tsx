@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Loader from '../components/ui/Loader'
 import { getTeamOverview } from '../services/teamService'
-import type { Match, TeamOverview } from '../types'
+import type { Match, TeamOverview, TeamOverviewPlayer } from '../types'
 import { isScheduled } from '../utils/matchStatus'
 
 function currentSeason() {
@@ -51,6 +51,40 @@ function MatchRow({ match }: { match: Match }) {
         {score}
       </div>
     </Link>
+  )
+}
+
+function PlayerCard({ player, rank }: { player: TeamOverviewPlayer; rank: number }) {
+  return (
+    <article className="min-w-[13rem] rounded-[1.5rem] border border-[var(--line)] bg-[linear-gradient(180deg,rgba(35,52,69,0.94),rgba(17,27,40,0.96))] p-4">
+      <div className="flex items-start justify-between">
+        <span className="rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-black text-[var(--bg-deep)]">
+          #{rank}
+        </span>
+        <span className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted)]">
+          {player.position || 'Joueur'}
+        </span>
+      </div>
+      <div className="mt-5 flex items-center gap-3">
+        <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white">
+          {player.image ? (
+            <img src={player.image} alt={player.name} className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-sm font-black text-[var(--bg-deep)]">{player.name.slice(0, 2).toUpperCase()}</span>
+          )}
+        </span>
+        <div className="min-w-0">
+          <h3 className="truncate text-lg font-black text-[var(--text)]">{player.name}</h3>
+          <p className="mt-1 text-sm text-[var(--muted)]">
+            {player.matches_played} match{player.matches_played > 1 ? 's' : ''} joue{player.matches_played > 1 ? 's' : ''}
+          </p>
+        </div>
+      </div>
+      <div className="mt-5 rounded-[1rem] border border-[rgba(121,182,141,0.22)] bg-[rgba(121,182,141,0.1)] px-4 py-3 text-center">
+        <p className="text-3xl font-black text-[var(--success)]">{player.mvp_votes}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted)]">votes MVP</p>
+      </div>
+    </article>
   )
 }
 
@@ -171,6 +205,25 @@ function TeamDetail() {
           ) : (
             <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-6 text-sm text-[var(--muted)]">
               Aucun match trouve pour cette saison.
+            </div>
+          )}
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.26em] text-[var(--accent-strong)]">MVP</p>
+            <h2 className="mt-2 text-3xl font-black">Top joueurs</h2>
+          </div>
+
+          {overview.top_players.length ? (
+            <div className="flex gap-4 overflow-x-auto pb-3">
+              {overview.top_players.map((player, index) => (
+                <PlayerCard key={player.id} player={player} rank={index + 1} />
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-6 text-sm text-[var(--muted)]">
+              Aucun joueur trouve pour ce club.
             </div>
           )}
         </section>
