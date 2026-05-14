@@ -69,6 +69,7 @@ export interface Match {
   home_score: number | null
   away_score: number | null
   status: string
+  status_display: string
   mvp: number | null
   average_rating: number | null
 }

@@ -16,6 +16,7 @@ import { useMatch } from '../hooks/useMatch'
 import { useMatchPlayers } from '../hooks/useMatchPlayers'
 import { syncLineups, syncSquads } from '../services/matchService'
 import { devToolsEnabled } from '../utils/devTools'
+import { isLive } from '../utils/matchStatus'
 
 function formatMatchDate(date: string) {
   return new Intl.DateTimeFormat('fr-BE', {
@@ -77,6 +78,9 @@ function MatchDetail() {
 
   const myPronostic = pronostics.find((pronostic) => pronostic.user === user?.id)
   const matchLabel = `${match.home_team.name} - ${match.away_team.name}`
+  const statusLabel = isLive(match.status) && match.status_display
+    ? match.status_display
+    : match.status
 
   return (
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
@@ -86,7 +90,7 @@ function MatchDetail() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <p className="text-sm uppercase tracking-[0.32em] text-[var(--accent-strong)]">{match.league}</p>
               <p className="rounded-full border border-[var(--line)] px-4 py-2 text-xs uppercase tracking-[0.2em] text-[var(--muted-strong)]">
-                {match.status}
+                {statusLabel}
               </p>
             </div>
 

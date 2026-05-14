@@ -56,10 +56,16 @@ function getRatingConfig(averageRating: number | null) {
   return { label: averageRating.toFixed(1), classes: 'border-[rgba(216,125,116,0.24)] bg-[rgba(216,125,116,0.1)] text-[var(--danger)]' }
 }
 
+function getLiveLabel(match: Match) {
+  if (!isLive(match.status)) return null
+  return match.status_display || 'Live'
+}
+
 function MatchCard({ match }: MatchCardProps) {
   const { badge, badgeClasses, scoreAccent, showLiveDot } = getStatusConfig(match.status)
   const ratingConfig = getRatingConfig(match.average_rating)
   const scheduled = isScheduled(match.status)
+  const liveLabel = getLiveLabel(match)
 
   return (
     <Link
@@ -70,7 +76,7 @@ function MatchCard({ match }: MatchCardProps) {
         <div className="text-sm font-medium text-[var(--muted)]">{match.league}</div>
         <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${badgeClasses}`}>
           {showLiveDot ? <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--success)]" /> : null}
-          <span>{badge}</span>
+          <span>{liveLabel ?? badge}</span>
         </div>
       </div>
 
@@ -110,7 +116,7 @@ function MatchCard({ match }: MatchCardProps) {
                 {match.home_score} - {match.away_score}
               </div>
               <div className="mt-1 text-xs font-medium uppercase tracking-[0.24em] text-[var(--muted)]">
-                {showLiveDot ? 'En cours' : badge}
+                {liveLabel ?? (showLiveDot ? 'En cours' : badge)}
               </div>
             </>
           )}
