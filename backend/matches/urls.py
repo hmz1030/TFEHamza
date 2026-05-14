@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TeamListView, TeamDetailView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, CommentReactionView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView
+from .views import TeamListView, TeamDetailView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, CommentReactionView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView, PronosticGroupListCreateView, PronosticGroupInvitationListView, PronosticGroupDetailView, PronosticGroupInviteView, PronosticGroupResponseView, PronosticGroupLeaveView, PronosticGroupLeaderboardView
 
 urlpatterns = [
     path('teams/', TeamListView.as_view(), name='team-list'),
@@ -19,6 +19,13 @@ urlpatterns = [
     path('matches/<int:match_id>/votes/', VoteListView.as_view(), name='vote-list'),
     path('pronostics/leaderboard/', LeaderboardView.as_view(), name='pronostic-leaderboard'),
     path('pronostics/calculate-points/', PronosticPointsCalculationView.as_view(), name='pronostic-calculate-points'),
+    path('pronostic-groups/', PronosticGroupListCreateView.as_view(), name='pronostic-group-list'),
+    path('pronostic-groups/invitations/', PronosticGroupInvitationListView.as_view(), name='pronostic-group-invitations'),
+    path('pronostic-groups/<int:group_id>/', PronosticGroupDetailView.as_view(), name='pronostic-group-detail'),
+    path('pronostic-groups/<int:group_id>/invite/', PronosticGroupInviteView.as_view(), name='pronostic-group-invite'),
+    path('pronostic-groups/<int:group_id>/respond/', PronosticGroupResponseView.as_view(), name='pronostic-group-respond'),
+    path('pronostic-groups/<int:group_id>/leave/', PronosticGroupLeaveView.as_view(), name='pronostic-group-leave'),
+    path('pronostic-groups/<int:group_id>/leaderboard/', PronosticGroupLeaderboardView.as_view(), name='pronostic-group-leaderboard'),
     path('ratings/', RatingCreateView.as_view(), name='rating-create'),
     path('comments/', CommentCreateView.as_view(), name='comment-create'),
     path('comments/<int:comment_id>/reaction/', CommentReactionView.as_view(), name='comment-reaction'),
