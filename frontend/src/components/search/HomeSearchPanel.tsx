@@ -144,10 +144,10 @@ function HomeSearchPanel({ onClose, onSelectLeague }: HomeSearchPanelProps) {
           ) : activeTab === 'teams' ? (
             <div className="grid gap-3 sm:grid-cols-2">
               {filteredTeams.map((team) => (
-                <button
+                <Link
                   key={team.id}
-                  type="button"
-                  onClick={() => selectLeague(team.league)}
+                  to={`/teams/${team.id}`}
+                  onClick={onClose}
                   className="flex items-center gap-3 rounded-[1.1rem] border border-[var(--line)] bg-white/[0.03] p-3 text-left transition hover:border-[var(--accent-strong)]"
                 >
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white p-1.5">
@@ -157,7 +157,7 @@ function HomeSearchPanel({ onClose, onSelectLeague }: HomeSearchPanelProps) {
                     <span className="block truncate font-bold text-[var(--text)]">{team.name}</span>
                     <span className="text-sm text-[var(--muted)]">{team.league}</span>
                   </span>
-                </button>
+                </Link>
               ))}
             </div>
           ) : activeTab === 'leagues' ? (
