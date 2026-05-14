@@ -9,6 +9,7 @@ import Leaderboard from './pages/Leaderboard'
 import Login from './pages/Login'
 import MatchDetail from './pages/MatchDetail'
 import Pronostics from './pages/Pronostics'
+import PronosticGroups from './pages/PronosticGroups'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
 import UserPublic from './pages/UserPublic'
@@ -38,6 +39,7 @@ function AppContent() {
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           <Route path="/pronostics" element={<ProtectedRoute><Pronostics /></ProtectedRoute>} />
+          <Route path="/pronostic-groups" element={<ProtectedRoute><PronosticGroups /></ProtectedRoute>} />
           <Route path="/users/:id" element={<UserPublic />} />
         </Routes>
       </main>

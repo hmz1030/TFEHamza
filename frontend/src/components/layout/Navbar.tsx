@@ -10,6 +10,7 @@ const publicLinks = [
 ]
 
 const privateLinks = [
+  { to: '/pronostic-groups', label: 'Groupes' },
   { to: '/favorites', label: 'Favoris' },
   { to: '/profile', label: 'Profil' },
 ]
