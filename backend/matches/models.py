@@ -150,3 +150,44 @@ class Pronostic(models.Model):
 
     def __str__(self):
         return f"{self.user.username} : {self.home_score}-{self.away_score} pour {self.match}"
+
+
+class PronosticGroup(models.Model):
+    name = models.CharField(max_length=100)
+    owner = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='owned_pronostic_groups')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'pronostic_group'
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return self.name
+
+
+class PronosticGroupMember(models.Model):
+    PENDING = 'pending'
+    ACCEPTED = 'accepted'
+    REFUSED = 'refused'
+    LEFT = 'left'
+
+    STATUS_CHOICES = (
+        (PENDING, 'Pending'),
+        (ACCEPTED, 'Accepted'),
+        (REFUSED, 'Refused'),
+        (LEFT, 'Left'),
+    )
+
+    group = models.ForeignKey(PronosticGroup, on_delete=models.CASCADE, related_name='memberships')
+    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='pronostic_group_memberships')
+    invited_by = models.ForeignKey('accounts.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='sent_pronostic_group_invites')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    responded_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'pronostic_group_member'
+        unique_together = ('group', 'user')
+
+    def __str__(self):
+        return f"{self.user} - {self.group} ({self.status})"
