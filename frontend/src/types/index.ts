@@ -103,6 +103,7 @@ export interface Rating {
   comment: string
   user: number
   user_username: string
+  user_avatar_url?: string
   match: number
   created_at: string
 }
@@ -120,6 +121,7 @@ export interface Comment {
   id: number
   user: number
   user_username: string
+  user_avatar_url?: string
   match: number
   parent: number | null
   content: string
@@ -142,6 +144,7 @@ export interface Pronostic {
   id: number
   user: number
   user_username: string
+  user_avatar_url?: string
   match: number
   home_score: number
   away_score: number
@@ -153,6 +156,7 @@ export interface LeaderboardEntry {
   user: {
     id: number
     username: string
+    avatar_url: string
     badge: BadgePreview | null
   }
   total_points: number

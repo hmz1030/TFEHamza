@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { LeaderboardEntry } from '../../types'
-import UserBadge from '../user/UserBadge'
+import UserAvatar from '../user/UserAvatar'
 import UserProfileLink from '../user/UserProfileLink'
 
 interface LeaderboardTableProps {
@@ -34,13 +34,11 @@ function LeaderboardTable({ entries, headerAction }: LeaderboardTableProps) {
         {entries.map((entry, index) => (
           <div key={entry.user.id} className={`grid ${gridClass} gap-4 px-5 py-4`}>
             <span className="text-lg font-bold text-[var(--text)]">{index + 1}</span>
-            <div>
+            <div className="flex items-center gap-3">
+              <UserAvatar username={entry.user.username} avatarUrl={entry.user.avatar_url} size="sm" />
               <UserProfileLink userId={entry.user.id} className="font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
                 {entry.user.username}
               </UserProfileLink>
-              <div className="mt-2">
-                <UserBadge badge={entry.user.badge} />
-              </div>
             </div>
             <span className="text-right text-lg font-black tracking-tight text-[var(--accent-strong)]">
               {entry.total_points}
