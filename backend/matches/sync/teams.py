@@ -1,9 +1,14 @@
 from matches.models import Team
+from matches.clubs import canonical_club_key
 from matches.sync.http import TEAM_LOGO_URL
 
 
 def _find_existing_team(team_name):
-    return Team.objects.filter(name__iexact=team_name).order_by('-logo', 'id').first()
+    target_key = canonical_club_key(team_name)
+    for team in Team.objects.all().order_by('-logo', 'id'):
+        if canonical_club_key(team.name) == target_key:
+            return team
+    return None
 
 
 def _release_api_id_from_other(api_id, keep_team):
@@ -50,16 +55,13 @@ def find_or_create_team(team_data, league_name):
                 changed = True
             return _save_if_changed(team, changed)
 
-    if league_name == 'Champions League':
-        existing_team = _find_existing_team(name)
-        if existing_team:
-            changed = False
-            if api_id and existing_team.api_id != api_id:
-                _release_api_id_from_other(api_id, existing_team)
-                existing_team.api_id = api_id
-                changed = True
-            changed = _set_field(existing_team, 'logo', logo, overwrite=False) or changed
-            return _save_if_changed(existing_team, changed)
+    existing_team = _find_existing_team(name)
+    if existing_team:
+        changed = _set_field(existing_team, 'logo', logo, overwrite=False)
+        if league_name != 'Champions League' and existing_team.league != league_name:
+            existing_team.league = league_name
+            changed = True
+        return _save_if_changed(existing_team, changed)
 
     team = Team.objects.filter(name__iexact=name, league=league_name).first()
     if team:
