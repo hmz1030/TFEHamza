@@ -33,7 +33,8 @@ async function loadPronosticsData() {
 
 const ALL_LEAGUES = 'all'
 const TABS = [
-  { id: 'pronostics', label: 'Matchs à pronostiquer' },
+  { id: 'pronostics', label: 'Matchs a pronostiquer' },
+  { id: 'historique', label: 'Mes pronostics' },
   { id: 'classement', label: 'Classement' },
   { id: 'groupes', label: 'Groupes' },
 ] as const
@@ -76,7 +77,10 @@ function Pronostics() {
   const [error, setError] = useState('')
   const [leagueFilter, setLeagueFilter] = useState<string>(ALL_LEAGUES)
   const requestedTab = searchParams.get('tab')
-  const activeTab: PronosticTab = requestedTab === 'classement' || requestedTab === 'groupes' ? requestedTab : 'pronostics'
+  const activeTab: PronosticTab =
+    requestedTab === 'historique' || requestedTab === 'classement' || requestedTab === 'groupes'
+      ? requestedTab
+      : 'pronostics'
 
   useEffect(() => {
     loadPronosticsData()
@@ -84,7 +88,7 @@ function Pronostics() {
         setMatches(data.matches)
         setHistory(data.history)
       })
-      .catch(() => setError("Impossible de charger les pronostics."))
+      .catch(() => setError('Impossible de charger les pronostics.'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -144,7 +148,6 @@ function Pronostics() {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
   const availableLeagues = Array.from(new Set(allUpcomingMatches.map((match) => match.league))).sort()
-
   const upcomingMatches = leagueFilter === ALL_LEAGUES
     ? allUpcomingMatches
     : allUpcomingMatches.filter((match) => match.league === leagueFilter)
@@ -180,29 +183,43 @@ function Pronostics() {
     }
   }
 
-  const scrollToMyPronostics = () => {
-    const section = document.getElementById('mes-pronostics')
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+  if (activeTab === 'historique') {
+    return (
+      <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl space-y-8">
+          <h1 className="text-4xl font-bold tracking-tight text-[var(--text)]">Pronostics</h1>
+          {tabs}
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-2xl font-bold text-[var(--text)]">Mes pronostics</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">Retrouve tes scores joues et les points gagnes.</p>
+            </div>
+
+            <div className="space-y-4">
+              {historyByDate.length === 0 ? (
+                <div className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
+                  Aucun pronostic enregistre pour l'instant.
+                </div>
+              ) : historyByDate.map((pronostic) => {
+                const match = matchById.get(pronostic.match)
+                return (
+                  <div key={pronostic.id} className="space-y-2">
+                    <p className="text-sm text-[var(--muted)]">{match ? formatMatchDate(match.date) : formatMatchDate(pronostic.created_at)}</p>
+                    <PronosticSummaryCard pronostic={pronostic} match={match} title="Ton pronostic" />
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-8">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-4xl font-bold tracking-tight text-[var(--text)]">Pronostics</h1>
-          {historyByDate.length > 0 ? (
-            <button
-              type="button"
-              onClick={scrollToMyPronostics}
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[rgba(17,27,40,0.72)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
-            >
-              <span>Mes pronostics</span>
-              <span aria-hidden="true">↓</span>
-            </button>
-          ) : null}
-        </div>
+        <h1 className="text-4xl font-bold tracking-tight text-[var(--text)]">Pronostics</h1>
         {tabs}
 
         {error ? (
@@ -291,35 +308,12 @@ function Pronostics() {
                   </div>
                 </div>
                 {myPronosticByMatchId.get(match.id) ? (
-                  <PronosticSummaryCard pronostic={myPronosticByMatchId.get(match.id)!} match={match} title={user ? 'Pronostic déjà envoyé' : undefined} />
+                  <PronosticSummaryCard pronostic={myPronosticByMatchId.get(match.id)!} match={match} title={user ? 'Pronostic deja envoye' : undefined} />
                 ) : (
                   <PronosticForm matchId={match.id} status={match.status} onCreated={refetchHistory} />
                 )}
               </article>
             ))}
-          </div>
-        </section>
-
-        <section id="mes-pronostics" className="scroll-mt-24 space-y-4">
-          <div>
-            <h2 className="text-2xl font-bold text-[var(--text)]">Mes pronostics</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">Retrouve tes scores joues et les points gagnes.</p>
-          </div>
-
-          <div className="space-y-4">
-            {historyByDate.length === 0 ? (
-              <div className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
-                Aucun pronostic enregistre pour l'instant.
-              </div>
-            ) : historyByDate.map((pronostic) => {
-              const match = matchById.get(pronostic.match)
-              return (
-                <div key={pronostic.id} className="space-y-2">
-                  <p className="text-sm text-[var(--muted)]">{match ? formatMatchDate(match.date) : formatMatchDate(pronostic.created_at)}</p>
-                  <PronosticSummaryCard pronostic={pronostic} match={match} title="Ton pronostic" />
-                </div>
-              )
-            })}
           </div>
         </section>
       </div>
