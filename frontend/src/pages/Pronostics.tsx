@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import axios from 'axios'
+import { LeaderboardPanel } from './Leaderboard'
+import { PronosticGroupsPanel } from './PronosticGroups'
 import PronosticForm from '../components/pronostic/PronosticForm'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import Loader from '../components/ui/Loader'
@@ -29,6 +32,13 @@ async function loadPronosticsData() {
 }
 
 const ALL_LEAGUES = 'all'
+const TABS = [
+  { id: 'pronostics', label: 'Matchs à pronostiquer' },
+  { id: 'classement', label: 'Classement' },
+  { id: 'groupes', label: 'Groupes' },
+] as const
+
+type PronosticTab = typeof TABS[number]['id']
 
 function TeamLogo({ team }: { team: Team }) {
   return (
@@ -57,6 +67,7 @@ function PronosticTeam({ team }: { team: Team }) {
 
 function Pronostics() {
   const { user } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [matches, setMatches] = useState<Match[]>([])
   const [history, setHistory] = useState<PronosticType[]>([])
   const [loading, setLoading] = useState(true)
@@ -64,6 +75,8 @@ function Pronostics() {
   const [syncMessage, setSyncMessage] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [leagueFilter, setLeagueFilter] = useState<string>(ALL_LEAGUES)
+  const requestedTab = searchParams.get('tab')
+  const activeTab: PronosticTab = requestedTab === 'classement' || requestedTab === 'groupes' ? requestedTab : 'pronostics'
 
   useEffect(() => {
     loadPronosticsData()
@@ -74,6 +87,53 @@ function Pronostics() {
       .catch(() => setError("Impossible de charger les pronostics."))
       .finally(() => setLoading(false))
   }, [])
+
+  const selectTab = (tab: PronosticTab) => {
+    setSearchParams(tab === 'pronostics' ? {} : { tab })
+  }
+
+  const tabs = (
+    <div className="flex flex-wrap gap-2 rounded-[1.4rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-2">
+      {TABS.map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          onClick={() => selectTab(tab.id)}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+            activeTab === tab.id
+              ? 'bg-[var(--accent)] text-[var(--bg-deep)]'
+              : 'text-[var(--muted-strong)] hover:bg-white/[0.04] hover:text-[var(--text)]'
+          }`}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  )
+
+  if (activeTab === 'classement') {
+    return (
+      <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl space-y-8">
+          <h1 className="text-4xl font-bold tracking-tight text-[var(--text)]">Pronostics</h1>
+          {tabs}
+          <LeaderboardPanel />
+        </div>
+      </div>
+    )
+  }
+
+  if (activeTab === 'groupes') {
+    return (
+      <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl space-y-8">
+          <h1 className="text-4xl font-bold tracking-tight text-[var(--text)]">Pronostics</h1>
+          {tabs}
+          <PronosticGroupsPanel />
+        </div>
+      </div>
+    )
+  }
 
   if (loading) return <Loader label="Chargement des pronostics..." />
 
@@ -143,6 +203,7 @@ function Pronostics() {
             </button>
           ) : null}
         </div>
+        {tabs}
 
         {error ? (
           <div className="rounded-[1.6rem] border border-[var(--danger)]/30 bg-[rgba(127,29,29,0.18)] p-4 text-sm text-[var(--danger)]">

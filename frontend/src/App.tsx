@@ -1,15 +1,13 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Navbar from './components/layout/Navbar'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import Home from './pages/Home'
 import Favorites from './pages/Favorites'
-import Leaderboard from './pages/Leaderboard'
 import Login from './pages/Login'
 import MatchDetail from './pages/MatchDetail'
 import Pronostics from './pages/Pronostics'
-import PronosticGroups from './pages/PronosticGroups'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
 import UserPublic from './pages/UserPublic'
@@ -35,11 +33,11 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/matches/:id" element={<MatchDetail />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/leaderboard" element={<Navigate to="/pronostics?tab=classement" replace />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           <Route path="/pronostics" element={<ProtectedRoute><Pronostics /></ProtectedRoute>} />
-          <Route path="/pronostic-groups" element={<ProtectedRoute><PronosticGroups /></ProtectedRoute>} />
+          <Route path="/pronostic-groups" element={<Navigate to="/pronostics?tab=groupes" replace />} />
           <Route path="/users/:id" element={<UserPublic />} />
         </Routes>
       </main>

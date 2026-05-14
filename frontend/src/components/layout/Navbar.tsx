@@ -6,11 +6,9 @@ import UserBadge from '../user/UserBadge'
 const publicLinks = [
   { to: '/', label: 'Accueil' },
   { to: '/pronostics', label: 'Pronostics' },
-  { to: '/leaderboard', label: 'Classement' },
 ]
 
 const privateLinks = [
-  { to: '/pronostic-groups', label: 'Groupes' },
   { to: '/favorites', label: 'Favoris' },
   { to: '/profile', label: 'Profil' },
 ]

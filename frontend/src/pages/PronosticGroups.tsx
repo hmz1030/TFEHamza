@@ -16,7 +16,7 @@ import {
 } from '../services/pronosticGroupService'
 import type { LeaderboardEntry, PronosticGroup, PronosticGroupMember, PublicUser } from '../types'
 
-function PronosticGroups() {
+export function PronosticGroupsPanel() {
   const [groups, setGroups] = useState<PronosticGroup[]>([])
   const [invitations, setInvitations] = useState<PronosticGroupMember[]>([])
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
@@ -137,8 +137,7 @@ function PronosticGroups() {
   if (loading) return <Loader label="Chargement des groupes..." />
 
   return (
-    <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl space-y-8">
+    <div className="space-y-8">
         <div>
           <p className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">Pronostics</p>
           <h1 className="mt-2 text-4xl font-bold tracking-tight">Groupes privés</h1>
@@ -262,6 +261,15 @@ function PronosticGroups() {
             </div>
           </section>
         ) : null}
+    </div>
+  )
+}
+
+function PronosticGroups() {
+  return (
+    <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
+        <PronosticGroupsPanel />
       </div>
     </div>
   )
