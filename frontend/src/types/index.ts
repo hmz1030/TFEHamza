@@ -139,6 +139,7 @@ export type PronosticGroupMemberStatus = 'pending' | 'accepted' | 'refused' | 'l
 export interface PronosticGroupMember {
   id: number
   group: number
+  group_name: string
   user: number
   username: string
   invited_by: number | null

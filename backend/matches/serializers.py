@@ -112,6 +112,7 @@ class PronosticSerializer(serializers.ModelSerializer):
 
 
 class PronosticGroupMemberSerializer(serializers.ModelSerializer):
+    group_name = serializers.CharField(source='group.name', read_only=True)
     username = serializers.CharField(source='user.username', read_only=True)
     invited_by_username = serializers.CharField(source='invited_by.username', read_only=True)
 
@@ -120,6 +121,7 @@ class PronosticGroupMemberSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'group',
+            'group_name',
             'user',
             'username',
             'invited_by',
