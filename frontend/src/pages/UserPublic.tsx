@@ -36,6 +36,7 @@ function UserPublic() {
     () => activity?.pronostics.reduce((sum, pronostic) => sum + (pronostic.points ?? 0), 0) ?? 0,
     [activity],
   )
+  const notesCount = activity?.ratings.length ?? 0
 
   const matchById = useMemo(
     () => new Map(matches.map((match) => [match.id, match])),
@@ -75,7 +76,7 @@ function UserPublic() {
               <div>
                 <h1 className="text-4xl font-bold tracking-tight text-[var(--text)]">{user.username}</h1>
                 <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <UserBadge badge={user.badge} />
+                  <UserBadge badge={user.badge} variant="profile" />
                   <FollowStats followersCount={user.followers_count} followingCount={user.following_count} />
                 </div>
               </div>
@@ -97,7 +98,7 @@ function UserPublic() {
         <section className="grid gap-4 sm:grid-cols-4">
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm text-[var(--muted)]">Notes</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.ratings.length ?? 0}</p>
+            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{notesCount}</p>
           </article>
           <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <p className="text-sm text-[var(--muted)]">Votes MVP</p>
