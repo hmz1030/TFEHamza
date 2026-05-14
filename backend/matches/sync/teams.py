@@ -5,10 +5,7 @@ from matches.sync.http import TEAM_LOGO_URL
 
 def _find_existing_team(team_name):
     target_key = canonical_club_key(team_name)
-    for team in Team.objects.all().order_by('-logo', 'id'):
-        if canonical_club_key(team.name) == target_key:
-            return team
-    return None
+    return Team.objects.filter(canonical_key=target_key).order_by('-logo', 'id').first()
 
 
 def _release_api_id_from_other(api_id, keep_team):
@@ -59,12 +56,14 @@ def find_or_create_team(team_data, league_name):
     """Trouve ou cree une Team depuis le bloc home/away Live Football API."""
     api_id = str(team_data.get('id') or '').strip()
     name = (team_data.get('name') or '').strip()
+    canonical_key = canonical_club_key(name)
     logo = _team_logo_url(api_id)
 
     if api_id:
         team = Team.objects.filter(api_id=api_id).first()
         if team:
             changed = _set_field(team, 'name', name)
+            changed = _set_field(team, 'canonical_key', canonical_key) or changed
             changed = _set_field(team, 'logo', logo) or changed
             if league_name != 'Champions League' and team.league != league_name:
                 team.league = league_name
@@ -95,6 +94,7 @@ def find_or_create_team(team_data, league_name):
 
     return Team.objects.create(
         api_id=api_id or None,
+        canonical_key=canonical_key,
         name=name,
         league=league_name,
         logo=logo,

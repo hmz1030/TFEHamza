@@ -30,12 +30,8 @@ def canonical_club_key(value):
 
 
 def get_related_team_ids(team):
-    target_key = canonical_club_key(team.name)
-    return [
-        candidate.id
-        for candidate in Team.objects.all()
-        if canonical_club_key(candidate.name) == target_key
-    ]
+    target_key = team.canonical_key or canonical_club_key(team.name)
+    return list(Team.objects.filter(canonical_key=target_key).values_list('id', flat=True)) or [team.id]
 
 
 def unique_teams(queryset):
@@ -43,7 +39,7 @@ def unique_teams(queryset):
     seen_keys = set()
 
     for team in queryset:
-        key = canonical_club_key(team.name)
+        key = team.canonical_key or canonical_club_key(team.name)
         if key in seen_keys:
             continue
         seen_keys.add(key)

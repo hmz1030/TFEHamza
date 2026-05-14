@@ -3,6 +3,7 @@ from django.db import models
 
 class Team(models.Model):
     api_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    canonical_key = models.CharField(max_length=140, unique=True, null=True, blank=True, db_index=True)
     name = models.CharField(max_length=100)
     league = models.CharField(max_length=100)
     country = models.CharField(max_length=100, blank=True, default='')
