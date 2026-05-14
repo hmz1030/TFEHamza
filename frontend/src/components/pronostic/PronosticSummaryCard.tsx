@@ -1,4 +1,4 @@
-import type { Match, Pronostic } from '../../types'
+import type { Match, Pronostic, Team } from '../../types'
 import { isFinished } from '../../utils/matchStatus'
 
 interface PronosticSummaryCardProps {
@@ -17,6 +17,23 @@ function formatMatchDate(date: string) {
   }).format(new Date(date))
 }
 
+function TeamPill({ team }: { team: Team }) {
+  return (
+    <span className="inline-flex min-w-0 items-center gap-2 rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] py-1 pl-1 pr-3">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white p-1">
+        {team.logo ? (
+          <img src={team.logo} alt={team.name} className="h-full w-full object-contain" />
+        ) : (
+          <span className="text-[0.62rem] font-black text-[var(--bg-deep)]">
+            {team.name.slice(0, 3).toUpperCase()}
+          </span>
+        )}
+      </span>
+      <span className="truncate text-sm font-semibold text-[var(--text)]">{team.name}</span>
+    </span>
+  )
+}
+
 function PronosticSummaryCard({ pronostic, match, title }: PronosticSummaryCardProps) {
   const hasFinalScore = typeof match?.home_score === 'number' && typeof match?.away_score === 'number'
   const showFinalScore = hasFinalScore && isFinished(match?.status ?? '')
@@ -28,9 +45,11 @@ function PronosticSummaryCard({ pronostic, match, title }: PronosticSummaryCardP
           <p className="text-sm font-semibold text-[var(--muted-strong)]">{title || pronostic.user_username}</p>
           {match ? (
             <>
-              <p className="mt-2 text-lg font-semibold text-[var(--text)]">
-                {match.home_team.name} vs {match.away_team.name}
-              </p>
+              <div className="mt-2 flex max-w-full flex-wrap items-center gap-2">
+                <TeamPill team={match.home_team} />
+                <span className="text-xs font-bold uppercase tracking-[0.18em] text-[var(--muted)]">vs</span>
+                <TeamPill team={match.away_team} />
+              </div>
               <p className="mt-1 text-sm text-[var(--muted)]">
                 {formatMatchDate(match.date)}
               </p>

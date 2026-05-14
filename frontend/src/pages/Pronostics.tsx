@@ -3,7 +3,7 @@ import axios from 'axios'
 import PronosticForm from '../components/pronostic/PronosticForm'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import Loader from '../components/ui/Loader'
-import type { Match, Pronostic as PronosticType } from '../types'
+import type { Match, Pronostic as PronosticType, Team } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { getMatches, syncTodayMatches } from '../services/matchService'
 import { getMyActivity } from '../services/userService'
@@ -29,6 +29,31 @@ async function loadPronosticsData() {
 }
 
 const ALL_LEAGUES = 'all'
+
+function TeamLogo({ team }: { team: Team }) {
+  return (
+    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-white p-1.5">
+      {team.logo ? (
+        <img src={team.logo} alt={team.name} className="h-full w-full object-contain" />
+      ) : (
+        <span className="text-xs font-black text-[var(--bg-deep)]">
+          {team.name.slice(0, 3).toUpperCase()}
+        </span>
+      )}
+    </span>
+  )
+}
+
+function PronosticTeam({ team }: { team: Team }) {
+  return (
+    <div className="flex min-w-0 items-center gap-3">
+      <TeamLogo team={team} />
+      <span className="truncate text-base font-semibold text-[var(--text)] sm:text-lg">
+        {team.name}
+      </span>
+    </div>
+  )
+}
 
 function Pronostics() {
   const { user } = useAuth()
@@ -195,9 +220,13 @@ function Pronostics() {
             ) : upcomingMatches.map((match) => (
               <article key={match.id} className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
                 <div className="mb-4 flex items-center justify-between gap-4">
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm uppercase tracking-[0.18em] text-[var(--accent-strong)]">{match.league}</p>
-                    <p className="mt-2 text-lg font-semibold text-[var(--text)]">{match.home_team.name} vs {match.away_team.name}</p>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
+                      <PronosticTeam team={match.home_team} />
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--muted)]">vs</span>
+                      <PronosticTeam team={match.away_team} />
+                    </div>
                   </div>
                 </div>
                 {myPronosticByMatchId.get(match.id) ? (
