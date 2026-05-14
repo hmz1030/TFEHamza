@@ -20,6 +20,8 @@ entity User {
     email : String
     password : String
     badge_id : Integer <<FK>>
+    bio : Text
+    avatar : String
 }
 
 entity Badge {
@@ -144,6 +146,25 @@ entity Pronostic {
     created_at : DateTime
 }
 
+entity PronosticGroup {
+    * id : Integer <<PK>>
+    --
+    name : String
+    owner_id : Integer <<FK>>
+    created_at : DateTime
+}
+
+entity PronosticGroupMember {
+    * id : Integer <<PK>>
+    --
+    group_id : Integer <<FK>>
+    user_id : Integer <<FK>>
+    invited_by_id : Integer <<FK>> (nullable)
+    status : String
+    created_at : DateTime
+    responded_at : DateTime (nullable)
+}
+
 
 
 User ||--o| Badge
@@ -154,6 +175,9 @@ User ||--o{ Comment
 User ||--o{ CommentReaction
 User ||--o{ Vote
 User ||--o{ Pronostic
+User ||--o{ PronosticGroup : "owner"
+User ||--o{ PronosticGroupMember : "member"
+User ||--o{ PronosticGroupMember : "invited_by"
 
 Team ||--o{ Player
 Team ||--o{ FavoriteClub
@@ -165,6 +189,8 @@ Match ||--o{ MatchPlayer
 Match ||--o{ Vote
 Match ||--o{ Pronostic
 Match |o--o| Player : "MVP"
+
+PronosticGroup ||--o{ PronosticGroupMember
 
 Player ||--o{ MatchPlayer
 Player ||--o{ Vote
