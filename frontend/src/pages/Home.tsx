@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import Loader from '../components/ui/Loader'
 import LeagueFilter, { type LeagueFilterValue } from '../components/match/LeagueFilter'
 import MatchList from '../components/match/MatchList'
+import HomeSearchPanel from '../components/search/HomeSearchPanel'
 import { useMatches } from '../hooks/useMatches'
 import { syncTodayMatches } from '../services/matchService'
 import { devToolsEnabled } from '../utils/devTools'
@@ -43,6 +44,7 @@ function Home() {
   const [selectedLeague, setSelectedLeague] = useState<LeagueFilterValue>('Toutes')
   const [syncLoading, setSyncLoading] = useState(false)
   const [syncMessage, setSyncMessage] = useState<string | null>(null)
+  const [searchOpen, setSearchOpen] = useState(false)
   const selectedDate = isValidInputDate(searchParams.get('date'))
     ? searchParams.get('date')!
     : today
@@ -164,18 +166,30 @@ function Home() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <LeagueFilter selectedLeague={selectedLeague} onSelectLeague={setSelectedLeague} />
 
-            {devToolsEnabled && (
+            <div className="flex flex-col gap-3 lg:items-end">
+              {devToolsEnabled ? (
+                <button
+                  type="button"
+                  onClick={handleDevRefresh}
+                  disabled={syncLoading}
+                  className="inline-flex items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {syncLoading
+                    ? 'Synchronisation en cours...'
+                    : `Synchron boutton dev`}
+                </button>
+              ) : null}
               <button
                 type="button"
-                onClick={handleDevRefresh}
-                disabled={syncLoading}
-                className="inline-flex items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() => setSearchOpen(true)}
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+                aria-label="Ouvrir la recherche"
               >
-                {syncLoading
-                  ? 'Synchronisation en cours...'
-                  : `Synchron boutton dev`}
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-1.6 4.5 4.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+                </svg>
               </button>
-            )}
+            </div>
           </div>
 
           {syncMessage ? (
@@ -196,6 +210,12 @@ function Home() {
           <MatchList matches={filteredMatches} />
         )}
       </div>
+      {searchOpen ? (
+        <HomeSearchPanel
+          onClose={() => setSearchOpen(false)}
+          onSelectLeague={setSelectedLeague}
+        />
+      ) : null}
     </div>
   )
 }
