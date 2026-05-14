@@ -73,6 +73,30 @@ export interface Match {
   average_rating: number | null
 }
 
+export interface TeamOverviewPlayer {
+  id: number
+  name: string
+  image: string
+  position: string
+  number: number | null
+  age: number | null
+  mvp_votes: number
+  matches_played: number
+}
+
+export interface TeamOverview {
+  team: Team
+  season: number
+  season_label: string
+  activity: {
+    rated_matches: number
+    average_rating: number | null
+    total_matches: number
+  }
+  recent_matches: Match[]
+  top_players: TeamOverviewPlayer[]
+}
+
 export interface Rating {
   id: number
   score: number
