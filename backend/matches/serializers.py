@@ -2,6 +2,14 @@ from rest_framework import serializers
 from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, Vote, Pronostic, PronosticGroup, PronosticGroupMember
 
 
+def get_user_avatar_url(user, request):
+    if not user.avatar:
+        return ''
+
+    url = user.avatar.url
+    return request.build_absolute_uri(url) if request else url
+
+
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
@@ -35,15 +43,20 @@ class MatchSerializer(serializers.ModelSerializer):
 class RatingSerializer(serializers.ModelSerializer):
     score = serializers.IntegerField(min_value=1, max_value=10)
     user_username = serializers.CharField(source='user.username', read_only=True)
+    user_avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Rating
-        fields = ('id', 'score', 'comment', 'user', 'user_username', 'match', 'created_at')
+        fields = ('id', 'score', 'comment', 'user', 'user_username', 'user_avatar_url', 'match', 'created_at')
         read_only_fields = ('user', 'created_at')
+
+    def get_user_avatar_url(self, obj):
+        return get_user_avatar_url(obj.user, self.context.get('request'))
 
 
 class CommentSerializer(serializers.ModelSerializer):
     user_username = serializers.CharField(source='user.username', read_only=True)
+    user_avatar_url = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     dislikes_count = serializers.SerializerMethodField()
     my_reaction = serializers.SerializerMethodField()
@@ -54,6 +67,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'id',
             'user',
             'user_username',
+            'user_avatar_url',
             'match',
             'parent',
             'content',
@@ -64,6 +78,9 @@ class CommentSerializer(serializers.ModelSerializer):
             'updated_at',
         )
         read_only_fields = ('user', 'created_at', 'updated_at')
+
+    def get_user_avatar_url(self, obj):
+        return get_user_avatar_url(obj.user, self.context.get('request'))
 
     def get_likes_count(self, obj):
         return obj.reactions.filter(value=CommentReaction.LIKE).count()
@@ -104,11 +121,15 @@ class VoteSerializer(serializers.ModelSerializer):
 
 class PronosticSerializer(serializers.ModelSerializer):
     user_username = serializers.CharField(source='user.username', read_only=True)
+    user_avatar_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Pronostic
-        fields = ('id', 'user', 'user_username', 'match', 'home_score', 'away_score', 'points', 'created_at')
+        fields = ('id', 'user', 'user_username', 'user_avatar_url', 'match', 'home_score', 'away_score', 'points', 'created_at')
         read_only_fields = ('user', 'points', 'created_at')
+
+    def get_user_avatar_url(self, obj):
+        return get_user_avatar_url(obj.user, self.context.get('request'))
 
 
 class PronosticGroupMemberSerializer(serializers.ModelSerializer):

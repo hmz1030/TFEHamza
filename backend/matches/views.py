@@ -18,7 +18,7 @@ from accounts.models import Badge
 from .clubs import get_related_team_ids, unique_teams
 from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, Vote, Pronostic, PronosticGroup, PronosticGroupMember
 from .pronostics import update_pronostic_points
-from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, RatingSerializer, CommentSerializer, VoteSerializer, PronosticSerializer, PronosticGroupSerializer, PronosticGroupMemberSerializer, PronosticGroupCreateSerializer, PronosticGroupInviteSerializer, PronosticGroupResponseSerializer
+from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, RatingSerializer, CommentSerializer, VoteSerializer, PronosticSerializer, PronosticGroupSerializer, PronosticGroupMemberSerializer, PronosticGroupCreateSerializer, PronosticGroupInviteSerializer, PronosticGroupResponseSerializer, get_user_avatar_url
 
 User = get_user_model()
 
@@ -515,6 +515,7 @@ class LeaderboardView(APIView):
             'user': {
                 'id': user.id,
                 'username': user.username,
+                'avatar_url': get_user_avatar_url(user, request),
                 'badge': None if not user.badge else {
                     'id': user.badge.id,
                     'name': user.badge.name,
@@ -656,6 +657,7 @@ class PronosticGroupLeaderboardView(APIView):
             'user': {
                 'id': user.id,
                 'username': user.username,
+                'avatar_url': get_user_avatar_url(user, request),
                 'badge': None if not user.badge else {
                     'id': user.badge.id,
                     'name': user.badge.name,
