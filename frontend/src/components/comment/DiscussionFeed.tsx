@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { Comment, CommentReactionResult, Rating } from '../../types'
+import UserAvatar from '../user/UserAvatar'
 import UserProfileLink from '../user/UserProfileLink'
 import CommentForm from './CommentForm'
 import CommentReactionButtons from './CommentReactionButtons'
@@ -26,6 +27,20 @@ function formatDate(date: string) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(date))
+}
+
+function UserLine({ userId, username, avatarUrl, date }: { userId: number; username: string; avatarUrl?: string; date: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <UserAvatar username={username} avatarUrl={avatarUrl} size="sm" />
+      <div>
+        <UserProfileLink userId={userId} className="text-sm font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
+          {username}
+        </UserProfileLink>
+        <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{formatDate(date)}</p>
+      </div>
+    </div>
+  )
 }
 
 function DiscussionFeed({
@@ -78,12 +93,7 @@ function DiscussionFeed({
       {feed.map((item) => item.type === 'rating' ? (
         <article key={`rating-${item.rating.id}`} className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <UserProfileLink userId={item.rating.user} className="text-sm font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
-                {item.rating.user_username}
-              </UserProfileLink>
-              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{formatDate(item.rating.created_at)}</p>
-            </div>
+            <UserLine userId={item.rating.user} username={item.rating.user_username} avatarUrl={item.rating.user_avatar_url} date={item.rating.created_at} />
             <span className="rounded-full border border-[rgba(200,132,73,0.3)] bg-[var(--accent-soft)] px-3 py-1.5 text-sm font-bold text-[var(--accent-strong)]">
               Note {item.rating.score}/10
             </span>
@@ -93,12 +103,7 @@ function DiscussionFeed({
       ) : (
         <article key={`comment-${item.comment.id}`} id={`comment-${item.comment.id}`} className={`rounded-[1.6rem] border bg-[rgba(17,27,40,0.72)] p-5 transition ${focusedCommentId === item.comment.id ? 'border-[var(--accent-strong)] shadow-[0_0_0_1px_var(--accent-strong)]' : 'border-[var(--line)]'}`}>
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <UserProfileLink userId={item.comment.user} className="text-sm font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
-                {item.comment.user_username}
-              </UserProfileLink>
-              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{formatDate(item.comment.created_at)}</p>
-            </div>
+            <UserLine userId={item.comment.user} username={item.comment.user_username} avatarUrl={item.comment.user_avatar_url} date={item.comment.created_at} />
             <button type="button" onClick={() => setReplyingTo((current) => current === item.comment.id ? null : item.comment.id)} className="rounded-full border border-[var(--line)] px-3 py-1.5 text-xs font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">
               Répondre
             </button>
@@ -121,8 +126,7 @@ function DiscussionFeed({
 
           {(repliesByParent.get(item.comment.id) ?? []).map((reply) => (
             <div key={reply.id} id={`comment-${reply.id}`} className={`mt-4 border-l border-[var(--line)] pl-4 ${focusedCommentId === reply.id ? 'rounded-r-[1rem] bg-[rgba(200,132,73,0.08)] py-2' : ''}`}>
-              <UserProfileLink userId={reply.user} className="text-sm font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">{reply.user_username}</UserProfileLink>
-              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{formatDate(reply.created_at)}</p>
+              <UserLine userId={reply.user} username={reply.user_username} avatarUrl={reply.user_avatar_url} date={reply.created_at} />
               <p className="mt-2 text-sm leading-6 text-[var(--muted-strong)]">{reply.content}</p>
               <CommentReactionButtons
                 commentId={reply.id}
