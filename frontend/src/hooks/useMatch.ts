@@ -5,6 +5,7 @@ import { getComments } from '../services/commentService'
 import { getPronostics } from '../services/pronosticService'
 import { getRatings } from '../services/ratingService'
 import { getVotes } from '../services/voteService'
+import { isLive } from '../utils/matchStatus'
 
 interface UseMatchResult {
   match: Match | null
@@ -98,6 +99,16 @@ export function useMatch(matchId: number): UseMatchResult {
       isActive = false
     }
   }, [fetchMatchData])
+
+  useEffect(() => {
+    if (!match || !isLive(match.status)) return
+
+    const interval = window.setInterval(() => {
+      void fetchMatchData()
+    }, 60000)
+
+    return () => window.clearInterval(interval)
+  }, [fetchMatchData, match])
 
   return {
     match,

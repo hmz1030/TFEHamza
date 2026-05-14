@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Match } from '../types'
 import { getMatchesByDate, getTodayMatches } from '../services/matchService'
+import { isLive } from '../utils/matchStatus'
 
 interface UseMatchesResult {
   matches: Match[]
@@ -54,6 +55,16 @@ export function useMatches(selectedDate?: string): UseMatchesResult {
       isActive = false
     }
   }, [fetchMatches])
+
+  useEffect(() => {
+    if (!matches.some((match) => isLive(match.status))) return
+
+    const interval = window.setInterval(() => {
+      void fetchMatches()
+    }, 60000)
+
+    return () => window.clearInterval(interval)
+  }, [fetchMatches, matches])
 
   return { matches, loading, error, refetch: () => fetchMatches() }
 }
