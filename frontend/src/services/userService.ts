@@ -59,5 +59,8 @@ export const removeFavoriteClub = (teamId: number) =>
 export const getUser = (userId: number) =>
   api.get<PublicUser>(`/accounts/users/${userId}/`)
 
+export const searchUsers = (search: string) =>
+  api.get<PublicUser[]>('/accounts/users/', { params: { search } })
+
 export const getUserActivity = (userId: number) =>
   api.get<ActivityData>(`/accounts/users/${userId}/activity/`)

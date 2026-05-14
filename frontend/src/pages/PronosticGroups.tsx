@@ -9,8 +9,8 @@ import {
   getPronosticGroups,
   invitePronosticGroupMember,
   leavePronosticGroup,
-  searchUsers,
 } from '../services/pronosticGroupService'
+import { searchUsers } from '../services/userService'
 import type { LeaderboardEntry, PronosticGroup, PublicUser } from '../types'
 
 export function PronosticGroupsPanel() {

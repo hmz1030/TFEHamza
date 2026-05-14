@@ -1,5 +1,5 @@
 import api from './api'
-import type { LeaderboardEntry, PronosticGroup, PronosticGroupMember, PublicUser } from '../types'
+import type { LeaderboardEntry, PronosticGroup, PronosticGroupMember } from '../types'
 
 export const getPronosticGroups = () =>
   api.get<PronosticGroup[]>('/pronostic-groups/')
@@ -24,6 +24,3 @@ export const leavePronosticGroup = (groupId: number) =>
 
 export const getPronosticGroupLeaderboard = (groupId: number) =>
   api.get<LeaderboardEntry[]>(`/pronostic-groups/${groupId}/leaderboard/`)
-
-export const searchUsers = (search: string) =>
-  api.get<PublicUser[]>('/accounts/users/', { params: { search } })
