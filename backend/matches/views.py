@@ -14,6 +14,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import Badge
+from .clubs import unique_teams
 from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, Vote, Pronostic, PronosticGroup, PronosticGroupMember
 from .pronostics import update_pronostic_points
 from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, RatingSerializer, CommentSerializer, VoteSerializer, PronosticSerializer, PronosticGroupSerializer, PronosticGroupMemberSerializer, PronosticGroupCreateSerializer, PronosticGroupInviteSerializer, PronosticGroupResponseSerializer
@@ -47,6 +48,10 @@ class TeamListView(generics.ListAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
     permission_classes = [permissions.AllowAny]
+
+    def list(self, request, *args, **kwargs):
+        teams = unique_teams(self.get_queryset().order_by('name', 'league'))
+        return Response(self.get_serializer(teams, many=True).data)
 
 class TeamDetailView(generics.RetrieveAPIView):
     queryset = Team.objects.all()
