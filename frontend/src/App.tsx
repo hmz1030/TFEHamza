@@ -10,6 +10,7 @@ import MatchDetail from './pages/MatchDetail'
 import Pronostics from './pages/Pronostics'
 import Profile from './pages/Profile'
 import Register from './pages/Register'
+import TeamDetail from './pages/TeamDetail'
 import UserPublic from './pages/UserPublic'
 import Loader from './components/ui/Loader'
 
@@ -33,6 +34,7 @@ function AppContent() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/matches/:id" element={<MatchDetail />} />
+          <Route path="/teams/:id" element={<TeamDetail />} />
           <Route path="/leaderboard" element={<Navigate to="/pronostics?tab=classement" replace />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
