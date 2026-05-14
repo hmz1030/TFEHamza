@@ -65,6 +65,18 @@ class UserDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
 
 
+class UserListView(generics.ListAPIView):
+    serializer_class = PublicUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = User.objects.select_related('badge').exclude(pk=self.request.user.pk).order_by('username')
+        search = self.request.query_params.get('search', '').strip()
+        if search:
+            queryset = queryset.filter(username__icontains=search)
+        return queryset[:10]
+
+
 class FollowView(generics.CreateAPIView):
     serializer_class = FollowSerializer
     permission_classes = [permissions.IsAuthenticated]
