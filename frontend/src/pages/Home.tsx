@@ -7,6 +7,7 @@ import MatchList from '../components/match/MatchList'
 import { useMatches } from '../hooks/useMatches'
 import { syncTodayMatches } from '../services/matchService'
 import { devToolsEnabled } from '../utils/devTools'
+import stadeHero from '../assets/stade.png'
 
 function formatDateForInput(date: Date) {
   const year = date.getFullYear()
@@ -91,7 +92,12 @@ function Home() {
   return (
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-10">
-        <section className="overflow-hidden rounded-[2rem] border border-[var(--line)] bg-[linear-gradient(145deg,rgba(17,27,40,0.96),rgba(8,17,27,0.88))] shadow-[var(--shadow)]">
+        <section
+          className="overflow-hidden rounded-[2rem] border border-[var(--line)] bg-[var(--panel)] bg-cover bg-center shadow-[var(--shadow)]"
+          style={{
+            backgroundImage: `linear-gradient(90deg, rgba(7,12,19,0.54) 0%, rgba(7,12,19,0.7) 44%, rgba(7,12,19,0.92) 100%), url(${stadeHero})`,
+          }}
+        >
           <div className="grid gap-8 px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[1.6fr_0.9fr] lg:items-end">
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase tracking-[0.34em] text-[var(--accent-strong)]">
