@@ -31,6 +31,10 @@ function PronosticGroups() {
     () => groups.find((group) => group.id === selectedGroupId) ?? null,
     [groups, selectedGroupId],
   )
+  const visibleMemberships = useMemo(
+    () => selectedGroup?.memberships.filter((membership) => membership.status === 'accepted' || membership.status === 'pending') ?? [],
+    [selectedGroup],
+  )
 
   const loadGroups = async () => {
     const [groupsResponse, invitationsResponse] = await Promise.all([
@@ -213,7 +217,7 @@ function PronosticGroups() {
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">Membres</h3>
                 <div className="mt-3 space-y-2">
-                  {selectedGroup.memberships.map((membership) => (
+                  {visibleMemberships.map((membership) => (
                     <div key={membership.id} className="flex items-center justify-between rounded-[1rem] border border-[var(--line)] bg-white/[0.03] px-4 py-3">
                       <UserProfileLink userId={membership.user} className="font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
                         {membership.username}
