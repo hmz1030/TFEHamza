@@ -134,6 +134,29 @@ export interface LeaderboardEntry {
   total_points: number
 }
 
+export type PronosticGroupMemberStatus = 'pending' | 'accepted' | 'refused' | 'left'
+
+export interface PronosticGroupMember {
+  id: number
+  group: number
+  user: number
+  username: string
+  invited_by: number | null
+  invited_by_username: string
+  status: PronosticGroupMemberStatus
+  created_at: string
+  responded_at: string | null
+}
+
+export interface PronosticGroup {
+  id: number
+  name: string
+  owner: number
+  owner_username: string
+  created_at: string
+  memberships: PronosticGroupMember[]
+}
+
 // === Auth ===
 
 export interface AuthTokens {
