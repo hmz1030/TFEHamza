@@ -37,7 +37,7 @@ class MatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Match
-        fields = ('id', 'date', 'league', 'home_team', 'away_team', 'home_score', 'away_score', 'status', 'mvp', 'average_rating')
+        fields = ('id', 'date', 'league', 'home_team', 'away_team', 'home_score', 'away_score', 'status', 'status_display', 'mvp', 'average_rating')
 
 
 class RatingSerializer(serializers.ModelSerializer):

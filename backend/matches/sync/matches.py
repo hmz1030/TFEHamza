@@ -65,6 +65,7 @@ def upsert_match_full(match_data, target_date):
             'home_score': parse_int(home_data.get('score', 0)),
             'away_score': parse_int(away_data.get('score', 0)),
             'status': (match_data.get('status') or {}).get('status', 'scheduled'),
+            'status_display': (match_data.get('status') or {}).get('display', ''),
         },
     )
     return match, was_created
@@ -84,7 +85,9 @@ def update_match_live_data(match_data):
 
     home_score = parse_int(match_data.get('home', {}).get('score', 0))
     away_score = parse_int(match_data.get('away', {}).get('score', 0))
-    new_status = (match_data.get('status') or {}).get('status', match.status)
+    status_data = match_data.get('status') or {}
+    new_status = status_data.get('status', match.status)
+    new_status_display = status_data.get('display', match.status_display)
 
     dirty = False
     if match.home_score != home_score:
@@ -96,9 +99,12 @@ def update_match_live_data(match_data):
     if match.status != new_status:
         match.status = new_status
         dirty = True
+    if match.status_display != new_status_display:
+        match.status_display = new_status_display
+        dirty = True
 
     if dirty:
-        match.save(update_fields=['home_score', 'away_score', 'status'])
+        match.save(update_fields=['home_score', 'away_score', 'status', 'status_display'])
     return match
 
 

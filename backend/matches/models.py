@@ -41,6 +41,7 @@ class Match(models.Model):
     home_score = models.IntegerField(default=0)
     away_score = models.IntegerField(default=0)
     status = models.CharField(max_length=20, default='scheduled')
+    status_display = models.CharField(max_length=20, blank=True, default='')
     mvp = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, blank=True, related_name='mvp_matches')
     lineup_synced_at = models.DateTimeField(null=True, blank=True)
 
