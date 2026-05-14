@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import UserBadge from '../user/UserBadge'
+import UserAvatar from '../user/UserAvatar'
 
 const publicLinks = [
   { to: '/', label: 'Accueil' },
@@ -56,8 +56,8 @@ function Navbar() {
           {user ? (
             <>
               <div className="flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/[0.03] px-3 py-1.5">
+                <UserAvatar username={user.username} avatarUrl={user.avatar_url} size="sm" />
                 <span className="text-sm font-semibold text-[var(--muted-strong)]">{user.username}</span>
-                <UserBadge badge={user.badge} />
               </div>
               <button
                 type="button"
@@ -110,8 +110,8 @@ function Navbar() {
           {user ? (
             <div className="space-y-3 border-t border-[var(--line)] pt-3">
               <div className="flex flex-wrap items-center gap-2 px-3">
+                <UserAvatar username={user.username} avatarUrl={user.avatar_url} size="sm" />
                 <span className="text-sm font-semibold text-[var(--muted-strong)]">{user.username}</span>
-                <UserBadge badge={user.badge} />
               </div>
               <button
                 type="button"
