@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import TeamListView, TeamDetailView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, CommentReactionView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView, PronosticGroupListCreateView, PronosticGroupInvitationListView, PronosticGroupDetailView, PronosticGroupInviteView, PronosticGroupResponseView, PronosticGroupLeaveView, PronosticGroupLeaderboardView
+from .views import TeamListView, TeamDetailView, TeamOverviewView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, CommentReactionView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView, PronosticGroupListCreateView, PronosticGroupInvitationListView, PronosticGroupDetailView, PronosticGroupInviteView, PronosticGroupResponseView, PronosticGroupLeaveView, PronosticGroupLeaderboardView
 
 urlpatterns = [
     path('teams/', TeamListView.as_view(), name='team-list'),
     path('teams/<int:pk>/', TeamDetailView.as_view(), name='team-detail'),
+    path('teams/<int:pk>/overview/', TeamOverviewView.as_view(), name='team-overview'),
     path('players/', PlayerListView.as_view(), name='player-list'),
     path('matches/', MatchListView.as_view(), name='match-list'),
     path('matches/today/', TodayMatchListView.as_view(), name='match-today'),

@@ -1,10 +1,11 @@
 from io import StringIO
+from datetime import datetime, timezone as dt_timezone
 
 from django.conf import settings
 from django.core.management import call_command
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-from django.db.models import Avg, Sum
+from django.db.models import Avg, Count, Q, Sum
 from django.db.models.functions import Coalesce
 from django.shortcuts import get_object_or_404
 from django.utils.dateparse import parse_date
@@ -14,7 +15,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import Badge
-from .clubs import unique_teams
+from .clubs import get_related_team_ids, unique_teams
 from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, Vote, Pronostic, PronosticGroup, PronosticGroupMember
 from .pronostics import update_pronostic_points
 from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, RatingSerializer, CommentSerializer, VoteSerializer, PronosticSerializer, PronosticGroupSerializer, PronosticGroupMemberSerializer, PronosticGroupCreateSerializer, PronosticGroupInviteSerializer, PronosticGroupResponseSerializer
@@ -57,6 +58,68 @@ class TeamDetailView(generics.RetrieveAPIView):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
     permission_classes = [permissions.AllowAny]
+
+
+class TeamOverviewView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, pk):
+        team = get_object_or_404(Team, pk=pk)
+        season = self._get_season(request)
+        start_date = datetime(season, 7, 1, tzinfo=dt_timezone.utc)
+        end_date = datetime(season + 1, 7, 1, tzinfo=dt_timezone.utc)
+        team_ids = get_related_team_ids(team)
+
+        matches = (
+            get_match_queryset()
+            .filter(Q(home_team_id__in=team_ids) | Q(away_team_id__in=team_ids))
+            .filter(date__gte=start_date, date__lt=end_date)
+        )
+        players = (
+            Player.objects
+            .filter(team_id__in=team_ids)
+            .annotate(
+                mvp_votes=Count('votes'),
+                matches_played=Count('match_players', filter=Q(match_players__match__in=matches), distinct=True),
+            )
+            .order_by('-mvp_votes', 'name')
+        )
+
+        user_ratings = Rating.objects.none()
+        if request.user.is_authenticated:
+            user_ratings = Rating.objects.filter(user=request.user, match__in=matches)
+
+        return Response({
+            'team': TeamSerializer(team).data,
+            'season': season,
+            'season_label': f'{season}-{season + 1}',
+            'activity': {
+                'rated_matches': user_ratings.count(),
+                'average_rating': user_ratings.aggregate(value=Avg('score'))['value'],
+                'total_matches': matches.count(),
+            },
+            'recent_matches': MatchSerializer(matches.order_by('-date')[:12], many=True).data,
+            'top_players': [self._player_data(player) for player in players[:8]],
+        })
+
+    def _get_season(self, request):
+        try:
+            return int(request.query_params.get('season'))
+        except (TypeError, ValueError):
+            today = timezone.now().date()
+            return today.year if today.month >= 7 else today.year - 1
+
+    def _player_data(self, player):
+        return {
+            'id': player.id,
+            'name': player.name,
+            'image': player.image,
+            'position': player.position,
+            'number': player.number,
+            'age': player.age,
+            'mvp_votes': player.mvp_votes,
+            'matches_played': player.matches_played,
+        }
 
 class PlayerListView(generics.ListAPIView):
     queryset = Player.objects.all()
