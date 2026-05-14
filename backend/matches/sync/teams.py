@@ -39,6 +39,22 @@ def _set_field(team, field, value, overwrite=True):
     return True
 
 
+def _should_replace_api_id(current_api_id, next_api_id):
+    if not next_api_id:
+        return False
+    if not current_api_id:
+        return True
+    return current_api_id.isdigit() and not next_api_id.isdigit()
+
+
+def _should_replace_logo(current_logo, next_logo):
+    if not next_logo:
+        return False
+    if not current_logo:
+        return True
+    return 'api-sports.io' in current_logo and 'live-football-api.com' in next_logo
+
+
 def find_or_create_team(team_data, league_name):
     """Trouve ou cree une Team depuis le bloc home/away Live Football API."""
     api_id = str(team_data.get('id') or '').strip()
@@ -57,7 +73,11 @@ def find_or_create_team(team_data, league_name):
 
     existing_team = _find_existing_team(name)
     if existing_team:
-        changed = _set_field(existing_team, 'logo', logo, overwrite=False)
+        changed = _set_field(existing_team, 'logo', logo, overwrite=_should_replace_logo(existing_team.logo, logo))
+        if _should_replace_api_id(existing_team.api_id or '', api_id):
+            _release_api_id_from_other(api_id, existing_team)
+            existing_team.api_id = api_id
+            changed = True
         if league_name != 'Champions League' and existing_team.league != league_name:
             existing_team.league = league_name
             changed = True
