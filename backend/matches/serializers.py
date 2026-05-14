@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, Vote, Pronostic
+from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, Vote, Pronostic, PronosticGroup, PronosticGroupMember
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -109,3 +109,47 @@ class PronosticSerializer(serializers.ModelSerializer):
         model = Pronostic
         fields = ('id', 'user', 'user_username', 'match', 'home_score', 'away_score', 'points', 'created_at')
         read_only_fields = ('user', 'points', 'created_at')
+
+
+class PronosticGroupMemberSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    invited_by_username = serializers.CharField(source='invited_by.username', read_only=True)
+
+    class Meta:
+        model = PronosticGroupMember
+        fields = (
+            'id',
+            'group',
+            'user',
+            'username',
+            'invited_by',
+            'invited_by_username',
+            'status',
+            'created_at',
+            'responded_at',
+        )
+        read_only_fields = fields
+
+
+class PronosticGroupSerializer(serializers.ModelSerializer):
+    owner_username = serializers.CharField(source='owner.username', read_only=True)
+    memberships = PronosticGroupMemberSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = PronosticGroup
+        fields = ('id', 'name', 'owner', 'owner_username', 'created_at', 'memberships')
+        read_only_fields = ('owner', 'owner_username', 'created_at', 'memberships')
+
+
+class PronosticGroupCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PronosticGroup
+        fields = ('name',)
+
+
+class PronosticGroupInviteSerializer(serializers.Serializer):
+    user = serializers.IntegerField(min_value=1)
+
+
+class PronosticGroupResponseSerializer(serializers.Serializer):
+    action = serializers.ChoiceField(choices=('accept', 'refuse'))
