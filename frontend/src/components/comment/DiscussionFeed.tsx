@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import type { Comment, CommentReactionResult, Rating } from '../../types'
 import UserAvatar from '../user/UserAvatar'
@@ -19,6 +19,9 @@ interface DiscussionFeedProps {
 type FeedItem =
   | { type: 'comment'; date: string; comment: Comment }
   | { type: 'rating'; date: string; rating: Rating }
+
+const INITIAL_VISIBLE_ITEMS = 3
+const FEED_LOAD_STEP = 10
 
 function formatDate(date: string) {
   return new Intl.DateTimeFormat('fr-BE', {
@@ -53,21 +56,27 @@ function DiscussionFeed({
 }: DiscussionFeedProps) {
   const [searchParams] = useSearchParams()
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_ITEMS)
   const focusedCommentId = Number(searchParams.get('comment'))
 
   useEffect(() => {
     if (!focusedCommentId) return
     const target = document.getElementById(`comment-${focusedCommentId}`)
     target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }, [comments, focusedCommentId])
+  }, [comments, focusedCommentId, visibleCount])
 
-  const repliesByParent = new Map<number, Comment[]>()
-  comments.filter((comment) => comment.parent).forEach((reply) => {
-    const parentId = reply.parent!
-    repliesByParent.set(parentId, [...(repliesByParent.get(parentId) ?? []), reply])
-  })
+  const repliesByParent = useMemo(() => {
+    const replies = new Map<number, Comment[]>()
 
-  const feed: FeedItem[] = [
+    comments.filter((comment) => comment.parent).forEach((reply) => {
+      const parentId = reply.parent!
+      replies.set(parentId, [...(replies.get(parentId) ?? []), reply])
+    })
+
+    return replies
+  }, [comments])
+
+  const feed: FeedItem[] = useMemo(() => [
     ...comments.filter((comment) => !comment.parent).map((comment) => ({
       type: 'comment' as const,
       date: comment.created_at,
@@ -78,7 +87,30 @@ function DiscussionFeed({
       date: rating.created_at,
       rating,
     })),
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [comments, ratings])
+
+  const focusedFeedIndex = useMemo(() => {
+    if (!focusedCommentId) return -1
+
+    return feed.findIndex((item) => {
+      if (item.type !== 'comment') return false
+      if (item.comment.id === focusedCommentId) return true
+
+      return (repliesByParent.get(item.comment.id) ?? []).some((reply) => reply.id === focusedCommentId)
+    })
+  }, [feed, focusedCommentId, repliesByParent])
+
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE_ITEMS)
+  }, [matchId])
+
+  useEffect(() => {
+    if (focusedFeedIndex < 0) return
+
+    setVisibleCount((current) => Math.max(current, Math.min(feed.length, focusedFeedIndex + 1)))
+  }, [feed.length, focusedFeedIndex])
+
+  const visibleFeed = feed.slice(0, visibleCount)
 
   if (feed.length === 0) {
     return (
@@ -90,7 +122,7 @@ function DiscussionFeed({
 
   return (
     <div className="space-y-4">
-      {feed.map((item) => item.type === 'rating' ? (
+      {visibleFeed.map((item) => item.type === 'rating' ? (
         <article key={`rating-${item.rating.id}`} className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
           <div className="flex items-start justify-between gap-4">
             <UserLine userId={item.rating.user} username={item.rating.user_username} avatarUrl={item.rating.user_avatar_url} date={item.rating.created_at} />
@@ -142,6 +174,17 @@ function DiscussionFeed({
           ))}
         </article>
       ))}
+      {visibleCount < feed.length ? (
+        <div className="flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((current) => Math.min(feed.length, current + FEED_LOAD_STEP))}
+            className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]"
+          >
+            Charger plus
+          </button>
+        </div>
+      ) : null}
     </div>
   )
 }
