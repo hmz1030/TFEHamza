@@ -73,7 +73,7 @@ function DiscussionFeed({
       date: comment.created_at,
       comment,
     })),
-    ...ratings.filter((rating) => rating.comment.trim()).map((rating) => ({
+    ...ratings.map((rating) => ({
       type: 'rating' as const,
       date: rating.created_at,
       rating,
@@ -98,7 +98,9 @@ function DiscussionFeed({
               Note {item.rating.score}/10
             </span>
           </div>
-          <p className="mt-4 text-sm leading-6 text-[var(--muted-strong)]">{item.rating.comment}</p>
+          <p className="mt-4 text-sm leading-6 text-[var(--muted-strong)]">
+            {item.rating.comment.trim() || 'Note envoyee sans commentaire.'}
+          </p>
         </article>
       ) : (
         <article key={`comment-${item.comment.id}`} id={`comment-${item.comment.id}`} className={`rounded-[1.6rem] border bg-[rgba(17,27,40,0.72)] p-5 transition ${focusedCommentId === item.comment.id ? 'border-[var(--accent-strong)] shadow-[0_0_0_1px_var(--accent-strong)]' : 'border-[var(--line)]'}`}>

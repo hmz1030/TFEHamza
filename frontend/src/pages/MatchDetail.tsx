@@ -7,7 +7,6 @@ import PronosticList from '../components/pronostic/PronosticList'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import ScoreBadge from '../components/match/ScoreBadge'
 import RatingForm from '../components/rating/RatingForm'
-import RatingList from '../components/rating/RatingList'
 import MvpVoteSection from '../components/vote/MvpVoteSection'
 import VoteResults from '../components/vote/VoteResults'
 import Loader from '../components/ui/Loader'
@@ -142,14 +141,16 @@ function MatchDetail() {
         <nav className="flex flex-wrap gap-3">
           <a href="#discussion" className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">Discussion</a>
           <a href="#pronostics" className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">Pronostics</a>
-          <a href="#ratings" className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">Notes</a>
           <a href="#votes" className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">Vote MVP</a>
         </nav>
 
         <section id="discussion" className="space-y-4">
-          <div>
-            <h2 className="text-3xl font-bold text-[var(--text)]">Discussion</h2>
-            <p className="mt-1 text-sm text-[var(--muted)]">Réagis au match en direct, puis retrouve aussi les avis notés après le coup de sifflet final.</p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-bold text-[var(--text)]">Discussion</h2>
+              <p className="mt-1 text-sm text-[var(--muted)]">Reagis au match, lis les avis notes et ajoute ta propre analyse.</p>
+            </div>
+            <RatingForm matchId={match.id} status={match.status} onCreated={refetch} />
           </div>
           <CommentForm matchId={match.id} onCreated={refetch} />
           <DiscussionFeed
@@ -170,15 +171,6 @@ function MatchDetail() {
             <PronosticForm matchId={match.id} status={match.status} onCreated={refetch} />
           )}
           <PronosticList pronostics={pronostics} />
-        </section>
-
-        <section id="ratings" className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <h2 className="text-3xl font-bold text-[var(--text)]">Notes</h2>
-            <ScoreBadge ratings={ratings} />
-          </div>
-          <RatingForm matchId={match.id} status={match.status} onCreated={refetch} />
-          <RatingList ratings={ratings} />
         </section>
 
         <section id="votes" className="space-y-4">
