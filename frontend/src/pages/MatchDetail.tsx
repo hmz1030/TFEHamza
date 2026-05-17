@@ -135,6 +135,10 @@ function MatchDetail() {
           </div>
         </section>
 
+        <div className="flex justify-center">
+          <ScoreBadge ratings={ratings} className="w-full justify-between sm:w-auto" />
+        </div>
+
         <nav className="flex flex-wrap gap-3">
           <a href="#discussion" className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">Discussion</a>
           <a href="#pronostics" className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:text-[var(--text)]">Pronostics</a>
