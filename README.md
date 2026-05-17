@@ -45,4 +45,4 @@ Le scheduler lance :
 - `sync_lineups` toutes les 10 min.
 - `calculate_pronostic_points` toutes les 15 min.
 
-Pour arreter le scheduler : `Ctrl+C`.
+Pour arreter le scheduler au cas ou si le process tourne encore en arriere plan : `Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'manage\.py run_sync_scheduler' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }`.

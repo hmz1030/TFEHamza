@@ -161,6 +161,8 @@ export interface LeaderboardEntry {
     badge: BadgePreview | null
   }
   total_points: number
+  pronostics_count: number
+  points_ratio: number | null
 }
 
 export type PronosticGroupMemberStatus = 'pending' | 'accepted' | 'refused' | 'left'

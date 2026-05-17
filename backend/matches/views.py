@@ -508,8 +508,9 @@ class LeaderboardView(APIView):
 
     def get(self, request):
         users = User.objects.filter(pronostics__isnull=False).select_related('badge').annotate(
-            total_points=Coalesce(Sum('pronostics__points'), 0)
-        ).order_by('-total_points', 'username').distinct()
+            total_points=Coalesce(Sum('pronostics__points'), 0),
+            pronostics_count=Count('pronostics', filter=Q(pronostics__points__isnull=False), distinct=True),
+        ).order_by('-total_points', 'pronostics_count', 'username').distinct()
 
         data = [{
             'user': {
@@ -523,6 +524,8 @@ class LeaderboardView(APIView):
                 },
             },
             'total_points': user.total_points,
+            'pronostics_count': user.pronostics_count,
+            'points_ratio': round(user.total_points / user.pronostics_count, 2) if user.pronostics_count else None,
         } for user in users]
 
         return Response(data)
@@ -650,8 +653,9 @@ class PronosticGroupLeaderboardView(APIView):
         group = get_group_for_member(group_id, request.user)
         member_ids = group.memberships.filter(status=PronosticGroupMember.ACCEPTED).values_list('user_id', flat=True)
         users = User.objects.filter(id__in=member_ids).select_related('badge').annotate(
-            total_points=Coalesce(Sum('pronostics__points'), 0)
-        ).order_by('-total_points', 'username')
+            total_points=Coalesce(Sum('pronostics__points'), 0),
+            pronostics_count=Count('pronostics', filter=Q(pronostics__points__isnull=False), distinct=True),
+        ).order_by('-total_points', 'pronostics_count', 'username')
 
         data = [{
             'user': {
@@ -665,6 +669,8 @@ class PronosticGroupLeaderboardView(APIView):
                 },
             },
             'total_points': user.total_points,
+            'pronostics_count': user.pronostics_count,
+            'points_ratio': round(user.total_points / user.pronostics_count, 2) if user.pronostics_count else None,
         } for user in users]
 
         return Response(data)
