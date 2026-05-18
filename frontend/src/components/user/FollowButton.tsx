@@ -42,7 +42,10 @@ function FollowButton({
   }
 
   const handleToggleFollow = async () => {
+    const previousValue = isFollowing
     const nextValue = !isFollowing
+    setIsFollowing(nextValue)
+    onChange?.(nextValue)
     setLoading(true)
     setError('')
 
@@ -53,10 +56,10 @@ function FollowButton({
         await unfollowUser(userId)
       }
 
-      setIsFollowing(nextValue)
-      onChange?.(nextValue)
       toast.success(nextValue ? 'Utilisateur suivi.' : 'Utilisateur retire des suivis.')
     } catch {
+      setIsFollowing(previousValue)
+      onChange?.(previousValue)
       const message = nextValue ? 'Impossible de suivre cet utilisateur.' : 'Impossible de retirer le suivi.'
       setError(message)
       toast.error(message)
