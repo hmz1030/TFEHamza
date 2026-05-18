@@ -65,16 +65,16 @@ function PlayerCard({ player, rank }: { player: TeamOverviewPlayer; rank: number
           {player.position || 'Joueur'}
         </span>
       </div>
-      <div className="mt-5 flex items-center gap-3">
-        <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white">
+      <div className="mt-5 flex flex-col items-center text-center">
+        <span className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white">
           {player.image ? (
             <img src={player.image} alt={player.name} className="h-full w-full object-cover" />
           ) : (
             <span className="text-sm font-black text-[var(--bg-deep)]">{player.name.slice(0, 2).toUpperCase()}</span>
           )}
         </span>
-        <div className="min-w-0">
-          <h3 className="truncate text-lg font-black text-[var(--text)]">{player.name}</h3>
+        <div className="mt-3">
+          <h3 className="line-clamp-2 min-h-14 text-lg font-black leading-7 text-[var(--text)]">{player.name}</h3>
           <p className="mt-1 text-sm text-[var(--muted)]">
             {player.matches_played} match{player.matches_played > 1 ? 's' : ''} joue{player.matches_played > 1 ? 's' : ''}
           </p>
