@@ -27,6 +27,30 @@ function ThumbIcon({ direction }: { direction: 'up' | 'down' }) {
   )
 }
 
+function optimisticReaction(
+  commentId: number,
+  likesCount: number,
+  dislikesCount: number,
+  currentReaction: CommentReactionValue | null,
+  nextReaction: CommentReactionValue,
+): CommentReactionResult {
+  if (currentReaction === nextReaction) {
+    return {
+      comment: commentId,
+      likes_count: nextReaction === 'like' ? Math.max(0, likesCount - 1) : likesCount,
+      dislikes_count: nextReaction === 'dislike' ? Math.max(0, dislikesCount - 1) : dislikesCount,
+      my_reaction: null,
+    }
+  }
+
+  return {
+    comment: commentId,
+    likes_count: likesCount + (nextReaction === 'like' ? 1 : 0) - (currentReaction === 'like' ? 1 : 0),
+    dislikes_count: dislikesCount + (nextReaction === 'dislike' ? 1 : 0) - (currentReaction === 'dislike' ? 1 : 0),
+    my_reaction: nextReaction,
+  }
+}
+
 function CommentReactionButtons({
   commentId,
   likesCount,
@@ -44,10 +68,19 @@ function CommentReactionButtons({
     }
 
     setSubmitting(value)
+    const previous: CommentReactionResult = {
+      comment: commentId,
+      likes_count: likesCount,
+      dislikes_count: dislikesCount,
+      my_reaction: myReaction,
+    }
+
     try {
+      await onUpdated?.(optimisticReaction(commentId, likesCount, dislikesCount, myReaction, value))
       const response = await reactToComment(commentId, value)
       await onUpdated?.(response.data)
     } catch {
+      await onUpdated?.(previous)
       toast.error("Impossible d'enregistrer ta reaction.")
     } finally {
       setSubmitting(null)
