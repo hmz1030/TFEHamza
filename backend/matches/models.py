@@ -124,6 +124,40 @@ class CommentReaction(models.Model):
         return f"{self.user} {self.value} {self.comment_id}"
 
 
+class CommentReport(models.Model):
+    PENDING = 'pending'
+    REVIEWED = 'reviewed'
+    DISMISSED = 'dismissed'
+
+    STATUS_CHOICES = (
+        (PENDING, 'Pending'),
+        (REVIEWED, 'Reviewed'),
+        (DISMISSED, 'Dismissed'),
+    )
+
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='reports')
+    reported_by = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='comment_reports')
+    reason = models.TextField(blank=True, default='')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reviewed_by = models.ForeignKey(
+        'accounts.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviewed_comment_reports',
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'comment_report'
+        unique_together = ('comment', 'reported_by')
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return f"Report {self.comment_id} by {self.reported_by}"
+
+
 class Vote(models.Model):
     user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='votes')
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='votes')
