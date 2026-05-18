@@ -118,6 +118,16 @@ export interface CommentReactionResult {
   my_reaction: CommentReactionValue | null
 }
 
+export interface CommentReport {
+  id: number
+  comment: number
+  reported_by: number
+  reported_by_username: string
+  reason: string
+  status: 'pending' | 'reviewed' | 'dismissed'
+  created_at: string
+}
+
 export interface Comment {
   id: number
   user: number
