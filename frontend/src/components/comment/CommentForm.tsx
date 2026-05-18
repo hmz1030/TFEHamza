@@ -2,6 +2,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext'
 import { createComment } from '../../services/commentService'
+import { invalidateUserActivityCache } from '../../utils/activityCache'
 
 interface CommentFormProps {
   matchId: number
@@ -32,6 +33,7 @@ function CommentForm({ matchId, parentId = null, placeholder = 'Ton commentaire'
     setError('')
     try {
       await createComment({ match: matchId, parent: parentId, content: content.trim() })
+      invalidateUserActivityCache(user.id)
       setContent('')
       await onCreated?.()
       toast.success(parentId ? 'Réponse publiée.' : 'Commentaire publié.')

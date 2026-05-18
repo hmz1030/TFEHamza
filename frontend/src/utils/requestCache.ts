@@ -8,6 +8,10 @@ export function setCachedData<T>(key: string, value: T) {
   cache.set(key, value)
 }
 
+export function invalidateCachedData(key: string) {
+  cache.delete(key)
+}
+
 export function updateCachedData<T>(key: string, updater: (current: T) => T) {
   const current = getCachedData<T>(key)
   if (current === undefined) return
