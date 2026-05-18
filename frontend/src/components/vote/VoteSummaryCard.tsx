@@ -17,6 +17,14 @@ function TeamLogo({ src, name }: { src?: string; name: string }) {
   )
 }
 
+function formatMatchDate(date: string) {
+  return new Intl.DateTimeFormat('fr-BE', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(date))
+}
+
 function VoteSummaryCard({ vote, match }: VoteSummaryCardProps) {
   const player = vote.player_detail
 
@@ -28,6 +36,11 @@ function VoteSummaryCard({ vote, match }: VoteSummaryCardProps) {
       <span className="rounded-full border border-[rgba(200,132,73,0.32)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-[var(--accent-strong)]">
         MVP
       </span>
+      {match ? (
+        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+          {formatMatchDate(match.date)}
+        </p>
+      ) : null}
       <div className="mt-3">
         <div className="mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-[rgba(255,255,255,0.08)]">
           {player?.image ? <img src={player.image} alt={player.name} className="h-full w-full object-cover" /> : (
