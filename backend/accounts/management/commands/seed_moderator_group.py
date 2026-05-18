@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 
-from matches.models import Comment, CommentReport
+from matches.models import Comment, CommentReaction, CommentReport
 
 
 GROUP_NAME = 'Moderateurs'
@@ -17,6 +17,7 @@ class Command(BaseCommand):
 
         permission_specs = (
             (Comment, ('view_comment', 'delete_comment')),
+            (CommentReaction, ('view_commentreaction', 'delete_commentreaction')),
             (CommentReport, ('view_commentreport', 'change_commentreport', 'delete_commentreport')),
             (get_user_model(), ('view_user',)),
         )
