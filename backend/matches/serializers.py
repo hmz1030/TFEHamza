@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, Vote, Pronostic, PronosticGroup, PronosticGroupMember
+from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, CommentReport, Vote, Pronostic, PronosticGroup, PronosticGroupMember
 
 
 def get_user_avatar_url(user, request):
@@ -102,6 +102,15 @@ class CommentSerializer(serializers.ModelSerializer):
         if parent and parent.match_id != match.id:
             raise serializers.ValidationError("La réponse doit viser un commentaire du même match.")
         return data
+
+
+class CommentReportSerializer(serializers.ModelSerializer):
+    reported_by_username = serializers.CharField(source='reported_by.username', read_only=True)
+
+    class Meta:
+        model = CommentReport
+        fields = ('id', 'comment', 'reported_by', 'reported_by_username', 'reason', 'status', 'created_at')
+        read_only_fields = ('comment', 'reported_by', 'reported_by_username', 'status', 'created_at')
 
 
 class VoteSerializer(serializers.ModelSerializer):

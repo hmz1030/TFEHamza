@@ -16,9 +16,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from accounts.models import Badge
 from .clubs import get_related_team_ids, unique_teams
-from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, Vote, Pronostic, PronosticGroup, PronosticGroupMember
+from .models import Team, Player, Match, MatchPlayer, Rating, Comment, CommentReaction, CommentReport, Vote, Pronostic, PronosticGroup, PronosticGroupMember
 from .pronostics import update_pronostic_points
-from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, RatingSerializer, CommentSerializer, VoteSerializer, PronosticSerializer, PronosticGroupSerializer, PronosticGroupMemberSerializer, PronosticGroupCreateSerializer, PronosticGroupInviteSerializer, PronosticGroupResponseSerializer, get_user_avatar_url
+from .serializers import TeamSerializer, PlayerSerializer, MatchPlayerSerializer, MatchSerializer, RatingSerializer, CommentSerializer, CommentReportSerializer, VoteSerializer, PronosticSerializer, PronosticGroupSerializer, PronosticGroupMemberSerializer, PronosticGroupCreateSerializer, PronosticGroupInviteSerializer, PronosticGroupResponseSerializer, get_user_avatar_url
 
 User = get_user_model()
 
@@ -416,6 +416,24 @@ class CommentReactionView(APIView):
             'dislikes_count': comment.reactions.filter(value=CommentReaction.DISLIKE).count(),
             'my_reaction': my_reaction,
         })
+
+
+class CommentReportView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, comment_id):
+        comment = get_object_or_404(Comment, pk=comment_id)
+
+        if CommentReport.objects.filter(comment=comment, reported_by=request.user).exists():
+            return Response(
+                {'detail': 'Tu as deja signale ce commentaire.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = CommentReportSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        report = serializer.save(comment=comment, reported_by=request.user)
+        return Response(CommentReportSerializer(report).data, status=status.HTTP_201_CREATED)
 
 
 class VoteCreateView(generics.CreateAPIView):

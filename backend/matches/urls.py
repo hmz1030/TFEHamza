@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TeamListView, TeamDetailView, TeamOverviewView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, CommentReactionView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView, PronosticGroupListCreateView, PronosticGroupInvitationListView, PronosticGroupDetailView, PronosticGroupInviteView, PronosticGroupResponseView, PronosticGroupLeaveView, PronosticGroupLeaderboardView
+from .views import TeamListView, TeamDetailView, TeamOverviewView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, CommentReactionView, CommentReportView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView, PronosticGroupListCreateView, PronosticGroupInvitationListView, PronosticGroupDetailView, PronosticGroupInviteView, PronosticGroupResponseView, PronosticGroupLeaveView, PronosticGroupLeaderboardView
 
 urlpatterns = [
     path('teams/', TeamListView.as_view(), name='team-list'),
@@ -30,6 +30,7 @@ urlpatterns = [
     path('ratings/', RatingCreateView.as_view(), name='rating-create'),
     path('comments/', CommentCreateView.as_view(), name='comment-create'),
     path('comments/<int:comment_id>/reaction/', CommentReactionView.as_view(), name='comment-reaction'),
+    path('comments/<int:comment_id>/report/', CommentReportView.as_view(), name='comment-report'),
     path('votes/', VoteCreateView.as_view(), name='vote-create'),
     path('pronostics/', PronosticCreateView.as_view(), name='pronostic-create'),
 ]
