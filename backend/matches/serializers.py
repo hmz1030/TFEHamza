@@ -114,9 +114,11 @@ class CommentReportSerializer(serializers.ModelSerializer):
 
 
 class VoteSerializer(serializers.ModelSerializer):
+    player_detail = PlayerSerializer(source='player', read_only=True)
+
     class Meta:
         model = Vote
-        fields = ('id', 'user', 'match', 'player', 'created_at')
+        fields = ('id', 'user', 'match', 'player', 'player_detail', 'created_at')
         read_only_fields = ('user', 'created_at')
 
     def validate(self, data):
