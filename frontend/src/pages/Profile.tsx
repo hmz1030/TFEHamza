@@ -3,6 +3,8 @@ import toast from 'react-hot-toast'
 import FavoriteClubCard from '../components/user/FavoriteClubCard'
 import CommentSummaryCard from '../components/comment/CommentSummaryCard'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
+import RatingSummaryCard from '../components/rating/RatingSummaryCard'
+import VoteSummaryCard from '../components/vote/VoteSummaryCard'
 import FollowStats from '../components/user/FollowStats'
 import UserAvatar from '../components/user/UserAvatar'
 import UserBadge from '../components/user/UserBadge'
@@ -313,10 +315,22 @@ function Profile() {
             <p className="text-sm font-semibold text-[var(--muted-strong)]">
               {activeTab === 'ratings' ? 'Dernieres notes' : activeTab === 'comments' ? 'Derniers commentaires' : activeTab === 'votes' ? 'Derniers votes' : 'Derniers pronostics'}
             </p>
-            {activeTab === 'comments' && activity?.comments.length ? (
+            {activeTab === 'ratings' && activity?.ratings.length ? (
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                {activity.ratings.map((rating) => (
+                  <RatingSummaryCard key={rating.id} rating={rating} match={matchById.get(rating.match)} />
+                ))}
+              </div>
+            ) : activeTab === 'comments' && activity?.comments.length ? (
               <div className="mt-4 space-y-4">
                 {activity.comments.map((comment) => (
                   <CommentSummaryCard key={comment.id} comment={comment} match={matchById.get(comment.match)} title="Commentaire publié" />
+                ))}
+              </div>
+            ) : activeTab === 'votes' && activity?.votes.length ? (
+              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {activity.votes.map((vote) => (
+                  <VoteSummaryCard key={vote.id} vote={vote} match={matchById.get(vote.match)} />
                 ))}
               </div>
             ) : activeTab === 'pronostics' && activity?.pronostics.length ? (
