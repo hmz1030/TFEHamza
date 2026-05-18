@@ -126,6 +126,18 @@ entity CommentReaction {
     created_at : DateTime
 }
 
+entity CommentReport {
+    * id : Integer <<PK>>
+    --
+    comment_id : Integer <<FK>>
+    reported_by_id : Integer <<FK>>
+    reason : Text
+    status : String
+    created_at : DateTime
+    reviewed_by_id : Integer <<FK>> (nullable)
+    reviewed_at : DateTime (nullable)
+}
+
 entity Vote {
     * id : Integer <<PK>>
     --
@@ -173,6 +185,8 @@ User ||--o{ FavoriteClub
 User ||--o{ Rating
 User ||--o{ Comment
 User ||--o{ CommentReaction
+User ||--o{ CommentReport : "reported_by"
+User ||--o{ CommentReport : "reviewed_by"
 User ||--o{ Vote
 User ||--o{ Pronostic
 User ||--o{ PronosticGroup : "owner"
@@ -197,5 +211,6 @@ Player ||--o{ Vote
 
 Comment ||--o{ Comment : "replies"
 Comment ||--o{ CommentReaction
+Comment ||--o{ CommentReport
 
 @enduml
