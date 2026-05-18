@@ -68,25 +68,35 @@ function Profile() {
   }, [avatarFile])
 
   const handleRemoveFavorite = async (teamId: number) => {
+    const previousFavorites = favorites
+    const nextFavorites = favorites.filter((favorite) => favorite.team.id !== teamId)
+    setFavorites(nextFavorites)
+    setCachedData('profile:me:favorites', nextFavorites)
+
     try {
       await removeFavoriteClub(teamId)
-      setFavorites((current) => {
-        const next = current.filter((favorite) => favorite.team.id !== teamId)
-        setCachedData('profile:me:favorites', next)
-        return next
-      })
       toast.success('Club retire des favoris.')
     } catch {
+      setFavorites(previousFavorites)
+      setCachedData('profile:me:favorites', previousFavorites)
       toast.error('Impossible de retirer ce club.')
     }
   }
 
   const handleAddFavorite = async (team: Team) => {
+    const previousFavorites = favorites
+    const temporaryFavorite = { id: -Date.now(), team }
+    const optimisticFavorites = [...favorites, temporaryFavorite]
+    setFavorites(optimisticFavorites)
+    setCachedData('profile:me:favorites', optimisticFavorites)
     setAddingFavorite(true)
+
     try {
       const response = await addFavoriteClub(team.id)
       setFavorites((current) => {
-        const next = [...current, { id: response.data.id, team }]
+        const next = current.map((favorite) =>
+          favorite.id === temporaryFavorite.id ? { id: response.data.id, team } : favorite,
+        )
         setCachedData('profile:me:favorites', next)
         return next
       })
@@ -94,6 +104,8 @@ function Profile() {
       setTeamQuery('')
       toast.success('Club ajoute aux favoris.')
     } catch {
+      setFavorites(previousFavorites)
+      setCachedData('profile:me:favorites', previousFavorites)
       toast.error("Impossible d'ajouter ce club.")
     } finally {
       setAddingFavorite(false)
