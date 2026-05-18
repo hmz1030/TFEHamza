@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import CommentSummaryCard from '../components/comment/CommentSummaryCard'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
+import RatingSummaryCard from '../components/rating/RatingSummaryCard'
 import FollowButton from '../components/user/FollowButton'
 import FollowStats from '../components/user/FollowStats'
 import UserAvatar from '../components/user/UserAvatar'
 import UserBadge from '../components/user/UserBadge'
+import VoteSummaryCard from '../components/vote/VoteSummaryCard'
 import Loader from '../components/ui/Loader'
 import type { ActivityData } from '../services/userService'
 import { getMatches } from '../services/matchService'
@@ -112,6 +114,40 @@ function UserPublic() {
             <p className="text-sm text-[var(--muted)]">Points</p>
             <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{totalPoints}</p>
           </article>
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-[var(--text)]">Notes recentes</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">Ses derniers matchs notes.</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {activity?.ratings.length ? activity.ratings.map((rating) => (
+              <RatingSummaryCard key={rating.id} rating={rating} match={matchById.get(rating.match)} />
+            )) : (
+              <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)] md:col-span-2">
+                Aucune note visible pour le moment.
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-[var(--text)]">Votes MVP</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">Les joueurs qu'il a elus homme du match.</p>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {activity?.votes.length ? activity.votes.map((vote) => (
+              <VoteSummaryCard key={vote.id} vote={vote} match={matchById.get(vote.match)} />
+            )) : (
+              <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)] sm:col-span-2 lg:col-span-4">
+                Aucun vote MVP visible pour le moment.
+              </div>
+            )}
+          </div>
         </section>
 
         <section className="space-y-4">
