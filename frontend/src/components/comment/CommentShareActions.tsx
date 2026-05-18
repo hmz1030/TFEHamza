@@ -6,6 +6,7 @@ import type { Comment } from '../../types'
 interface CommentShareActionsProps {
   comment: Comment
   matchLabel?: string
+  className?: string
 }
 
 function truncateText(text: string, maxLength: number) {
@@ -57,7 +58,7 @@ function ShareOptionIcon({ type }: { type: 'copy' | 'x' | 'whatsapp' }) {
   )
 }
 
-function CommentShareActions({ comment, matchLabel }: CommentShareActionsProps) {
+function CommentShareActions({ comment, matchLabel, className = 'mt-3' }: CommentShareActionsProps) {
   const [open, setOpen] = useState(false)
   const commentUrl = getCommentUrl(comment)
   const shareText = getShareText(comment, matchLabel)
@@ -80,7 +81,7 @@ function CommentShareActions({ comment, matchLabel }: CommentShareActionsProps) 
     'flex w-full items-center gap-3 rounded-[0.8rem] border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-left text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]'
 
   return (
-    <div className="mt-3">
+    <div className={className}>
       <button
         type="button"
         title="Partager"

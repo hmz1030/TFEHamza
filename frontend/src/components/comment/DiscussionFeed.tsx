@@ -5,6 +5,7 @@ import UserAvatar from '../user/UserAvatar'
 import UserProfileLink from '../user/UserProfileLink'
 import CommentForm from './CommentForm'
 import CommentReactionButtons from './CommentReactionButtons'
+import CommentReportButton from './CommentReportButton'
 import CommentShareActions from './CommentShareActions'
 
 interface DiscussionFeedProps {
@@ -150,7 +151,10 @@ function DiscussionFeed({
             myReaction={item.comment.my_reaction}
             onUpdated={onReactionUpdated}
           />
-          <CommentShareActions comment={item.comment} matchLabel={matchLabel} />
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <CommentShareActions comment={item.comment} matchLabel={matchLabel} className="" />
+            <CommentReportButton commentId={item.comment.id} />
+          </div>
 
           {replyingTo === item.comment.id ? (
             <div className="mt-4">
@@ -169,7 +173,10 @@ function DiscussionFeed({
                 myReaction={reply.my_reaction}
                 onUpdated={onReactionUpdated}
               />
-              <CommentShareActions comment={reply} matchLabel={matchLabel} />
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <CommentShareActions comment={reply} matchLabel={matchLabel} className="" />
+                <CommentReportButton commentId={reply.id} />
+              </div>
             </div>
           ))}
         </article>
