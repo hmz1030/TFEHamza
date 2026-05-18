@@ -8,6 +8,10 @@ TARGET_LEAGUES = {
         'aliases': ('champions league', 'uefa champions league'),
         'countries': ('europe',),
     },
+    'Coupe du Monde': {
+        'aliases': ('world cup', 'fifa world cup'),
+        'countries': ('world',),
+    },
 }
 
 _ALLOWED_COUNTRIES = frozenset(
