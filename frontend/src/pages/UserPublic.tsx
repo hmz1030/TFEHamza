@@ -14,6 +14,8 @@ import { getMatches } from '../services/matchService'
 import { getUser, getUserActivity } from '../services/userService'
 import type { Match, PublicUser } from '../types'
 
+type PublicActivityTab = 'ratings' | 'votes' | 'comments' | 'pronostics'
+
 function UserPublic() {
   const { id } = useParams()
   const userId = Number(id)
@@ -22,6 +24,7 @@ function UserPublic() {
   const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [activeTab, setActiveTab] = useState<PublicActivityTab | null>(null)
 
   useEffect(() => {
     Promise.all([getUser(userId), getUserActivity(userId), getMatches()])
@@ -56,6 +59,13 @@ function UserPublic() {
       }
     })
   }
+
+  const statCards: { key: PublicActivityTab; label: string; value: number }[] = [
+    { key: 'ratings', label: 'Notes', value: notesCount },
+    { key: 'votes', label: 'Votes MVP', value: activity?.votes.length ?? 0 },
+    { key: 'comments', label: 'Commentaires', value: activity?.comments.length ?? 0 },
+    { key: 'pronostics', label: 'Points', value: totalPoints },
+  ]
 
   if (loading) return <Loader label="Chargement du profil..." />
 
@@ -98,24 +108,20 @@ function UserPublic() {
         </section>
 
         <section className="grid gap-4 sm:grid-cols-4">
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-            <p className="text-sm text-[var(--muted)]">Notes</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{notesCount}</p>
-          </article>
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-            <p className="text-sm text-[var(--muted)]">Votes MVP</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.votes.length ?? 0}</p>
-          </article>
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-            <p className="text-sm text-[var(--muted)]">Commentaires</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.comments.length ?? 0}</p>
-          </article>
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-            <p className="text-sm text-[var(--muted)]">Points</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{totalPoints}</p>
-          </article>
+          {statCards.map((card) => (
+            <button
+              key={card.key}
+              type="button"
+              onClick={() => setActiveTab((current) => current === card.key ? null : card.key)}
+              className={`rounded-[1.6rem] border p-5 text-left transition ${activeTab === card.key ? 'border-[var(--accent-strong)] bg-[var(--accent-soft)]' : 'border-[var(--line)] bg-[rgba(17,27,40,0.72)] hover:border-[var(--accent-strong)]'}`}
+            >
+              <p className="text-sm text-[var(--muted)]">{card.label}</p>
+              <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{card.value}</p>
+            </button>
+          ))}
         </section>
 
+        {activeTab === 'ratings' ? (
         <section className="space-y-4">
           <div>
             <h2 className="text-2xl font-bold text-[var(--text)]">Notes recentes</h2>
@@ -132,7 +138,9 @@ function UserPublic() {
             )}
           </div>
         </section>
+        ) : null}
 
+        {activeTab === 'votes' ? (
         <section className="space-y-4">
           <div>
             <h2 className="text-2xl font-bold text-[var(--text)]">Votes MVP</h2>
@@ -149,7 +157,9 @@ function UserPublic() {
             )}
           </div>
         </section>
+        ) : null}
 
+        {activeTab === 'comments' ? (
         <section className="space-y-4">
           <div>
             <h2 className="text-2xl font-bold text-[var(--text)]">Commentaires recents</h2>
@@ -171,7 +181,9 @@ function UserPublic() {
             )}
           </div>
         </section>
+        ) : null}
 
+        {activeTab === 'pronostics' ? (
         <section className="space-y-4">
           <div>
             <h2 className="text-2xl font-bold text-[var(--text)]">Pronostics recents</h2>
@@ -193,6 +205,7 @@ function UserPublic() {
             )}
           </div>
         </section>
+        ) : null}
       </div>
     </div>
   )
