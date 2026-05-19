@@ -70,6 +70,36 @@
                 "reveal": "always"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Demarrer scheduler prod",
+            "detail": "Relance uniquement le scheduler Docker sur Infolab",
+            "type": "shell",
+            "command": "bash scheduler-start-infolab.sh",
+            "options": {
+                "cwd": "${workspaceFolder}/docker"
+            },
+            "group": "build",
+            "presentation": {
+                "group": "deploy",
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Arreter scheduler prod",
+            "detail": "Stoppe uniquement le scheduler Docker sur Infolab",
+            "type": "shell",
+            "command": "bash scheduler-stop-infolab.sh",
+            "options": {
+                "cwd": "${workspaceFolder}/docker"
+            },
+            "group": "build",
+            "presentation": {
+                "group": "deploy",
+                "reveal": "always"
+            },
+            "problemMatcher": []
         }
     ]
 }
