@@ -121,6 +121,14 @@ class FavoriteClubListView(generics.ListAPIView):
         return FavoriteClub.objects.filter(user=self.request.user).select_related('team')
 
 
+class UserFavoriteClubListView(generics.ListAPIView):
+    serializer_class = FavoriteClubListSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return FavoriteClub.objects.filter(user_id=self.kwargs['user_id']).select_related('team')
+
+
 class MyActivityView(APIView):
     #ici pas une listeapiview car on veut retourner les 3 listes (ratings, votes, pronostics) 
     # au lieu d'une liste d'un seul objet d'un seul  type genre que les ratings 
