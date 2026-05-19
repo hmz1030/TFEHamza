@@ -54,6 +54,9 @@ export const addFavoriteClub = (teamId: number) =>
 export const getFavoriteClubs = () =>
   api.get<FavoriteClub[]>('/accounts/favorites/')
 
+export const getUserFavoriteClubs = (userId: number) =>
+  api.get<FavoriteClub[]>(`/accounts/users/${userId}/favorites/`)
+
 export const removeFavoriteClub = (teamId: number) =>
   api.delete(`/accounts/favorites/${teamId}/`)
 

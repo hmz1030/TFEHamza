@@ -40,6 +40,66 @@
                 "reveal": "always"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Preparer publication Docker",
+            "detail": "Genere le dossier publish sans deployer",
+            "type": "shell",
+            "command": "bash publish-prepare.sh",
+            "options": {
+                "cwd": "${workspaceFolder}/docker"
+            },
+            "group": "build",
+            "presentation": {
+                "group": "deploy",
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Publier Docker Infolab",
+            "detail": "Prepare, envoie et relance Docker sur Infolab",
+            "type": "shell",
+            "command": "bash publish-docker-infolab.sh",
+            "options": {
+                "cwd": "${workspaceFolder}/docker"
+            },
+            "group": "build",
+            "presentation": {
+                "group": "deploy",
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Demarrer scheduler prod",
+            "detail": "Relance uniquement le scheduler Docker sur Infolab",
+            "type": "shell",
+            "command": "bash scheduler-start-infolab.sh",
+            "options": {
+                "cwd": "${workspaceFolder}/docker"
+            },
+            "group": "build",
+            "presentation": {
+                "group": "deploy",
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Arreter scheduler prod",
+            "detail": "Stoppe uniquement le scheduler Docker sur Infolab",
+            "type": "shell",
+            "command": "bash scheduler-stop-infolab.sh",
+            "options": {
+                "cwd": "${workspaceFolder}/docker"
+            },
+            "group": "build",
+            "presentation": {
+                "group": "deploy",
+                "reveal": "always"
+            },
+            "problemMatcher": []
         }
     ]
 }
