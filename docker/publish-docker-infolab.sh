@@ -13,8 +13,17 @@ ssh -p "$INFOLAB_SSH_PORT" "$INFOLAB_USER@$INFOLAB_HOST" "rm -rf $REMOTE_DIR && 
 scp -P "$INFOLAB_SSH_PORT" -r "$PUBLISH_DIR"/. "$INFOLAB_USER@$INFOLAB_HOST:$REMOTE_DIR/"
 
 ssh -p "$INFOLAB_SSH_PORT" "$INFOLAB_USER@$INFOLAB_HOST" "
+  set -e
   cd $REMOTE_DIR &&
-  docker compose --env-file .env.production -p $DOCKER_APP_NAME down --remove-orphans || true &&
-  docker compose --env-file .env.production -p $DOCKER_APP_NAME build --no-cache &&
-  docker compose --env-file .env.production -p $DOCKER_APP_NAME up -d
+  if docker compose version >/dev/null 2>&1; then
+    COMPOSE_CMD='docker compose'
+  elif command -v docker-compose >/dev/null 2>&1; then
+    COMPOSE_CMD='docker-compose'
+  else
+    echo 'Docker Compose est introuvable.'
+    exit 1
+  fi
+  \$COMPOSE_CMD --env-file .env.production -p $DOCKER_APP_NAME down --remove-orphans || true
+  \$COMPOSE_CMD --env-file .env.production -p $DOCKER_APP_NAME build --no-cache
+  \$COMPOSE_CMD --env-file .env.production -p $DOCKER_APP_NAME up -d
 "
