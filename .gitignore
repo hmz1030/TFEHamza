@@ -210,6 +210,7 @@ backend/venv/
 backend/__pycache__/
 backend/*. pyc
 backend/. env
+backend/.env
 backend/db.sqlite3
 backend/staticfiles/
 backend/media/
@@ -219,5 +220,11 @@ backend/mediafiles/
 # Frontend
 frontend/node_modules/
 frontend/. env
+frontend/.env
 frontend/dist/
 frontend/. env.local
+frontend/.env.local
+
+# Deployment
+publish/
+docker/.env.production
