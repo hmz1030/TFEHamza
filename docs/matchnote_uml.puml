@@ -1,0 +1,216 @@
+@startuml MatchNote
+
+
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor White
+    BorderColor #333333
+    ArrowColor #666666
+}
+skinparam linetype ortho
+hide circle
+
+
+
+entity User {
+    * id : Integer <<PK>>
+    --
+    username : String
+    email : String
+    password : String
+    badge_id : Integer <<FK>>
+    bio : Text
+    avatar : String
+}
+
+entity Badge {
+    * id : Integer <<PK>>
+    --
+    name : String
+    min_rated_match : Integer
+    icon : String
+}
+
+entity Follow {
+    * id : Integer <<PK>>
+    --
+    follower_id : Integer <<FK>>
+    followee_id : Integer <<FK>>
+    created_at : DateTime
+}
+
+
+
+entity Team {
+    * id : Integer <<PK>>
+    --
+    api_id : String (nullable, unique)
+    name : String
+    league : String
+    country : String
+    logo : String
+}
+
+entity Player {
+    * id : Integer <<PK>>
+    --
+    api_id : String (nullable, unique)
+    name : String
+    position : String
+    image : String
+    number : Integer (nullable)
+    age : Integer (nullable)
+    team_id : Integer <<FK>>
+}
+
+entity FavoriteClub {
+    * id : Integer <<PK>>
+    --
+    user_id : Integer <<FK>>
+    team_id : Integer <<FK>>
+}
+
+
+
+entity Match {
+    * id : Integer <<PK>>
+    --
+    api_id : String (nullable, unique)
+    date : DateTime
+    league : String
+    home_team_id : Integer <<FK>>
+    away_team_id : Integer <<FK>>
+    home_score : Integer
+    away_score : Integer
+    status : String
+    mvp_id : Integer <<FK>> (nullable)
+    lineup_synced_at : DateTime (nullable)
+}
+
+entity MatchPlayer {
+    * id : Integer <<PK>>
+    --
+    match_id : Integer <<FK>>
+    player_id : Integer <<FK>>
+    is_starter : Boolean
+}
+
+entity Rating {
+    * id : Integer <<PK>>
+    --
+    score : Integer (1-10)
+    comment : String (nullable)
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+    created_at : DateTime
+}
+
+entity Comment {
+    * id : Integer <<PK>>
+    --
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+    parent_id : Integer <<FK>> (nullable)
+    content : Text
+    created_at : DateTime
+    updated_at : DateTime
+}
+
+entity CommentReaction {
+    * id : Integer <<PK>>
+    --
+    user_id : Integer <<FK>>
+    comment_id : Integer <<FK>>
+    value : String
+    created_at : DateTime
+}
+
+entity CommentReport {
+    * id : Integer <<PK>>
+    --
+    comment_id : Integer <<FK>>
+    reported_by_id : Integer <<FK>>
+    reason : Text
+    status : String
+    created_at : DateTime
+    reviewed_by_id : Integer <<FK>> (nullable)
+    reviewed_at : DateTime (nullable)
+}
+
+entity Vote {
+    * id : Integer <<PK>>
+    --
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+    player_id : Integer <<FK>>
+    created_at : DateTime
+}
+
+entity Pronostic {
+    * id : Integer <<PK>>
+    --
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+    home_score : Integer
+    away_score : Integer
+    points : Integer (nullable)
+    created_at : DateTime
+}
+
+entity PronosticGroup {
+    * id : Integer <<PK>>
+    --
+    name : String
+    owner_id : Integer <<FK>>
+    created_at : DateTime
+}
+
+entity PronosticGroupMember {
+    * id : Integer <<PK>>
+    --
+    group_id : Integer <<FK>>
+    user_id : Integer <<FK>>
+    invited_by_id : Integer <<FK>> (nullable)
+    status : String
+    created_at : DateTime
+    responded_at : DateTime (nullable)
+}
+
+
+
+User ||--o| Badge
+User ||--o{ Follow : "follower"
+User ||--o{ FavoriteClub
+User ||--o{ Rating
+User ||--o{ Comment
+User ||--o{ CommentReaction
+User ||--o{ CommentReport : "reported_by"
+User ||--o{ CommentReport : "reviewed_by"
+User ||--o{ Vote
+User ||--o{ Pronostic
+User ||--o{ PronosticGroup : "owner"
+User ||--o{ PronosticGroupMember : "member"
+User ||--o{ PronosticGroupMember : "invited_by"
+
+Team ||--o{ Player
+Team ||--o{ FavoriteClub
+Team ||--o{ Match : "home/away"
+
+Match ||--o{ Rating
+Match ||--o{ Comment
+Match ||--o{ MatchPlayer
+Match ||--o{ Vote
+Match ||--o{ Pronostic
+Match |o--o| Player : "MVP"
+
+PronosticGroup ||--o{ PronosticGroupMember
+
+Player ||--o{ MatchPlayer
+Player ||--o{ Vote
+
+Comment ||--o{ Comment : "replies"
+Comment ||--o{ CommentReaction
+Comment ||--o{ CommentReport
+
+@enduml
