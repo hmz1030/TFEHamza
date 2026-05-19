@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
@@ -19,7 +18,6 @@ class Command(BaseCommand):
             (Comment, ('view_comment', 'delete_comment')),
             (CommentReaction, ('view_commentreaction', 'delete_commentreaction')),
             (CommentReport, ('view_commentreport', 'change_commentreport', 'delete_commentreport')),
-            (get_user_model(), ('view_user',)),
         )
 
         permissions = []
@@ -29,7 +27,7 @@ class Command(BaseCommand):
                 Permission.objects.filter(content_type=content_type, codename__in=codenames)
             )
 
-        group.permissions.add(*permissions)
+        group.permissions.set(permissions)
 
         action = 'cree' if created else 'mis a jour'
         self.stdout.write(self.style.SUCCESS(f'Groupe {GROUP_NAME} {action} avec {len(permissions)} permissions.'))

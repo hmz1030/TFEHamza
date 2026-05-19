@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext'
 import { createRating } from '../../services/ratingService'
+import { invalidateUserActivityCache } from '../../utils/activityCache'
 import { isFinished } from '../../utils/matchStatus'
 
 interface RatingFormProps {
@@ -46,6 +47,7 @@ function RatingForm({ matchId, status, onCreated }: RatingFormProps) {
     setError('')
     try {
       await createRating({ score, comment, match: matchId })
+      invalidateUserActivityCache(user.id)
       setComment('')
       setScore(7)
       await onCreated?.()

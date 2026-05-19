@@ -2,6 +2,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext'
 import { createPronostic } from '../../services/pronosticService'
+import { invalidateUserActivityCache } from '../../utils/activityCache'
 import { isScheduled } from '../../utils/matchStatus'
 
 interface PronosticFormProps {
@@ -25,6 +26,7 @@ function PronosticForm({ matchId, status, onCreated }: PronosticFormProps) {
     setError('')
     try {
       await createPronostic({ match: matchId, home_score: homeScore, away_score: awayScore })
+      invalidateUserActivityCache(user.id)
       await onCreated?.()
       toast.success('Pronostic enregistre.')
     } catch {

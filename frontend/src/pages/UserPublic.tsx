@@ -13,6 +13,7 @@ import type { ActivityData } from '../services/userService'
 import { getMatches } from '../services/matchService'
 import { getUser, getUserActivity } from '../services/userService'
 import type { Match, PublicUser } from '../types'
+import { resolveCachedData, setCachedData } from '../utils/requestCache'
 
 type PublicActivityTab = 'ratings' | 'votes' | 'comments' | 'pronostics'
 
@@ -27,11 +28,18 @@ function UserPublic() {
   const [activeTab, setActiveTab] = useState<PublicActivityTab | null>(null)
 
   useEffect(() => {
-    Promise.all([getUser(userId), getUserActivity(userId), getMatches()])
-      .then(([userResponse, activityResponse, matchesResponse]) => {
-        setUser(userResponse.data)
-        setActivity(activityResponse.data)
-        setMatches(matchesResponse.data)
+    setLoading(true)
+    setError('')
+    setActiveTab(null)
+    Promise.all([
+      resolveCachedData(`user:${userId}:detail`, async () => (await getUser(userId)).data),
+      resolveCachedData(`user:${userId}:activity`, async () => (await getUserActivity(userId)).data),
+      resolveCachedData('matches:list', async () => (await getMatches()).data),
+    ])
+      .then(([userData, activityData, matchesData]) => {
+        setUser(userData)
+        setActivity(activityData)
+        setMatches(matchesData)
       })
       .catch(() => setError('Impossible de charger ce profil.'))
       .finally(() => setLoading(false))
@@ -58,6 +66,13 @@ function UserPublic() {
         followers_count: Math.max(0, current.followers_count + (isFollowing ? 1 : -1)),
       }
     })
+    if (user) {
+      setCachedData(`user:${userId}:detail`, {
+        ...user,
+        is_following: isFollowing,
+        followers_count: Math.max(0, user.followers_count + (isFollowing ? 1 : -1)),
+      })
+    }
   }
 
   const statCards: { key: PublicActivityTab; label: string; value: number }[] = [

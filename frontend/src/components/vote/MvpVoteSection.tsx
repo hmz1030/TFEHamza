@@ -4,6 +4,7 @@ import Field from '../field/Field'
 import { useAuth } from '../../context/AuthContext'
 import { createVote } from '../../services/voteService'
 import type { Match, MatchPlayer, Player, Vote } from '../../types'
+import { invalidateUserActivityCache } from '../../utils/activityCache'
 import { isFinished } from '../../utils/matchStatus'
 
 interface MvpVoteSectionProps {
@@ -65,6 +66,7 @@ function MvpVoteSection({ match, matchPlayers, votes, loadingPlayers, onCreated 
     setError('')
     try {
       await createVote({ match: match.id, player: selectedPlayerId })
+      invalidateUserActivityCache(user?.id)
       await onCreated?.()
       toast.success('Vote enregistre.')
     } catch {
