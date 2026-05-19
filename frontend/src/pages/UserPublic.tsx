@@ -3,15 +3,16 @@ import { useParams } from 'react-router-dom'
 import CommentSummaryCard from '../components/comment/CommentSummaryCard'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import RatingSummaryCard from '../components/rating/RatingSummaryCard'
+import FavoriteClubCard from '../components/user/FavoriteClubCard'
 import FollowButton from '../components/user/FollowButton'
 import FollowStats from '../components/user/FollowStats'
 import UserAvatar from '../components/user/UserAvatar'
 import UserBadge from '../components/user/UserBadge'
 import VoteSummaryCard from '../components/vote/VoteSummaryCard'
 import Loader from '../components/ui/Loader'
-import type { ActivityData } from '../services/userService'
+import type { ActivityData, FavoriteClub } from '../services/userService'
 import { getMatches } from '../services/matchService'
-import { getUser, getUserActivity } from '../services/userService'
+import { getUser, getUserActivity, getUserFavoriteClubs } from '../services/userService'
 import type { Match, PublicUser } from '../types'
 import { resolveCachedData, setCachedData } from '../utils/requestCache'
 
@@ -22,6 +23,7 @@ function UserPublic() {
   const userId = Number(id)
   const [user, setUser] = useState<PublicUser | null>(null)
   const [activity, setActivity] = useState<ActivityData | null>(null)
+  const [favorites, setFavorites] = useState<FavoriteClub[]>([])
   const [matches, setMatches] = useState<Match[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -34,11 +36,13 @@ function UserPublic() {
     Promise.all([
       resolveCachedData(`user:${userId}:detail`, async () => (await getUser(userId)).data),
       resolveCachedData(`user:${userId}:activity`, async () => (await getUserActivity(userId)).data),
+      resolveCachedData(`user:${userId}:favorites`, async () => (await getUserFavoriteClubs(userId)).data),
       resolveCachedData('matches:list', async () => (await getMatches()).data),
     ])
-      .then(([userData, activityData, matchesData]) => {
+      .then(([userData, activityData, favoritesData, matchesData]) => {
         setUser(userData)
         setActivity(activityData)
+        setFavorites(favoritesData)
         setMatches(matchesData)
       })
       .catch(() => setError('Impossible de charger ce profil.'))
@@ -134,6 +138,23 @@ function UserPublic() {
               <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{card.value}</p>
             </button>
           ))}
+        </section>
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-[var(--text)]">Clubs favoris</h2>
+            <p className="mt-1 text-sm text-[var(--muted)]">Les equipes qu'il suit de pres.</p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {favorites.length ? favorites.map((favorite) => (
+              <FavoriteClubCard key={favorite.id} favorite={favorite} />
+            )) : (
+              <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)] md:col-span-2">
+                Aucun club favori visible pour le moment.
+              </div>
+            )}
+          </div>
         </section>
 
         {activeTab === 'ratings' ? (
