@@ -1,20 +1,36 @@
 from django.urls import path
-from .views import TeamListView, TeamDetailView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncPlayersView, RatingCreateView, RatingListView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView
+from .views import TeamListView, TeamDetailView, TeamOverviewView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, CommentReactionView, CommentReportView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView, PronosticGroupListCreateView, PronosticGroupInvitationListView, PronosticGroupDetailView, PronosticGroupInviteView, PronosticGroupResponseView, PronosticGroupLeaveView, PronosticGroupLeaderboardView
 
 urlpatterns = [
     path('teams/', TeamListView.as_view(), name='team-list'),
     path('teams/<int:pk>/', TeamDetailView.as_view(), name='team-detail'),
+    path('teams/<int:pk>/overview/', TeamOverviewView.as_view(), name='team-overview'),
     path('players/', PlayerListView.as_view(), name='player-list'),
     path('matches/', MatchListView.as_view(), name='match-list'),
     path('matches/today/', TodayMatchListView.as_view(), name='match-today'),
     path('dev/sync-matches/', DevSyncMatchesView.as_view(), name='dev-sync-matches'),
-    path('dev/sync-players/', DevSyncPlayersView.as_view(), name='dev-sync-players'),
+    path('dev/sync-live-scores/', DevSyncLiveScoresView.as_view(), name='dev-sync-live-scores'),
+    path('dev/sync-lineups/', DevSyncLineupsView.as_view(), name='dev-sync-lineups'),
+    path('dev/sync-squads/', DevSyncSquadsView.as_view(), name='dev-sync-squads'),
     path('matches/<int:pk>/', MatchDetailView.as_view(), name='match-detail'),
     path('matches/<int:match_id>/players/', MatchPlayerListView.as_view(), name='match-players'),
     path('matches/<int:match_id>/pronostics/', PronosticListView.as_view(), name='pronostic-list'),
     path('matches/<int:match_id>/ratings/', RatingListView.as_view(), name='rating-list'),
+    path('matches/<int:match_id>/comments/', CommentListView.as_view(), name='comment-list'),
     path('matches/<int:match_id>/votes/', VoteListView.as_view(), name='vote-list'),
+    path('pronostics/leaderboard/', LeaderboardView.as_view(), name='pronostic-leaderboard'),
+    path('pronostics/calculate-points/', PronosticPointsCalculationView.as_view(), name='pronostic-calculate-points'),
+    path('pronostic-groups/', PronosticGroupListCreateView.as_view(), name='pronostic-group-list'),
+    path('pronostic-groups/invitations/', PronosticGroupInvitationListView.as_view(), name='pronostic-group-invitations'),
+    path('pronostic-groups/<int:group_id>/', PronosticGroupDetailView.as_view(), name='pronostic-group-detail'),
+    path('pronostic-groups/<int:group_id>/invite/', PronosticGroupInviteView.as_view(), name='pronostic-group-invite'),
+    path('pronostic-groups/<int:group_id>/respond/', PronosticGroupResponseView.as_view(), name='pronostic-group-respond'),
+    path('pronostic-groups/<int:group_id>/leave/', PronosticGroupLeaveView.as_view(), name='pronostic-group-leave'),
+    path('pronostic-groups/<int:group_id>/leaderboard/', PronosticGroupLeaderboardView.as_view(), name='pronostic-group-leaderboard'),
     path('ratings/', RatingCreateView.as_view(), name='rating-create'),
+    path('comments/', CommentCreateView.as_view(), name='comment-create'),
+    path('comments/<int:comment_id>/reaction/', CommentReactionView.as_view(), name='comment-reaction'),
+    path('comments/<int:comment_id>/report/', CommentReportView.as_view(), name='comment-report'),
     path('votes/', VoteCreateView.as_view(), name='vote-create'),
     path('pronostics/', PronosticCreateView.as_view(), name='pronostic-create'),
 ]

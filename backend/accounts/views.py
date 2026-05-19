@@ -1,13 +1,18 @@
 from django.db import IntegrityError
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
+from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import RegisterSerializer, UserSerializer, FollowSerializer, FavoriteClubSerializer
+from .serializers import RegisterSerializer, UserSerializer, PublicUserSerializer, ProfileUpdateSerializer, FollowSerializer, FavoriteClubSerializer, FavoriteClubListSerializer
 from .models import Follow, FavoriteClub
-from matches.models import Rating, Vote, Pronostic
-from matches.serializers import RatingSerializer, VoteSerializer, PronosticSerializer
+from matches.models import Rating, Comment, Vote, Pronostic
+from matches.serializers import RatingSerializer, CommentSerializer, VoteSerializer, PronosticSerializer
+
+User = get_user_model()
 
 
 class RegisterView(generics.CreateAPIView):
@@ -38,6 +43,40 @@ class MeView(generics.RetrieveAPIView):
         return self.request.user
 
 
+class ProfileUpdateView(generics.UpdateAPIView):
+    serializer_class = ProfileUpdateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
+    http_method_names = ['patch']
+
+    def get_object(self):
+        return self.request.user
+
+    def partial_update(self, request, *args, **kwargs):
+        response = super().partial_update(request, *args, **kwargs)
+        serializer = UserSerializer(self.request.user, context={'request': request})
+        response.data = serializer.data
+        return response
+
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.select_related('badge')
+    serializer_class = PublicUserSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class UserListView(generics.ListAPIView):
+    serializer_class = PublicUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = User.objects.select_related('badge').exclude(pk=self.request.user.pk).order_by('username')
+        search = self.request.query_params.get('search', '').strip()
+        if search:
+            queryset = queryset.filter(username__icontains=search)
+        return queryset[:10]
+
+
 class FollowView(generics.CreateAPIView):
     serializer_class = FollowSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -46,7 +85,7 @@ class FollowView(generics.CreateAPIView):
         try:
             serializer.save(follower=self.request.user)
         except IntegrityError:
-            raise generics.ValidationError("Vous suivez déjà cet utilisateur.")
+            raise ValidationError("Vous suivez déjà cet utilisateur.")
 
 
 class UnfollowView(generics.DestroyAPIView):
@@ -64,7 +103,7 @@ class FavoriteClubCreateView(generics.CreateAPIView):
         try:
             serializer.save(user=self.request.user)
         except IntegrityError:
-            raise generics.ValidationError("Ce club est déjà dans vos favoris.")
+            raise ValidationError("Ce club est déjà dans vos favoris.")
 
 
 class FavoriteClubDeleteView(generics.DestroyAPIView):
@@ -72,6 +111,14 @@ class FavoriteClubDeleteView(generics.DestroyAPIView):
 
     def get_object(self):
         return get_object_or_404(FavoriteClub, user=self.request.user, team_id=self.kwargs['team_id'])
+
+
+class FavoriteClubListView(generics.ListAPIView):
+    serializer_class = FavoriteClubListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return FavoriteClub.objects.filter(user=self.request.user).select_related('team')
 
 
 class MyActivityView(APIView):
@@ -84,6 +131,20 @@ class MyActivityView(APIView):
         return Response({
             #many= true => signfieq qu'on attend une liste d'objets et pas un seul objet
             'ratings': RatingSerializer(Rating.objects.filter(user=user), many=True).data,
+            'comments': CommentSerializer(Comment.objects.filter(user=user), many=True).data,
+            'votes': VoteSerializer(Vote.objects.filter(user=user), many=True).data,
+            'pronostics': PronosticSerializer(Pronostic.objects.filter(user=user), many=True).data,
+        })
+
+
+class UserActivityView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, user_id):
+        user = get_object_or_404(User, pk=user_id)
+        return Response({
+            'ratings': RatingSerializer(Rating.objects.filter(user=user), many=True).data,
+            'comments': CommentSerializer(Comment.objects.filter(user=user), many=True).data,
             'votes': VoteSerializer(Vote.objects.filter(user=user), many=True).data,
             'pronostics': PronosticSerializer(Pronostic.objects.filter(user=user), many=True).data,
         })

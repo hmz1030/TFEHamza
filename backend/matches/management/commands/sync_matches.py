@@ -1,205 +1,117 @@
-from datetime import date, timezone as dt_timezone
+"""Synchronise le calendrier des matchs (scores + statuts) depuis Live Football API.
 
-import requests
+Cette commande fait un "sync complet" pour une date donnee, ou une plage de dates
+consecutives via --days-ahead (utile pour le cron nocturne qui pre-charge les
+prochaines semaines). Par defaut, elle NE supprime pas les matchs absents de la
+reponse API : activer --delete-missing explicitement pour cela.
+
+Pour un refresh leger des scores pendant un match en cours, utiliser plutot la
+commande `sync_live_scores`.
+
+Workflow (par date) :
+- On recupere les matchs du jour via matches.php
+- Pour chaque match dans une ligue cible : create ou update (via matches.sync)
+- Suppression des matchs obsoletes uniquement si --delete-missing est passe
+"""
+
+from datetime import timedelta
+
 from django.core.management.base import BaseCommand
-from django.utils import timezone
-from decouple import config
-from matches.models import Team, Match
 
-#workflow de cette script : 
-# - on recup les matchs du jour depuis live football API en format json 
-# - on met ces data dans des variables python (home_name, away_name etc..)
-# et ensuite apres verif, on ecrit ou update les matchs dans la database 
-
-
-LIVE_FOOTBALL_API_KEY = config('LIVE_FOOTBALL_API_KEY', default='')
-# Optionnel : IDs `league.id` renvoyés par matches.php (séparés par des virgules).
-# Si défini, seuls ces matchs sont importés (liste blanche stricte, recommandé).
-LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS = frozenset(
-    x.strip()
-    for x in config('LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS', default='').split(',')
-    if x.strip()
-)
-BASE_URL = 'https://live-football-api.com/api/v1'
-
-# Ligues cibles et leurs aliases pour matcher les noms retournes par l'API
-TARGET_LEAGUES = {
-    'Premier League': {
-        'aliases': ('premier league',),
-        'countries': ('england',),
-    },
-    'La Liga': {
-        'aliases': ('la liga', 'laliga'),
-        'countries': ('spain',),
-    },
-    'Serie A': {
-        'aliases': ('serie a',),
-        'countries': ('italy',),
-    },
-    'Ligue 1': {
-        'aliases': ('ligue 1',),
-        'countries': ('france',),
-    },
-    'Bundesliga': {
-        'aliases': ('bundesliga',),
-        'countries': ('germany',),
-    },
-    'Champions League': {
-        'aliases': ('champions league', 'uefa champions league'),
-        'countries': ('europe',),
-    },
-}
-
-# Pays autorisés pour les 5 grands championnats (après normalisation)
-_ALLOWED_COUNTRIES = frozenset()
-for _cfg in TARGET_LEAGUES.values():
-    _ALLOWED_COUNTRIES = _ALLOWED_COUNTRIES | frozenset(_cfg['countries'])
-
-# Sous-chaînes dans le nom de ligue : ligues à exclure (Portugal, 2e divisions, etc.)
-_REJECT_LEAGUE_NAME_SUBSTRINGS = (
-    'primeira',
-    'liga portugal',
-    'ligue 2',
-    'bundesliga 2',
-    '2. bundesliga',
-    'serie b',
-    'segunda',
-    'la liga 2',
-    'laliga 2',
-    'eredivisie',
-    'brasileir',
-    'super lig',
-    'scottish',
-    'welsh',
-    'northern irish',
-    'championship',  # Championship anglais (pas Premier League)
-    'league one',
-    'league two',
+from matches.models import Match
+from matches.pronostics import update_pronostic_points
+from matches.sync.http import SyncError
+from matches.sync.matches import (
+    _filter_target_match,
+    fetch_matches_for_date,
+    resolve_target_date,
+    upsert_match_full,
 )
 
 
-def _normalize(text):
-    return (text or '').strip().lower()
-
-
-def _normalize_country(raw):
-    """Unifie les variantes (UK, Deutschland…) pour le filtre pays."""
-    c = _normalize(raw if isinstance(raw, str) else str(raw or ''))
-    mapping = {
-        'uk': 'england',
-        'united kingdom': 'england',
-        'great britain': 'england',
-        'gb': 'england',
-        'deutschland': 'germany',
-        'espana': 'spain',
-        'españa': 'spain',
-        'italia': 'italy',
-    }
-    return mapping.get(c, c)
-
-
-def _reject_league_name(api_league_name):
-    """Exclut les ligues dont le nom ressemble aux grands championnats mais ne l'est pas."""
-    n = _normalize(api_league_name)
-    if not n:
-        return True
-    return any(sub in n for sub in _REJECT_LEAGUE_NAME_SUBSTRINGS)
-
-
-def _get_league_name(api_league_name, api_country_name):
-    """Retourne le nom normalise de la ligue si elle fait partie des 5 grands championnats."""
-    if _reject_league_name(api_league_name):
-        return None
-
-    name = _normalize(api_league_name)
-    country = _normalize_country(api_country_name)
-
-    # Pays doit être strictement l'un des 5 (évite pays vide / erreur API)
-    if country not in _ALLOWED_COUNTRIES:
-        return None
-
-    for league_name, cfg in TARGET_LEAGUES.items():
-        aliases = cfg['aliases']
-        countries = cfg['countries']
-
-        if country in countries and any(alias == name for alias in aliases):
-            return league_name
-    return None
-
-
-def _league_allowed_by_id(api_league_id):
-    """Si LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS est défini, seul l'ID compte."""
-    if not LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS:
-        return True
-    lid = (api_league_id or '').strip()
-    return lid in LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS
-
-
-def _find_existing_team(team_name):
-    return Team.objects.filter(name__iexact=team_name).order_by('-logo', 'id').first()
-
-
-def _find_or_create_team(team_name, league_name):
-    """Cherche une equipe par nom + ligue. Si introuvable, la creer sans logo."""
-    team_name = (team_name or '').strip()
-
-    if league_name == 'Champions League':
-        existing_team = _find_existing_team(team_name)
-        if existing_team:
-            return existing_team
-
-    # Cherche par nom + ligue (insensible a la casse)
-    team = Team.objects.filter(name__iexact=team_name, league=league_name).first()
-    if team:
-        return team
-
-    # Equipe introuvable (probablement promue), on la cree sans logo
-    return Team.objects.create(
-        name=team_name,
-        league=league_name,
-    )
+MAX_DAYS_AHEAD = 21
 
 
 class Command(BaseCommand):
-    help = 'Synchronise les matchs du jour depuis Live Football API'
+    help = "Synchronise (calendrier + scores + statuts) les matchs d'une date (ou d'une plage) depuis Live Football API"
 
     def add_arguments(self, parser):
         parser.add_argument(
             '--date',
             type=str,
-            help='Date au format YYYY-MM-DD (par defaut -> aujourdhui)',
+            help='Date de depart au format YYYY-MM-DD (par defaut -> aujourdhui)',
+        )
+        parser.add_argument(
+            '--days-ahead',
+            type=int,
+            default=0,
+            help=(
+                f"Nombre de jours supplementaires a synchroniser apres --date "
+                f"(0 = uniquement la date cible). Max autorise : {MAX_DAYS_AHEAD}. "
+                f"Chaque jour = 1 appel API supplementaire."
+            ),
+        )
+        parser.add_argument(
+            '--delete-missing',
+            action='store_true',
+            help=(
+                "Supprime les matchs locaux absents de la reponse API pour chaque date traitee. "
+                "DANGER : cela supprime aussi en cascade les Pronostics/Ratings/Votes/MatchPlayer. "
+                "A utiliser uniquement pour un nettoyage manuel controle."
+            ),
         )
 
     def handle(self, *args, **options):
-        if not LIVE_FOOTBALL_API_KEY:
-            self.stdout.write(self.style.ERROR('LIVE_FOOTBALL_API_KEY manquante dans .env'))
+        try:
+            start_date = resolve_target_date(options.get('date'))
+        except ValueError:
+            self.stdout.write(self.style.ERROR('Format de date invalide (attendu YYYY-MM-DD).'))
             return
 
-        target_date = options.get('date')
-        if target_date:
-            target_date = date.fromisoformat(target_date)
-        else:
-            target_date = timezone.now().date()
+        days_ahead = options.get('days_ahead') or 0
+        if days_ahead < 0 or days_ahead > MAX_DAYS_AHEAD:
+            self.stdout.write(self.style.ERROR(
+                f'--days-ahead doit etre compris entre 0 et {MAX_DAYS_AHEAD}.'
+            ))
+            return
 
+        delete_missing = bool(options.get('delete_missing'))
+
+        total_created = 0
+        total_updated = 0
+        total_deleted = 0
+        total_skipped = 0
+
+        for offset in range(days_ahead + 1):
+            current_date = start_date + timedelta(days=offset)
+            result = self._sync_single_date(current_date, delete_missing)
+            if result is None:
+                continue
+            total_created += result['created']
+            total_updated += result['updated']
+            total_deleted += result['deleted']
+            total_skipped += result['skipped']
+
+        delete_note = (
+            f"{total_deleted} supprimes"
+            if delete_missing
+            else "suppression desactivee (utiliser --delete-missing)"
+        )
+        self.stdout.write(self.style.SUCCESS(
+            f"\nTotal sur {days_ahead + 1} jour(s) : "
+            f"{total_created} crees, {total_updated} mis a jour, "
+            f"{delete_note}, {total_skipped} ignores (autres ligues)."
+        ))
+
+    def _sync_single_date(self, target_date, delete_missing):
         self.stdout.write(f"Recuperation des matchs pour le {target_date.isoformat()}...")
 
-        response = requests.get(
-            f'{BASE_URL}/matches.php',
-            params={
-                'api_key': LIVE_FOOTBALL_API_KEY,
-                'date': target_date.isoformat(),
-                'lang': 'en',
-            },
-            timeout=15,
-        )
-        response.raise_for_status()
-        payload = response.json()
+        try:
+            all_matches = fetch_matches_for_date(target_date)
+        except SyncError as exc:
+            self.stdout.write(self.style.ERROR(str(exc)))
+            return None
 
-        if not payload.get('success'):
-            self.stdout.write(self.style.ERROR('API a retourne success=false'))
-            return
-
-        all_matches = payload.get('data', {}).get('matches', [])
         self.stdout.write(f"  {len(all_matches)} matchs totaux recus de l'API")
 
         created = 0
@@ -208,83 +120,52 @@ class Command(BaseCommand):
         valid_api_ids = set()
 
         for match_data in all_matches:
-            league_block = match_data.get('league') or {}
-            api_league_id = str(league_block.get('id', '') or '').strip()
-            api_league_name = league_block.get('name', '')
-            api_country_name = league_block.get('country', '')
-
-            # Liste blanche stricte optionnelle (LIVE_FOOTBALL_ALLOWED_LEAGUE_IDS)
-            if not _league_allowed_by_id(api_league_id):
+            filtered = _filter_target_match(match_data)
+            if not filtered:
                 skipped += 1
                 continue
 
-            # Verifier si c'est un des 5 grands championnats (nom + pays + exclusions)
-            league_name = _get_league_name(api_league_name, api_country_name)
-            if not league_name:
+            result = upsert_match_full(match_data, target_date)
+            if result is None:
                 skipped += 1
                 continue
 
-            api_id = str(match_data.get('id', '')).strip()
-            if not api_id:
-                skipped += 1
-                continue
-
-            home_name = match_data.get('home', {}).get('name', '')
-            away_name = match_data.get('away', {}).get('name', '')
-            home_score = match_data.get('home', {}).get('score', '0')
-            away_score = match_data.get('away', {}).get('score', '0')
-            kickoff = match_data.get('kickoff', '00:00')
-            status_data = match_data.get('status', {})
-            status = status_data.get('status', 'scheduled')
-
-            if not home_name or not away_name:
-                skipped += 1
-                continue
-
-            # Trouver ou creer les equipes
-            home_team = _find_or_create_team(home_name, league_name)
-            away_team = _find_or_create_team(away_name, league_name)
-
-            # Construire le datetime du match
-            match_datetime = timezone.datetime.combine(
-                target_date,
-                timezone.datetime.strptime(kickoff, '%H:%M').time(),
-                tzinfo=dt_timezone.utc,
-            )
-
-            # Convertir les scores en int
-            try:
-                home_score_int = int(home_score) if home_score else 0
-            except (ValueError, TypeError):
-                home_score_int = 0
-            try:
-                away_score_int = int(away_score) if away_score else 0
-            except (ValueError, TypeError):
-                away_score_int = 0
-
-            # Creer ou mettre a jour le match
-            match, was_created = Match.objects.update_or_create(
-                api_id=api_id,
-                defaults={
-                    'date': match_datetime,
-                    'league': league_name,
-                    'home_team': home_team,
-                    'away_team': away_team,
-                    'home_score': home_score_int,
-                    'away_score': away_score_int,
-                    'status': status,
-                },
-            )
-
+            _, was_created = result
             if was_created:
                 created += 1
             else:
                 updated += 1
 
-            valid_api_ids.add(api_id)
+            valid_api_ids.add(filtered[1])
 
-        deleted = Match.objects.filter(date__date=target_date).exclude(api_id__in=valid_api_ids).delete()[0]
+        deleted = 0
+        if delete_missing:
+            # Safeguard : si l'API ne nous a renvoye aucun match cible mais qu'on
+            # avait deja des matchs en DB, on refuse le delete. Cas typique : erreur
+            # temporaire de l'API externe, rate limit, JSON corrompu.
+            existing_count = Match.objects.filter(date__date=target_date).count()
+            if not valid_api_ids and existing_count > 0:
+                self.stdout.write(self.style.WARNING(
+                    f"Safeguard : l'API n'a renvoye aucun match cible mais {existing_count} "
+                    f"matchs existent en DB pour le {target_date.isoformat()}. Suppression annulee."
+                ))
+            else:
+                deleted = (
+                    Match.objects
+                    .filter(date__date=target_date)
+                    .exclude(api_id__in=valid_api_ids)
+                    .delete()[0]
+                )
 
-        self.stdout.write(self.style.SUCCESS(
-            f"\nTermine ! {created} matchs crees, {updated} mis a jour, {deleted} supprimes, {skipped} ignores (autres ligues)."
-        ))
+        points_result = update_pronostic_points(target_date=target_date)
+        if points_result['updated']:
+            self.stdout.write(
+                f"  {points_result['updated']} pronostic(s) mis a jour pour cette date."
+            )
+
+        return {
+            'created': created,
+            'updated': updated,
+            'deleted': deleted,
+            'skipped': skipped,
+        }

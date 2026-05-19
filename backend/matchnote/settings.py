@@ -11,6 +11,12 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+
+
+def csv_config(name, default=''):
+    return [value.strip() for value in config(name, default=default).split(',') if value.strip()]
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +26,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9abt2r+e48!94ua@+tl_4ldcvh421-u1gc4pux)b*r=ts1(4*@'
+SECRET_KEY = config(
+    'SECRET_KEY',
+    default='django-insecure-9abt2r+e48!94ua@+tl_4ldcvh421-u1gc4pux)b*r=ts1(4*@',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+APP_MODE = config('APP_MODE', default='development')
+DEBUG = APP_MODE != 'production'
+ENABLE_SYNC_ENDPOINTS = config('ENABLE_SYNC_ENDPOINTS', default=DEBUG, cast=bool)
+ENABLE_SYNC_SCHEDULER = config('ENABLE_SYNC_SCHEDULER', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = csv_config('ALLOWED_HOSTS', 'localhost,127.0.0.1')
 
 
 # Application definition
@@ -81,11 +93,11 @@ WSGI_APPLICATION = 'matchnote.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'matchnote',
-        'USER': 'postgres',
-        'PASSWORD': 'matchnote123',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'NAME': config('DB_NAME', default='matchnote'),
+        'USER': config('DB_USER', default='postgres'),
+        'PASSWORD': config('DB_PASSWORD', default='matchnote123'),
+        'HOST': config('DB_HOST', default='127.0.0.1'),
+        'PORT': config('DB_PORT', default='5432'),
     }
 }
 
@@ -124,11 +136,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+CORS_ALLOWED_ORIGINS = csv_config(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:5173,http://127.0.0.1:5173',
+)
+CSRF_TRUSTED_ORIGINS = csv_config('CSRF_TRUSTED_ORIGINS')
+USE_X_FORWARDED_HOST = config('USE_X_FORWARDED_HOST', default=False, cast=bool)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 AUTH_USER_MODEL = 'accounts.User'
 

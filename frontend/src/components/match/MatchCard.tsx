@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Match } from '../../types'
+import { isFinished, isLive, isScheduled } from '../../utils/matchStatus'
 
 interface MatchCardProps {
   match: Match
@@ -13,9 +14,7 @@ function formatMatchTime(date: string) {
 }
 
 function getStatusConfig(status: string) {
-  const normalizedStatus = status.toLowerCase()
-
-  if (normalizedStatus.includes('live') || normalizedStatus.includes('direct') || normalizedStatus.includes('progress')) {
+  if (isLive(status)) {
     return {
       badge: 'En direct',
       badgeClasses: 'border-[rgba(121,182,141,0.24)] bg-[rgba(121,182,141,0.12)] text-[var(--success)]',
@@ -24,7 +23,7 @@ function getStatusConfig(status: string) {
     }
   }
 
-  if (normalizedStatus.includes('finish') || normalizedStatus.includes('term')) {
+  if (isFinished(status)) {
     return {
       badge: 'Terminé',
       badgeClasses: 'border-[var(--line)] bg-[rgba(255,255,255,0.04)] text-[var(--muted-strong)]',
@@ -57,10 +56,16 @@ function getRatingConfig(averageRating: number | null) {
   return { label: averageRating.toFixed(1), classes: 'border-[rgba(216,125,116,0.24)] bg-[rgba(216,125,116,0.1)] text-[var(--danger)]' }
 }
 
+function getLiveLabel(match: Match) {
+  if (!isLive(match.status)) return null
+  return match.status_display || 'Live'
+}
+
 function MatchCard({ match }: MatchCardProps) {
   const { badge, badgeClasses, scoreAccent, showLiveDot } = getStatusConfig(match.status)
   const ratingConfig = getRatingConfig(match.average_rating)
-  const isScheduled = badge === 'À venir'
+  const scheduled = isScheduled(match.status)
+  const liveLabel = getLiveLabel(match)
 
   return (
     <Link
@@ -71,7 +76,7 @@ function MatchCard({ match }: MatchCardProps) {
         <div className="text-sm font-medium text-[var(--muted)]">{match.league}</div>
         <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${badgeClasses}`}>
           {showLiveDot ? <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--success)]" /> : null}
-          <span>{badge}</span>
+          <span>{liveLabel ?? badge}</span>
         </div>
       </div>
 
@@ -96,7 +101,7 @@ function MatchCard({ match }: MatchCardProps) {
         </div>
 
         <div className="min-w-[92px] text-center">
-          {isScheduled ? (
+          {scheduled ? (
             <>
               <div className="text-3xl font-bold text-[var(--text)]">
                 {formatMatchTime(match.date)}
@@ -111,7 +116,7 @@ function MatchCard({ match }: MatchCardProps) {
                 {match.home_score} - {match.away_score}
               </div>
               <div className="mt-1 text-xs font-medium uppercase tracking-[0.24em] text-[var(--muted)]">
-                {showLiveDot ? 'En cours' : badge}
+                {liveLabel ?? (showLiveDot ? 'En cours' : badge)}
               </div>
             </>
           )}
@@ -153,3 +158,5 @@ function MatchCard({ match }: MatchCardProps) {
 }
 
 export default MatchCard
+
+

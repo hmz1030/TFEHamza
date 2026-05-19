@@ -17,6 +17,8 @@ class Badge(models.Model):
 
 class User(AbstractUser):
     badge = models.ForeignKey(Badge, on_delete=models.SET_NULL, null=True, blank=True)
+    bio = models.TextField(blank=True, default='')
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
     
     class Meta:
         db_table = 'user'

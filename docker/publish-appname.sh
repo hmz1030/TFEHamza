@@ -1,0 +1,4 @@
+DOCKER_APP_NAME=matchnote
+INFOLAB_HOST=infolab.epfc.eu
+INFOLAB_USER=student-epfc
+INFOLAB_SSH_PORT=52919

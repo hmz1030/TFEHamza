@@ -1,4 +1,6 @@
 import type { Pronostic } from '../../types'
+import UserAvatar from '../user/UserAvatar'
+import UserProfileLink from '../user/UserProfileLink'
 
 interface PronosticListProps {
   pronostics: Pronostic[]
@@ -28,9 +30,14 @@ function PronosticList({ pronostics }: PronosticListProps) {
       {sortedPronostics.map((pronostic) => (
         <article key={pronostic.id} className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
           <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold text-[var(--text)]">{pronostic.user_username}</p>
-              <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{formatPronosticDate(pronostic.created_at)}</p>
+            <div className="flex items-center gap-3">
+              <UserAvatar username={pronostic.user_username} avatarUrl={pronostic.user_avatar_url} size="sm" />
+              <div>
+                <UserProfileLink userId={pronostic.user} className="text-sm font-semibold text-[var(--text)] transition hover:text-[var(--accent-strong)]">
+                  {pronostic.user_username}
+                </UserProfileLink>
+                <p className="mt-1 text-xs uppercase tracking-[0.16em] text-[var(--muted)]">{formatPronosticDate(pronostic.created_at)}</p>
+              </div>
             </div>
             <div className="text-right">
               <p className="text-lg font-black tracking-tight text-[var(--accent-strong)]">{pronostic.home_score} - {pronostic.away_score}</p>

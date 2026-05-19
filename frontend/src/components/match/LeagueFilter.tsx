@@ -6,6 +6,7 @@ export const LEAGUES = [
   'Ligue 1',
   'Bundesliga',
   'Champions League',
+  'Coupe du Monde',
 ] as const
 
 export type LeagueFilterValue = (typeof LEAGUES)[number]
@@ -24,6 +25,7 @@ const leagueOptions: LeagueOption[] = [
   { name: 'Ligue 1', shortName: 'L1' },
   { name: 'Bundesliga', shortName: 'BL' },
   { name: 'Champions League', shortName: 'CL' },
+  { name: 'Coupe du Monde', shortName: 'CM' },
 ]
 
 interface LeagueFilterProps {

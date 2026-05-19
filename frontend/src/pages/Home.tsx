@@ -4,10 +4,11 @@ import { useSearchParams } from 'react-router-dom'
 import Loader from '../components/ui/Loader'
 import LeagueFilter, { type LeagueFilterValue } from '../components/match/LeagueFilter'
 import MatchList from '../components/match/MatchList'
+import HomeSearchPanel from '../components/search/HomeSearchPanel'
 import { useMatches } from '../hooks/useMatches'
 import { syncTodayMatches } from '../services/matchService'
-
-const isDev = import.meta.env.DEV
+import { devToolsEnabled } from '../utils/devTools'
+import stadeHero from '../assets/stade.png'
 
 function formatDateForInput(date: Date) {
   const year = date.getFullYear()
@@ -43,6 +44,7 @@ function Home() {
   const [selectedLeague, setSelectedLeague] = useState<LeagueFilterValue>('Toutes')
   const [syncLoading, setSyncLoading] = useState(false)
   const [syncMessage, setSyncMessage] = useState<string | null>(null)
+  const [searchOpen, setSearchOpen] = useState(false)
   const selectedDate = isValidInputDate(searchParams.get('date'))
     ? searchParams.get('date')!
     : today
@@ -92,7 +94,12 @@ function Home() {
   return (
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-10">
-        <section className="overflow-hidden rounded-[2rem] border border-[var(--line)] bg-[linear-gradient(145deg,rgba(17,27,40,0.96),rgba(8,17,27,0.88))] shadow-[var(--shadow)]">
+        <section
+          className="overflow-hidden rounded-[2rem] border border-[var(--line)] bg-[var(--panel)] bg-cover bg-center shadow-[var(--shadow)]"
+          style={{
+            backgroundImage: `linear-gradient(90deg, rgba(7,12,19,0.54) 0%, rgba(7,12,19,0.7) 44%, rgba(7,12,19,0.92) 100%), url(${stadeHero})`,
+          }}
+        >
           <div className="grid gap-8 px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[1.6fr_0.9fr] lg:items-end">
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase tracking-[0.34em] text-[var(--accent-strong)]">
@@ -159,18 +166,30 @@ function Home() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <LeagueFilter selectedLeague={selectedLeague} onSelectLeague={setSelectedLeague} />
 
-            {isDev && (
+            <div className="flex flex-col gap-3 lg:items-end">
+              {devToolsEnabled ? (
+                <button
+                  type="button"
+                  onClick={handleDevRefresh}
+                  disabled={syncLoading}
+                  className="inline-flex items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {syncLoading
+                    ? 'Synchronisation en cours...'
+                    : `Synchron boutton dev`}
+                </button>
+              ) : null}
               <button
                 type="button"
-                onClick={handleDevRefresh}
-                disabled={syncLoading}
-                className="inline-flex items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() => setSearchOpen(true)}
+                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+                aria-label="Ouvrir la recherche"
               >
-                {syncLoading
-                  ? 'Synchronisation en cours...'
-                  : `Synchron boutton dev`}
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm5.2-1.6 4.5 4.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+                </svg>
               </button>
-            )}
+            </div>
           </div>
 
           {syncMessage ? (
@@ -191,6 +210,12 @@ function Home() {
           <MatchList matches={filteredMatches} />
         )}
       </div>
+      {searchOpen ? (
+        <HomeSearchPanel
+          onClose={() => setSearchOpen(false)}
+          onSelectLeague={setSelectedLeague}
+        />
+      ) : null}
     </div>
   )
 }
