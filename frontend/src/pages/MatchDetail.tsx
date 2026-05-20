@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import CommentForm from '../components/comment/CommentForm'
 import DiscussionFeed from '../components/comment/DiscussionFeed'
 import PronosticForm from '../components/pronostic/PronosticForm'
@@ -97,16 +97,19 @@ function MatchDetail() {
             <div className="flex flex-row items-center justify-between w-full max-w-2xl mx-auto gap-2">
 
               {/* 1. Équipe à domicile (prend un tiers de l'espace) */}
-              <div className="flex flex-col items-center flex-1">
+              <Link
+                to={`/teams/${match.home_team.id}`}
+                className="group flex flex-1 flex-col items-center rounded-[1.2rem] transition hover:-translate-y-0.5"
+              >
                 <img
                   src={match.home_team.logo}
                   alt={`Logo ${match.home_team.name}`}
                   className="w-10 h-10 object-contain mb-2 sm:w-16 sm:h-16"
                 />
-                <p className="text-center text-sm font-bold text-[var(--text)] sm:text-xl">
+                <p className="text-center text-sm font-bold text-[var(--text)] transition group-hover:text-[var(--accent-strong)] sm:text-xl">
                   {match.home_team.name}
                 </p>
-              </div>
+              </Link>
 
               {/* 2. Score et date (au centre) */}
               <div className="flex flex-col items-center px-2">
@@ -119,16 +122,19 @@ function MatchDetail() {
               </div>
 
               {/* 3. Équipe à l'extérieur (prend un tiers de l'espace) */}
-              <div className="flex flex-col items-center flex-1">
+              <Link
+                to={`/teams/${match.away_team.id}`}
+                className="group flex flex-1 flex-col items-center rounded-[1.2rem] transition hover:-translate-y-0.5"
+              >
                 <img
                   src={match.away_team.logo}
                   alt={`Logo ${match.away_team.name}`}
                   className="w-10 h-10 object-contain mb-2 sm:w-16 sm:h-16"
                 />
-                <p className="text-center text-sm font-bold text-[var(--text)] sm:text-xl">
+                <p className="text-center text-sm font-bold text-[var(--text)] transition group-hover:text-[var(--accent-strong)] sm:text-xl">
                   {match.away_team.name}
                 </p>
-              </div>
+              </Link>
 
             </div>
           </div>
