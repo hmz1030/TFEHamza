@@ -18,6 +18,9 @@ import { resolveCachedData, setCachedData } from '../utils/requestCache'
 
 type PublicActivityTab = 'ratings' | 'votes' | 'comments' | 'pronostics'
 
+const INITIAL_PRONOSTIC_COUNT = 3
+const PRONOSTIC_BATCH_SIZE = 10
+
 function UserPublic() {
   const { id } = useParams()
   const userId = Number(id)
@@ -28,6 +31,7 @@ function UserPublic() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<PublicActivityTab | null>(null)
+  const [visiblePronosticCount, setVisiblePronosticCount] = useState(INITIAL_PRONOSTIC_COUNT)
 
   useEffect(() => {
     setLoading(true)
@@ -59,6 +63,15 @@ function UserPublic() {
     () => new Map(matches.map((match) => [match.id, match])),
     [matches],
   )
+  const visiblePronostics = activity?.pronostics.slice(0, visiblePronosticCount) ?? []
+  const hasMorePronostics = Boolean(activity && visiblePronosticCount < activity.pronostics.length)
+
+  const handleSelectTab = (tab: PublicActivityTab) => {
+    if (tab === 'pronostics') {
+      setVisiblePronosticCount(INITIAL_PRONOSTIC_COUNT)
+    }
+    setActiveTab((current) => current === tab ? null : tab)
+  }
 
   const handleFollowChange = (isFollowing: boolean) => {
     setUser((current) => {
@@ -131,7 +144,7 @@ function UserPublic() {
             <button
               key={card.key}
               type="button"
-              onClick={() => setActiveTab((current) => current === card.key ? null : card.key)}
+              onClick={() => handleSelectTab(card.key)}
               className={`rounded-[1.6rem] border p-5 text-left transition ${activeTab === card.key ? 'border-[var(--accent-strong)] bg-[var(--accent-soft)]' : 'border-[var(--line)] bg-[rgba(17,27,40,0.72)] hover:border-[var(--accent-strong)]'}`}
             >
               <p className="text-sm text-[var(--muted)]">{card.label}</p>
@@ -227,7 +240,7 @@ function UserPublic() {
           </div>
 
           <div className="space-y-4">
-            {activity?.pronostics.length ? activity.pronostics.map((pronostic) => (
+            {activity?.pronostics.length ? visiblePronostics.map((pronostic) => (
               <PronosticSummaryCard
                 key={pronostic.id}
                 pronostic={pronostic}
@@ -239,6 +252,21 @@ function UserPublic() {
                 Aucun pronostic visible pour le moment.
               </div>
             )}
+            {hasMorePronostics ? (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVisiblePronosticCount((current) =>
+                      Math.min(current + PRONOSTIC_BATCH_SIZE, activity?.pronostics.length ?? current),
+                    )
+                  }}
+                  className="rounded-full border border-[var(--line)] px-5 py-2 text-sm font-bold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+                >
+                  Voir plus
+                </button>
+              </div>
+            ) : null}
           </div>
         </section>
         ) : null}

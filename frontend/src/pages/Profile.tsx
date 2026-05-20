@@ -16,6 +16,9 @@ import { getTeams } from '../services/teamService'
 import type { Match, Team } from '../types'
 import { resolveCachedData, setCachedData } from '../utils/requestCache'
 
+const INITIAL_PRONOSTIC_COUNT = 3
+const PRONOSTIC_BATCH_SIZE = 10
+
 function Profile() {
   const { user, updateUser } = useAuth()
   const [favorites, setFavorites] = useState<FavoriteClub[]>([])
@@ -33,6 +36,7 @@ function Profile() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState('')
   const [savingProfile, setSavingProfile] = useState(false)
+  const [visiblePronosticCount, setVisiblePronosticCount] = useState(INITIAL_PRONOSTIC_COUNT)
 
   useEffect(() => {
     Promise.all([
@@ -153,6 +157,15 @@ function Profile() {
     [activity],
   )
   const notesCount = activity?.ratings.length ?? 0
+  const visiblePronostics = activity?.pronostics.slice(0, visiblePronosticCount) ?? []
+  const hasMorePronostics = Boolean(activity && visiblePronosticCount < activity.pronostics.length)
+
+  const handleActivityTabChange = (tab: 'ratings' | 'comments' | 'votes' | 'pronostics') => {
+    if (tab === 'pronostics') {
+      setVisiblePronosticCount(INITIAL_PRONOSTIC_COUNT)
+    }
+    setActiveTab(tab)
+  }
 
   const activityLabel =
     activeTab === 'ratings'
@@ -331,10 +344,10 @@ function Profile() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={() => setActiveTab('ratings')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'ratings' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes notes</button>
-            <button type="button" onClick={() => setActiveTab('comments')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'comments' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes commentaires</button>
-            <button type="button" onClick={() => setActiveTab('votes')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'votes' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes votes</button>
-            <button type="button" onClick={() => setActiveTab('pronostics')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'pronostics' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes pronostics</button>
+            <button type="button" onClick={() => handleActivityTabChange('ratings')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'ratings' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes notes</button>
+            <button type="button" onClick={() => handleActivityTabChange('comments')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'comments' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes commentaires</button>
+            <button type="button" onClick={() => handleActivityTabChange('votes')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'votes' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes votes</button>
+            <button type="button" onClick={() => handleActivityTabChange('pronostics')} className={`rounded-full px-4 py-2 text-sm font-semibold transition ${activeTab === 'pronostics' ? 'bg-[var(--accent)] text-[var(--bg-deep)]' : 'border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]'}`}>Mes pronostics</button>
           </div>
 
           <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
@@ -361,7 +374,7 @@ function Profile() {
               </div>
             ) : activeTab === 'pronostics' && activity?.pronostics.length ? (
               <div className="mt-4 space-y-4">
-                {activity.pronostics.map((pronostic) => (
+                {visiblePronostics.map((pronostic) => (
                   <PronosticSummaryCard
                     key={pronostic.id}
                     pronostic={pronostic}
@@ -369,6 +382,21 @@ function Profile() {
                     title="Pronostic envoyé"
                   />
                 ))}
+                {hasMorePronostics ? (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVisiblePronosticCount((current) =>
+                          Math.min(current + PRONOSTIC_BATCH_SIZE, activity?.pronostics.length ?? current),
+                        )
+                      }}
+                      className="rounded-full border border-[var(--line)] px-5 py-2 text-sm font-bold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+                    >
+                      Voir plus
+                    </button>
+                  </div>
+                ) : null}
               </div>
             ) : (
               <p className="mt-3 text-sm text-[var(--muted)]">{activityLabel}</p>
