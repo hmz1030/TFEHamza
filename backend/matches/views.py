@@ -98,7 +98,7 @@ class TeamOverviewView(APIView):
                 'average_rating': user_ratings.aggregate(value=Avg('score'))['value'],
                 'total_matches': matches.count(),
             },
-            'recent_matches': MatchSerializer(matches.order_by('-date')[:12], many=True).data,
+            'recent_matches': MatchSerializer(matches.order_by('-date')[:80], many=True).data,
             'top_players': [self._player_data(player) for player in players[:8]],
         })
 

@@ -5,6 +5,9 @@ import { getTeamOverview } from '../services/teamService'
 import type { Match, TeamOverview, TeamOverviewPlayer } from '../types'
 import { isScheduled } from '../utils/matchStatus'
 
+const INITIAL_MATCH_COUNT = 3
+const MATCH_BATCH_SIZE = 10
+
 function currentSeason() {
   const today = new Date()
   return today.getMonth() >= 6 ? today.getFullYear() : today.getFullYear() - 1
@@ -95,11 +98,12 @@ function TeamDetail() {
   const [overview, setOverview] = useState<TeamOverview | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [showAllMatches, setShowAllMatches] = useState(false)
+  const [visibleMatchCount, setVisibleMatchCount] = useState(INITIAL_MATCH_COUNT)
 
   useEffect(() => {
     if (!teamId) return
 
+    setVisibleMatchCount(INITIAL_MATCH_COUNT)
     setLoading(true)
     setError('')
     getTeamOverview(teamId, season)
@@ -113,7 +117,8 @@ function TeamDetail() {
     return [base + 1, base, base - 1, base - 2]
   }, [])
 
-  const visibleMatches = showAllMatches ? overview?.recent_matches : overview?.recent_matches.slice(0, 3)
+  const visibleMatches = overview?.recent_matches.slice(0, visibleMatchCount)
+  const hasMoreMatches = overview ? visibleMatchCount < overview.recent_matches.length : false
 
   if (loading) return <Loader label="Chargement du club..." />
 
@@ -187,15 +192,6 @@ function TeamDetail() {
               <p className="text-xs font-bold uppercase tracking-[0.26em] text-[var(--accent-strong)]">Matchs</p>
               <h2 className="mt-2 text-3xl font-black">Matchs recents</h2>
             </div>
-            {overview.recent_matches.length > 3 ? (
-              <button
-                type="button"
-                onClick={() => setShowAllMatches((current) => !current)}
-                className="rounded-full border border-[var(--line)] px-4 py-2 text-sm font-bold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
-              >
-                {showAllMatches ? 'Voir moins' : 'Voir plus'}
-              </button>
-            ) : null}
           </div>
 
           {visibleMatches?.length ? (
@@ -207,6 +203,22 @@ function TeamDetail() {
               Aucun match trouve pour cette saison.
             </div>
           )}
+
+          {hasMoreMatches ? (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setVisibleMatchCount((current) =>
+                    Math.min(current + MATCH_BATCH_SIZE, overview.recent_matches.length),
+                  )
+                }}
+                className="rounded-full border border-[var(--line)] px-5 py-2 text-sm font-bold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+              >
+                Voir plus
+              </button>
+            </div>
+          ) : null}
         </section>
 
         <section className="space-y-4">
