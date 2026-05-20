@@ -72,6 +72,21 @@
             "problemMatcher": []
         },
         {
+            "label": "Publier Docker Google Cloud",
+            "detail": "Prepare, envoie et relance Docker sur Google Cloud",
+            "type": "shell",
+            "command": "bash publish-docker-gcloud.sh",
+            "options": {
+                "cwd": "${workspaceFolder}/docker"
+            },
+            "group": "build",
+            "presentation": {
+                "group": "deploy",
+                "reveal": "always"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Demarrer scheduler prod",
             "detail": "Relance uniquement le scheduler Docker sur Infolab",
             "type": "shell",
