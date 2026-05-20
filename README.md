@@ -46,3 +46,5 @@ Le scheduler lance :
 - `calculate_pronostic_points` toutes les 15 min.
 
 Pour arreter le scheduler au cas ou si le process tourne encore en arriere plan : `Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'manage\.py run_sync_scheduler' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }`.
+
+Pour remplir les pages club des equipes deja presentes en base avec les matchs passes et a venir connus par l'API, lancer une fois : `python manage.py sync_team_matches` (ou en prod Docker : `docker compose --env-file .env.production -p matchnote exec backend python manage.py sync_team_matches`).
