@@ -1,8 +1,8 @@
 """Refresh ultra-leger : met a jour UNIQUEMENT score + status des matchs d'une date.
 
-A appeler frequemment (30-60s) pendant les fenetres de matchs en cours.
+On appelle toutes les 60 secondes pendant les fenetres de matchs en cours.
 
-Differences avec `sync_matches` :
+Differences avec sync_matches :
 - Ne cree pas de nouveaux matchs (si un match n'existe pas en DB, on l'ignore)
 - Ne touche pas aux equipes ni aux horaires
 - Ne supprime rien

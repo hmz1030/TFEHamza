@@ -1,11 +1,11 @@
 """Synchronise les lineups SEULEMENT pour les matchs dans une fenetre utile.
 
-Difference avec une sync globale naive :
-- Par defaut, cible uniquement les matchs :
-    - en cours (status contient 'live', 'direct', 'progress')
-    - ou venant de finir dans les dernieres heures (--recent-hours)
-    - ou commencant bientot (--window-before-hours)
-- Evite les appels API pour des matchs dont le lineup ne peut plus changer
+Difference avec une sync globale :
+Par defaut, cible uniquement les matchs :
+    en cours (status contient 'live', 'direct', 'progress')
+     ou venant de finir dans les dernieres heures (--recent-hours)
+    ou commencant bientot (--window-before-hours)
+Evite les appels API pour des matchs dont le lineup ne peut plus changer
   (matchs finis il y a longtemps, matchs prevus dans plusieurs jours).
 
 Avec `--all`, bypass le filtre et tente tous les matchs.

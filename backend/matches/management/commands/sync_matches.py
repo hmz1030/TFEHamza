@@ -1,17 +1,15 @@
 """Synchronise le calendrier des matchs (scores + statuts) depuis Live Football API.
 
-Cette commande fait un "sync complet" pour une date donnee, ou une plage de dates
+Cette commande fait un sync complet pour une date donnee, ou une plage de dates
 consecutives via --days-ahead (utile pour le cron nocturne qui pre-charge les
-prochaines semaines). Par defaut, elle NE supprime pas les matchs absents de la
+prochaines semaines) ici j'ai decidé de le faire a 21 jours pour pas 
+trop cramer les crédits API . Par defaut, elle supprime pas les matchs absents de la
 reponse API : activer --delete-missing explicitement pour cela.
 
-Pour un refresh leger des scores pendant un match en cours, utiliser plutot la
-commande `sync_live_scores`.
-
 Workflow (par date) :
-- On recupere les matchs du jour via matches.php
-- Pour chaque match dans une ligue cible : create ou update (via matches.sync)
-- Suppression des matchs obsoletes uniquement si --delete-missing est passe
+On recupere les matchs du jour via matches.php
+Pour chaque match dans une ligue cible : create ou update (via matches.sync)
+Suppression des matchs obsoletes uniquement si --delete-missing est passe
 """
 
 from datetime import timedelta

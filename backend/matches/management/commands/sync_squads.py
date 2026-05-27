@@ -1,14 +1,14 @@
-"""Synchronise les squads (rosters) des equipes depuis Live Football API.
+"""Synchronise les clubs des equipes depuis l' API.
 
 Pour chaque Team avec un api_id alphanumerique LFA, appelle team_squad.php
-et upsert chaque Player avec image / position / number / age.
+et update or insert chaque Player avec image / position / number / age.
 
 Modes :
 - --all (defaut)         : toutes les Teams ayant un api_id alphanumerique LFA
 - --team-api-id <id>     : une seule team par son api_id
 - --match-id <local_id>  : les 2 equipes d'un match local
 - --upcoming-days <n>    : equipes uniques des matchs a venir sur n jours
-- --league <name>        : restreint a une ligue (Premier League, La Liga, ...)
+- --league <name>        : restreint a une ligue
 
 Les Teams dont l'api_id est purement numerique (heritage API-Football) sont
 ignorees automatiquement : il faut d'abord lancer `sync_matches` pour les
