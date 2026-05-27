@@ -76,6 +76,7 @@ function MatchDetail() {
   }
 
   const myPronostic = pronostics.find((pronostic) => pronostic.user === user?.id)
+  const myRating = ratings.find((rating) => rating.user === user?.id)
   const matchLabel = `${match.home_team.name} - ${match.away_team.name}`
   const statusLabel = isLive(match.status) && match.status_display
     ? match.status_display
@@ -156,7 +157,17 @@ function MatchDetail() {
               <h2 className="text-3xl font-bold text-[var(--text)]">Discussion</h2>
               <p className="mt-1 text-sm text-[var(--muted)]">Reagis au match, lis les avis notes et ajoute ta propre analyse.</p>
             </div>
-            <RatingForm matchId={match.id} status={match.status} onCreated={refetch} />
+
+            {myRating ? (
+              <span className="rounded-full border border-[var(--line)] px-5 py-3 text-sm font-semibold text-[var(--muted)]">
+                Ta note : {myRating.score}/10
+              </span>
+            ) : (
+              <RatingForm matchId={match.id} status={match.status} onCreated={refetch} />
+            )}
+
+
+
           </div>
           <CommentForm matchId={match.id} onCreated={refetch} />
           <DiscussionFeed
