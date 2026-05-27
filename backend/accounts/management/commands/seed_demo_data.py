@@ -3,6 +3,7 @@ from random import Random
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.db.models import Q
+from django.utils.text import slugify
 from django.utils import timezone
 
 from accounts.models import Badge, FavoriteClub, Follow, User
@@ -21,6 +22,7 @@ from matches.pronostics import calculate_pronostic_points, is_finished_status
 
 
 DEFAULT_PASSWORD = 'Demo123!'
+DEMO_EMAIL_DOMAIN = 'matchnote.test'
 
 DEMO_NAMES = (
     ('Amine', 'Benkara'),
@@ -127,17 +129,17 @@ GROUP_NAMES = (
 
 
 class Command(BaseCommand):
-    help = 'Cree des utilisateurs demo avec activite sociale et sportive.'
+    help = 'Cree des utilisateurs de presentation avec activite sociale et sportive.'
 
     def add_arguments(self, parser):
         parser.add_argument('--users', type=int, default=50)
         parser.add_argument('--password', default=DEFAULT_PASSWORD)
-        parser.add_argument('--prefix', default='demo_')
+        parser.add_argument('--prefix', default='')
         parser.add_argument('--seed', type=int, default=20260517)
         parser.add_argument(
             '--reset',
             action='store_true',
-            help='Supprime les comptes demo existants avant de les recreer.',
+            help='Supprime les comptes de presentation existants avant de les recreer.',
         )
 
     @transaction.atomic
@@ -148,8 +150,12 @@ class Command(BaseCommand):
         rng = Random(options['seed'])
 
         if options['reset']:
-            deleted_count, _ = User.objects.filter(username__startswith=prefix).delete()
-            self.stdout.write(f'{deleted_count} objet(s) demo supprime(s).')
+            user_filter = Q(email__endswith=f'@{DEMO_EMAIL_DOMAIN}') | Q(username__startswith='demo_')
+            if prefix:
+                user_filter |= Q(username__startswith=prefix)
+
+            deleted_count, _ = User.objects.filter(user_filter).delete()
+            self.stdout.write(f'{deleted_count} objet(s) de presentation supprime(s).')
 
         users = self.create_users(count, prefix, password, rng)
         self.clean_demo_activity(users)
@@ -185,7 +191,7 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.WARNING('Aucun match trouve: activite match non creee.'))
 
-        self.stdout.write(self.style.SUCCESS('Donnees demo creees.'))
+        self.stdout.write(self.style.SUCCESS('Donnees de presentation creees.'))
         self.stdout.write(f'Comptes: {stats["users"]} utilisateur(s), mot de passe: {password}')
         self.stdout.write(
             'Activite: '
@@ -204,13 +210,15 @@ class Command(BaseCommand):
 
         for index in range(count):
             first_name, last_name = DEMO_NAMES[index % len(DEMO_NAMES)]
-            username = f'{prefix}{index + 1:02d}_{first_name.lower()}'
+            suffix = '' if index < len(DEMO_NAMES) else f'_{index + 1:02d}'
+            base_username = slugify(f'{first_name}_{last_name}').replace('-', '_')
+            username = f'{prefix}{base_username}{suffix}'
             bio = rng.choice(BIOS)
 
             user, _ = User.objects.update_or_create(
                 username=username,
                 defaults={
-                    'email': f'{username}@matchnote.test',
+                    'email': f'{username}@{DEMO_EMAIL_DOMAIN}',
                     'first_name': first_name,
                     'last_name': last_name,
                     'bio': bio,
@@ -344,7 +352,7 @@ class Command(BaseCommand):
         created = 0
 
         for user in users:
-            sample_size = min(len(matches), rng.randint(8, 14))
+            sample_size = self.pick_pronostic_sample_size(len(matches), rng)
             for match in rng.sample(matches, sample_size):
                 home_score, away_score = self.pick_prediction(match, rng)
                 pronostic, _ = Pronostic.objects.update_or_create(
@@ -364,6 +372,19 @@ class Command(BaseCommand):
                 created += 1
 
         return created
+
+    def pick_pronostic_sample_size(self, total_matches, rng):
+        if total_matches <= 0:
+            return 0
+
+        if total_matches < 22:
+            minimum = max(1, total_matches // 2)
+            maximum = total_matches
+        else:
+            minimum = min(total_matches, 22)
+            maximum = min(total_matches, 50)
+
+        return rng.randint(minimum, maximum)
 
     def pick_prediction(self, match, rng):
         if is_finished_status(match.status):
@@ -406,7 +427,7 @@ class Command(BaseCommand):
         for index, name in enumerate(GROUP_NAMES):
             owner = users[index % len(users)]
             group, was_created = PronosticGroup.objects.update_or_create(
-                name=f'Demo - {name}',
+                name=name,
                 defaults={'owner': owner},
             )
             created += int(was_created)

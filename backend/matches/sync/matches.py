@@ -3,6 +3,7 @@ from datetime import date, timezone as dt_timezone
 from django.utils import timezone
 
 from matches.models import Match
+from matches.match_records import upsert_match_record
 from matches.sync.http import api_get, parse_int
 from matches.sync.leagues import get_league_name
 from matches.sync.teams import find_or_create_team
@@ -55,18 +56,17 @@ def upsert_match_full(match_data, target_date):
         tzinfo=dt_timezone.utc,
     )
 
-    match, was_created = Match.objects.update_or_create(
+    match, was_created = upsert_match_record(
         api_id=api_id,
-        defaults={
-            'date': match_datetime,
-            'league': league_name,
-            'home_team': home_team,
-            'away_team': away_team,
-            'home_score': parse_int(home_data.get('score', 0)),
-            'away_score': parse_int(away_data.get('score', 0)),
-            'status': (match_data.get('status') or {}).get('status', 'scheduled'),
-            'status_display': (match_data.get('status') or {}).get('display', ''),
-        },
+        date=match_datetime,
+        league=league_name,
+        home_team=home_team,
+        away_team=away_team,
+        home_score=parse_int(home_data.get('score', 0)),
+        away_score=parse_int(away_data.get('score', 0)),
+        status=(match_data.get('status') or {}).get('status', 'scheduled'),
+        status_display=(match_data.get('status') or {}).get('display', ''),
+        replace_api_id=True,
     )
     return match, was_created
 

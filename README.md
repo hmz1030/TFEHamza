@@ -48,3 +48,7 @@ Le scheduler lance :
 Pour arreter le scheduler au cas ou si le process tourne encore en arriere plan : `Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'manage\.py run_sync_scheduler' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }`.
 
 Pour remplir les pages club des equipes deja presentes en base avec les matchs passes et a venir connus par l'API, lancer une fois : `python manage.py sync_team_matches` (ou en prod Docker : `docker compose --env-file .env.production -p matchnote exec backend python manage.py sync_team_matches`).
+
+Pour fusionner les doublons de matchs crees par deux endpoints API differents, lancer : `python manage.py dedupe_matches` (ou en prod Docker : `docker compose --env-file .env.production -p matchnote exec backend python manage.py dedupe_matches`).
+
+Pour generer 50 comptes de presentation sans prefixe `demo_`, avec commentaires, notes, votes MVP et pronostics, lancer : `python manage.py seed_demo_data --reset` (ou en prod Docker : `docker compose --env-file .env.production -p matchnote exec backend python manage.py seed_demo_data --reset`).

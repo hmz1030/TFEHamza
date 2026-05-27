@@ -1,6 +1,6 @@
 from datetime import datetime, timezone as dt_timezone
 
-from matches.models import Match
+from matches.match_records import upsert_match_record
 from matches.sync.http import api_get, parse_int
 from matches.sync.leagues import get_league_name
 from matches.sync.teams import find_or_create_team
@@ -83,19 +83,20 @@ def upsert_team_match(match_data):
     home_team = find_or_create_team(home_data, league_name)
     away_team = find_or_create_team(away_data, league_name)
     status, status_display = normalize_status(match_data.get('status'))
+    home_score = parse_int(home_data.get('score'), default=0)
+    away_score = parse_int(away_data.get('score'), default=0)
 
-    match, was_created = Match.objects.update_or_create(
+    match, was_created = upsert_match_record(
         api_id=api_id,
-        defaults={
-            'date': match_date,
-            'league': league_name,
-            'home_team': home_team,
-            'away_team': away_team,
-            'home_score': parse_int(home_data.get('score'), default=0),
-            'away_score': parse_int(away_data.get('score'), default=0),
-            'status': status,
-            'status_display': status_display,
-        },
+        date=match_date,
+        league=league_name,
+        home_team=home_team,
+        away_team=away_team,
+        home_score=home_score,
+        away_score=away_score,
+        status=status,
+        status_display=status_display,
+        replace_api_id=False,
     )
     return match, was_created
 
