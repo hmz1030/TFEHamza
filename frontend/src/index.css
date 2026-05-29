@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -16,9 +16,13 @@
   --accent-strong: #c88449;
   --accent-hover: #c88449;
   --accent-soft: rgba(183, 116, 62, 0.16);
+  --pitch: #2aa763;
+  --pitch-strong: #39c878;
+  --paper-soft: #d8cfbb;
   --success: #6ea07c;
   --danger: #c56d64;
   --shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.7);
+  --font-display: "Oswald", "Arial Narrow", Arial, Helvetica, sans-serif;
 }
 
 html {
@@ -83,4 +87,43 @@ select {
 input[type='date']::-webkit-calendar-picker-indicator {
   opacity: 0.8;
   cursor: pointer;
+}
+
+.sports-heading {
+  font-family: var(--font-display);
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.match-ticket {
+  position: relative;
+}
+
+.match-ticket::before,
+.match-ticket::after {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  height: 1.15rem;
+  width: 1.15rem;
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  background: var(--bg);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.match-ticket::before {
+  left: -0.6rem;
+}
+
+.match-ticket::after {
+  right: -0.6rem;
+}
+
+.ticket-perforation {
+  background-image: linear-gradient(to bottom, rgba(232, 227, 217, 0.28) 48%, transparent 0);
+  background-position: center;
+  background-repeat: repeat-y;
+  background-size: 1px 12px;
 }
