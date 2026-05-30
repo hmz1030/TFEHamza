@@ -118,7 +118,7 @@ export function PronosticGroupsPanel() {
     <button
       type="button"
       onClick={() => setInviteOpen((current) => !current)}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line)] text-base font-black text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[var(--line)] text-base font-black text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
       aria-label="Inviter un joueur"
       title="Inviter"
     >
@@ -136,7 +136,7 @@ export function PronosticGroupsPanel() {
       </div>
 
       <section className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]">
-        <article className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+        <article className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
           <h2 className="text-xl font-bold">Creer un groupe</h2>
           <div className="mt-4 flex gap-3">
             <input
@@ -144,15 +144,15 @@ export function PronosticGroupsPanel() {
               value={newGroupName}
               onChange={(event) => setNewGroupName(event.target.value)}
               placeholder="Nom du groupe"
-              className="min-w-0 flex-1 rounded-full border border-[var(--line)] bg-white/[0.03] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--accent)]"
+              className="min-w-0 flex-1 rounded-md border border-[var(--line)] bg-white/[0.03] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--accent)]"
             />
-            <button type="button" onClick={handleCreateGroup} className="rounded-full bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--bg-deep)]">
+            <button type="button" onClick={handleCreateGroup} className="rounded-md bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--bg-deep)]">
               Creer
             </button>
           </div>
         </article>
 
-        <article className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+        <article className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
           <h2 className="text-xl font-bold">Mes groupes</h2>
           <div className="mt-4 flex flex-wrap gap-2">
             {groups.length === 0 ? (
@@ -162,7 +162,7 @@ export function PronosticGroupsPanel() {
                 key={group.id}
                 type="button"
                 onClick={() => setSelectedGroupId(group.id)}
-                className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${selectedGroupId === group.id ? 'border-[var(--accent-strong)] bg-[var(--accent-strong)]/15 text-[var(--text)]' : 'border-[var(--line)] text-[var(--muted-strong)] hover:text-[var(--text)]'}`}
+                className={`rounded-md border px-4 py-2 text-sm font-semibold transition ${selectedGroupId === group.id ? 'border-[var(--accent-strong)] bg-[var(--accent-strong)]/15 text-[var(--text)]' : 'border-[var(--line)] text-[var(--muted-strong)] hover:text-[var(--text)]'}`}
               >
                 {group.name}
               </button>
@@ -173,35 +173,35 @@ export function PronosticGroupsPanel() {
 
       {selectedGroup ? (
         <section className="space-y-4">
-          <article className="flex flex-wrap items-center justify-between gap-4 rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+          <article className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
             <div>
               <p className="text-sm uppercase tracking-[0.18em] text-[var(--accent-strong)]">Groupe</p>
               <h2 className="mt-2 text-2xl font-bold">{selectedGroup.name}</h2>
               <p className="mt-1 text-sm text-[var(--muted)]">Cree par {selectedGroup.owner_username}</p>
             </div>
-            <button type="button" onClick={handleLeaveGroup} className="rounded-full border border-[var(--line)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--danger)]/50 hover:text-[var(--danger)]">
+            <button type="button" onClick={handleLeaveGroup} className="rounded-md border border-[var(--line)] px-4 py-2 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--danger)]/50 hover:text-[var(--danger)]">
               Quitter
             </button>
           </article>
 
           {inviteOpen ? (
-            <article className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+            <article className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
               <div className="flex flex-wrap gap-3">
                 <input
                   type="text"
                   value={userQuery}
                   onChange={(event) => setUserQuery(event.target.value)}
                   placeholder="Rechercher un pseudo"
-                  className="min-w-0 flex-1 rounded-full border border-[var(--line)] bg-white/[0.03] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--accent)]"
+                  className="min-w-0 flex-1 rounded-md border border-[var(--line)] bg-white/[0.03] px-4 py-2.5 text-sm outline-none transition focus:border-[var(--accent)]"
                 />
-                <button type="button" onClick={handleUserSearch} className="rounded-full border border-[var(--line)] px-4 py-2.5 text-sm font-semibold text-[var(--muted-strong)]">
+                <button type="button" onClick={handleUserSearch} className="rounded-md border border-[var(--line)] px-4 py-2.5 text-sm font-semibold text-[var(--muted-strong)]">
                   Chercher
                 </button>
               </div>
               {userResults.length ? (
                 <div className="mt-3 space-y-2">
                   {userResults.map((result) => (
-                    <button key={result.id} type="button" onClick={() => handleInviteUser(result.id)} className="flex w-full items-center justify-between rounded-[1rem] border border-[var(--line)] bg-white/[0.03] px-4 py-3 text-left transition hover:border-[var(--line-strong)]">
+                    <button key={result.id} type="button" onClick={() => handleInviteUser(result.id)} className="flex w-full items-center justify-between rounded-md border border-[var(--line)] bg-white/[0.03] px-4 py-3 text-left transition hover:border-[var(--line-strong)]">
                       <span className="font-semibold text-[var(--text)]">{result.username}</span>
                       <span className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">Inviter</span>
                     </button>

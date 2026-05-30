@@ -127,3 +127,12 @@ input[type='date']::-webkit-calendar-picker-indicator {
   background-repeat: repeat-y;
   background-size: 1px 12px;
 }
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

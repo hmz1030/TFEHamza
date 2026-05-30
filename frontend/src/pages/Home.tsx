@@ -8,7 +8,7 @@ import HomeSearchPanel from '../components/search/HomeSearchPanel'
 import { useMatches } from '../hooks/useMatches'
 import { syncTodayMatches } from '../services/matchService'
 import { devToolsEnabled } from '../utils/devTools'
-import stadeHero from '../assets/stade.png'
+import stadeHero from '../assets/stadeCDM.png'
 
 function formatDateForInput(date: Date) {
   const year = date.getFullYear()
@@ -95,15 +95,15 @@ function Home() {
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-10">
         <section
-          className="overflow-hidden rounded-[2rem] border border-[var(--line)] bg-[var(--panel)] bg-cover bg-center shadow-[var(--shadow)]"
+          className="overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--panel)] bg-cover bg-center shadow-[var(--shadow)]"
           style={{
             backgroundImage: `linear-gradient(90deg, rgba(7,12,19,0.54) 0%, rgba(7,12,19,0.7) 44%, rgba(7,12,19,0.92) 100%), url(${stadeHero})`,
           }}
         >
-          <div className="grid gap-8 px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[1.6fr_0.9fr] lg:items-end">
+          <div className="grid gap-8 border-b-4 border-[var(--pitch)] px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[1.6fr_0.9fr] lg:items-end">
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase tracking-[0.34em] text-[var(--accent-strong)]">
-                {isToday ? 'Sélection du jour' : 'Archives de match'}
+                {isToday ? 'Sélection du jour' : 'Résultat en direct'}
               </p>
               <h1 className="mt-5 max-w-2xl text-4xl font-bold text-[var(--text)] sm:text-5xl lg:text-6xl">
                 Note ton Football
@@ -111,17 +111,17 @@ function Home() {
             
             </div>
 
-            <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(7,12,19,0.64)] p-5 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.9)]">
+            <div className="rounded-lg border border-[rgba(232,227,217,0.14)] bg-[rgba(7,12,19,0.68)] p-5 shadow-[0_18px_40px_-24px_rgba(0,0,0,0.9)]">
               <p className="text-xs uppercase tracking-[0.28em] text-[var(--muted)]">
                 {isToday ? "Aujourd'hui" : 'Date sélectionnée'}
               </p>
-              <p className="mt-3 text-2xl font-semibold capitalize text-[var(--text)]">{formattedDate}</p>
+              <p className="sports-heading mt-3 text-3xl capitalize text-[var(--text)]">{formattedDate}</p>
 
               <div className="mt-5 flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => handleDateChange(shiftInputDate(selectedDate, -1))}
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-lg font-semibold text-[var(--text)] transition hover:border-[var(--line-strong)] hover:bg-[rgba(255,255,255,0.06)]"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-md border border-[rgba(232,227,217,0.14)] bg-[rgba(255,255,255,0.04)] text-lg font-semibold text-[var(--text)] transition hover:border-[var(--line-strong)] hover:bg-[rgba(255,255,255,0.07)]"
                   aria-label="Jour précédent"
                 >
                   {'<'}
@@ -134,14 +134,14 @@ function Home() {
                     lang="fr-BE"
                     value={selectedDate}
                     onChange={(event) => handleDateChange(event.target.value)}
-                    className="w-full rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent)]"
+                    className="w-full rounded-md border border-[rgba(232,227,217,0.14)] bg-[rgba(255,255,255,0.04)] px-4 py-3 text-sm text-[var(--text)] outline-none transition focus:border-[var(--accent)]"
                   />
                 </label>
 
                 <button
                   type="button"
                   onClick={() => handleDateChange(shiftInputDate(selectedDate, 1))}
-                  className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-lg font-semibold text-[var(--text)] transition hover:border-[var(--line-strong)] hover:bg-[rgba(255,255,255,0.06)]"
+                  className="inline-flex h-12 w-12 items-center justify-center rounded-md border border-[rgba(232,227,217,0.14)] bg-[rgba(255,255,255,0.04)] text-lg font-semibold text-[var(--text)] transition hover:border-[var(--line-strong)] hover:bg-[rgba(255,255,255,0.07)]"
                   aria-label="Jour suivant"
                 >
                   {'>'}
@@ -153,7 +153,7 @@ function Home() {
                   type="button"
                   onClick={() => handleDateChange(today)}
                   disabled={isToday}
-                  className="inline-flex items-center justify-center rounded-full bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--bg-deep)] transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-45"
+                  className="inline-flex items-center justify-center rounded-md bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-[var(--bg-deep)] transition hover:bg-[var(--accent-strong)] disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   Revenir à aujourd&apos;hui
                 </button>
@@ -172,7 +172,7 @@ function Home() {
                   type="button"
                   onClick={handleDevRefresh}
                   disabled={syncLoading}
-                  className="inline-flex items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex items-center justify-center rounded-md border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {syncLoading
                     ? 'Synchronisation en cours...'
@@ -182,7 +182,7 @@ function Home() {
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+                className="inline-flex h-12 w-12 items-center justify-center rounded-md border border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
                 aria-label="Ouvrir la recherche"
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -193,7 +193,7 @@ function Home() {
           </div>
 
           {syncMessage ? (
-            <div className="rounded-[1.4rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] px-4 py-3 text-sm text-[var(--muted-strong)]">
+            <div className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] px-4 py-3 text-sm text-[var(--muted-strong)]">
               {syncMessage}
             </div>
           ) : null}
@@ -202,7 +202,7 @@ function Home() {
         {loading ? (
           <Loader label={`Chargement des matchs du ${selectedDate}...`} />
         ) : error ? (
-          <div className="rounded-[1.8rem] border border-[rgba(216,125,116,0.26)] bg-[rgba(216,125,116,0.08)] px-6 py-8 text-center">
+          <div className="rounded-lg border border-[rgba(216,125,116,0.26)] bg-[rgba(216,125,116,0.08)] px-6 py-8 text-center">
             <p className="text-lg font-semibold text-[var(--text)]">Impossible de charger les matchs</p>
             <p className="mt-2 text-sm text-[var(--danger)]">{error}</p>
           </div>

@@ -84,8 +84,8 @@ function PlayerCard({ player, rank }: { player: TeamOverviewPlayer; rank: number
         </div>
       </div>
       <div className="mt-5 rounded-[1rem] border border-[rgba(121,182,141,0.22)] bg-[rgba(121,182,141,0.1)] px-4 py-3 text-center">
-        <p className="text-3xl font-black text-[var(--success)]">{player.mvp_votes}</p>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted)]">votes MVP</p>
+        <p className="text-3xl font-black text-[var(--success)]">{player.official_mvp_count}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted)]">MVP du match</p>
       </div>
     </article>
   )
@@ -235,7 +235,7 @@ function TeamDetail() {
             </div>
           ) : (
             <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-6 text-sm text-[var(--muted)]">
-              Aucun joueur trouve pour ce club.
+              Aucun MVP de match trouve pour ce club.
             </div>
           )}
         </section>

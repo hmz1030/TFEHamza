@@ -24,7 +24,7 @@ function LeaderboardTable({ entries, headerAction, currentUserId }: LeaderboardT
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)]">
+      <div className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.6)]">
         {headerAction ? <div className="flex justify-end border-b border-[var(--line)] px-5 py-4">{headerAction}</div> : null}
         <div className="p-5 text-sm text-[var(--muted)]">Aucun classement disponible pour le moment.</div>
       </div>
@@ -32,7 +32,7 @@ function LeaderboardTable({ entries, headerAction, currentUserId }: LeaderboardT
   }
 
   return (
-    <div className="overflow-x-auto rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)]">
+    <div className="overflow-x-auto rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)]">
       <div className={`grid min-w-[640px] ${gridClass} gap-4 border-b border-[var(--line)] px-5 py-4 text-xs uppercase tracking-[0.18em] text-[var(--muted)]`}>
         <span>Rang</span>
         <span>Joueur</span>
@@ -58,7 +58,7 @@ function LeaderboardTable({ entries, headerAction, currentUserId }: LeaderboardT
                   {entry.user.username}
                 </UserProfileLink>
                 {isCurrentUser ? (
-                  <span className="rounded-full border border-[rgba(200,132,73,0.28)] bg-[var(--accent-soft)] px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-[var(--accent-strong)]">
+                  <span className="rounded border border-[rgba(200,132,73,0.28)] bg-[var(--accent-soft)] px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-[var(--accent-strong)]">
                     Vous
                   </span>
                 ) : null}

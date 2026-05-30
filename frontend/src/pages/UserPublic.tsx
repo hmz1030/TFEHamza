@@ -92,11 +92,11 @@ function UserPublic() {
     }
   }
 
-  const statCards: { key: PublicActivityTab; label: string; value: number }[] = [
+  const statCards: { key: PublicActivityTab; label: string; value: number | string }[] = [
     { key: 'ratings', label: 'Notes', value: notesCount },
     { key: 'votes', label: 'Votes MVP', value: activity?.votes.length ?? 0 },
     { key: 'comments', label: 'Commentaires', value: activity?.comments.length ?? 0 },
-    { key: 'pronostics', label: 'Points', value: totalPoints },
+    { key: 'pronostics', label: 'Pronostics', value: `${totalPoints} points` },
   ]
 
   if (loading) return <Loader label="Chargement du profil..." />

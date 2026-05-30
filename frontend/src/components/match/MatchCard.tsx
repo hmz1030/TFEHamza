@@ -82,8 +82,6 @@ function MatchCard({ match }: MatchCardProps) {
   const ratingConfig = getRatingConfig(match.average_rating)
   const scheduled = isScheduled(match.status)
   const liveLabel = getLiveLabel(match)
-  const matchCode = `#${String(match.id).padStart(6, '0')}`
-  const venueLine = match.home_team.country || match.away_team.country || match.league
 
   return (
     <Link
@@ -183,5 +181,4 @@ function MatchCard({ match }: MatchCardProps) {
 }
 
 export default MatchCard
-
 

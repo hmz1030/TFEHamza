@@ -38,7 +38,7 @@ function Favorites() {
   return (
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl space-y-8">
-        <section className="rounded-[2rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-6">
+        <section className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-6">
           <p className="text-sm uppercase tracking-[0.24em] text-[var(--muted)]">Favoris</p>
           <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -49,7 +49,7 @@ function Favorites() {
             </div>
             <Link
               to="/profile"
-              className="inline-flex items-center justify-center rounded-full border border-[var(--line)] px-4 py-2.5 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+              className="inline-flex items-center justify-center rounded-md border border-[var(--line)] px-4 py-2.5 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
             >
               Gerer mes clubs
             </Link>

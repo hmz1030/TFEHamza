@@ -82,6 +82,7 @@ export interface TeamOverviewPlayer {
   number: number | null
   age: number | null
   mvp_votes: number
+  official_mvp_count: number
   matches_played: number
 }
 

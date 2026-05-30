@@ -4,7 +4,6 @@ import CommentForm from '../components/comment/CommentForm'
 import DiscussionFeed from '../components/comment/DiscussionFeed'
 import PronosticForm from '../components/pronostic/PronosticForm'
 import PronosticList from '../components/pronostic/PronosticList'
-import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import ScoreBadge from '../components/match/ScoreBadge'
 import RatingForm from '../components/rating/RatingForm'
 import MvpVoteSection from '../components/vote/MvpVoteSection'
@@ -42,7 +41,7 @@ function MatchDetail() {
     refetch,
     updateCommentReaction,
   } = useMatch(matchId)
-  const { matchPlayers, players, loadingPlayers, refetchPlayers } = useMatchPlayers(matchId)
+  const { matchPlayers, loadingPlayers, refetchPlayers } = useMatchPlayers(matchId)
   const [syncing, setSyncing] = useState<null | 'lineups' | 'squads'>(null)
 
   if (loading) return <Loader label="Chargement du match..." />
@@ -54,7 +53,6 @@ function MatchDetail() {
       </div>
     )
   }
-
   const handleSyncLineups = async () => {
     setSyncing('lineups')
     try {
@@ -182,12 +180,10 @@ function MatchDetail() {
 
         <section id="pronostics" className="space-y-4">
           <h2 className="text-3xl font-bold text-[var(--text)]">Pronostics</h2>
-          {myPronostic ? (
-            <PronosticSummaryCard pronostic={myPronostic} match={match} title="Ton pronostic" />
-          ) : (
+          {!myPronostic ? (
             <PronosticForm matchId={match.id} status={match.status} onCreated={refetch} />
-          )}
-          <PronosticList pronostics={pronostics} />
+          ) : null}
+          <PronosticList pronostics={pronostics} currentUserId={user?.id} />
         </section>
 
         <section id="votes" className="space-y-4">
@@ -221,7 +217,7 @@ function MatchDetail() {
             loadingPlayers={loadingPlayers}
             onCreated={refetch}
           />
-          <VoteResults votes={votes} players={players} />
+          <VoteResults votes={votes} matchPlayers={matchPlayers} match={match} />
         </section>
       </div>
     </div>
