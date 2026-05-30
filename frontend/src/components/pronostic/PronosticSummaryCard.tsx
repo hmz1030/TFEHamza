@@ -19,8 +19,8 @@ function formatMatchDate(date: string) {
 
 function TeamPill({ team }: { team: Team }) {
   return (
-    <span className="inline-flex min-w-0 items-center gap-2 rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] py-1 pl-1 pr-3">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white p-1">
+    <span className="inline-flex min-w-0 items-center gap-2 rounded-md border border-[var(--line)] bg-[rgba(255,255,255,0.03)] py-1 pl-1 pr-3">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-white p-1">
         {team.logo ? (
           <img src={team.logo} alt={team.name} className="h-full w-full object-contain" />
         ) : (
@@ -39,7 +39,7 @@ function PronosticSummaryCard({ pronostic, match, title }: PronosticSummaryCardP
   const showFinalScore = hasFinalScore && isFinished(match?.status ?? '')
 
   return (
-    <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+    <article className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold text-[var(--muted-strong)]">{title || pronostic.user_username}</p>

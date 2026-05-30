@@ -43,7 +43,7 @@ type PronosticTab = typeof TABS[number]['id']
 
 function TeamLogo({ team }: { team: Team }) {
   return (
-    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-white p-1.5">
+    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[var(--line)] bg-white p-1.5">
       {team.logo ? (
         <img src={team.logo} alt={team.name} className="h-full w-full object-contain" />
       ) : (
@@ -97,13 +97,13 @@ function Pronostics() {
   }
 
   const tabs = (
-    <div className="flex flex-wrap gap-2 rounded-[1.4rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-2">
+    <div className="flex flex-wrap gap-2 rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-2">
       {TABS.map((tab) => (
         <button
           key={tab.id}
           type="button"
           onClick={() => selectTab(tab.id)}
-          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+          className={`rounded-md px-4 py-2 text-sm font-semibold transition ${
             activeTab === tab.id
               ? 'bg-[var(--accent)] text-[var(--bg-deep)]'
               : 'text-[var(--muted-strong)] hover:bg-white/[0.04] hover:text-[var(--text)]'
@@ -197,7 +197,7 @@ function Pronostics() {
 
             <div className="space-y-4">
               {historyByDate.length === 0 ? (
-                <div className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
+                <div className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
                   Aucun pronostic enregistre pour l'instant.
                 </div>
               ) : historyByDate.map((pronostic) => {
@@ -223,7 +223,7 @@ function Pronostics() {
         {tabs}
 
         {error ? (
-          <div className="rounded-[1.6rem] border border-[var(--danger)]/30 bg-[rgba(127,29,29,0.18)] p-4 text-sm text-[var(--danger)]">
+          <div className="rounded-lg border border-[var(--danger)]/30 bg-[rgba(127,29,29,0.18)] p-4 text-sm text-[var(--danger)]">
             {error}
           </div>
         ) : null}
@@ -240,7 +240,7 @@ function Pronostics() {
                 type="button"
                 onClick={handleSyncUpcoming}
                 disabled={syncLoading}
-                className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)] disabled:opacity-60"
+                className="rounded-md border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-3 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--line-strong)] hover:text-[var(--text)] disabled:opacity-60"
               >
                 {syncLoading ? 'Synchronisation...' : 'Sync 14 jours'}
               </button>
@@ -248,7 +248,7 @@ function Pronostics() {
           </div>
 
           {syncMessage ? (
-            <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-4 text-sm text-[var(--muted-strong)]">
+            <div className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-4 text-sm text-[var(--muted-strong)]">
               {syncMessage}
             </div>
           ) : null}
@@ -259,7 +259,7 @@ function Pronostics() {
               <button
                 type="button"
                 onClick={() => setLeagueFilter(ALL_LEAGUES)}
-                className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition ${
+                className={`rounded-md border px-4 py-1.5 text-xs font-semibold transition ${
                   leagueFilter === ALL_LEAGUES
                     ? 'border-[var(--accent-strong)] bg-[var(--accent-strong)]/15 text-[var(--text)]'
                     : 'border-[var(--line)] bg-[rgba(17,27,40,0.6)] text-[var(--muted-strong)] hover:border-[var(--line-strong)] hover:text-[var(--text)]'
@@ -275,7 +275,7 @@ function Pronostics() {
                     key={league}
                     type="button"
                     onClick={() => setLeagueFilter(league)}
-                    className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition ${
+                    className={`rounded-md border px-4 py-1.5 text-xs font-semibold transition ${
                       isActive
                         ? 'border-[var(--accent-strong)] bg-[var(--accent-strong)]/15 text-[var(--text)]'
                         : 'border-[var(--line)] bg-[rgba(17,27,40,0.6)] text-[var(--muted-strong)] hover:border-[var(--line-strong)] hover:text-[var(--text)]'
@@ -290,13 +290,13 @@ function Pronostics() {
 
           <div className="space-y-4">
             {upcomingMatches.length === 0 ? (
-              <div className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
+              <div className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">
                 {leagueFilter === ALL_LEAGUES
                   ? 'Aucun match a pronostiquer pour le moment.'
                   : `Aucun match a venir pour ${leagueFilter}.`}
               </div>
             ) : upcomingMatches.map((match) => (
-              <article key={match.id} className="rounded-[1.8rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+              <article key={match.id} className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
                 <div className="mb-4 flex items-center justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm uppercase tracking-[0.18em] text-[var(--accent-strong)]">{match.league}</p>

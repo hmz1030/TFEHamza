@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import logoMatchNote from '../../assets/logoMatchNote1.png'
 import UserAvatar from '../user/UserAvatar'
 
 const publicLinks = [
@@ -40,8 +41,12 @@ function Navbar() {
   return (
     <nav className="sticky top-0 z-40 border-b border-[var(--line)] bg-[rgba(8,17,27,0.88)] px-4 py-3 backdrop-blur-xl sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-        <Link to="/" className="text-xl font-bold text-[var(--text)] sm:text-2xl">
-          Match<span className="text-[var(--accent-strong)]">Note</span>
+        <Link to="/" className="flex shrink-0 items-center" aria-label="MatchNote - accueil">
+          <img
+            src={logoMatchNote}
+            alt="MatchNote"
+            className="h-14 w-auto object-contain sm:h-16"
+          />
         </Link>
 
         <div className="hidden items-center gap-2 md:flex">

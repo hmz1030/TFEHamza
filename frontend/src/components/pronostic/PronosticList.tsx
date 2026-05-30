@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import type { Pronostic } from '../../types'
 import UserAvatar from '../user/UserAvatar'
 import UserProfileLink from '../user/UserProfileLink'
 
 interface PronosticListProps {
   pronostics: Pronostic[]
+  currentUserId?: number
+  initialVisibleCount?: number
 }
 
 function formatPronosticDate(date: string) {
@@ -16,19 +19,29 @@ function formatPronosticDate(date: string) {
   }).format(new Date(date))
 }
 
-function PronosticList({ pronostics }: PronosticListProps) {
+function PronosticList({ pronostics, currentUserId, initialVisibleCount = 5 }: PronosticListProps) {
+  const [visibleCount, setVisibleCount] = useState(initialVisibleCount)
+
   const sortedPronostics = [...pronostics].sort((a, b) =>
     new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
   )
+  const orderedPronostics = currentUserId
+    ? [
+      ...sortedPronostics.filter((pronostic) => pronostic.user === currentUserId),
+      ...sortedPronostics.filter((pronostic) => pronostic.user !== currentUserId),
+    ]
+    : sortedPronostics
+  const visiblePronostics = orderedPronostics.slice(0, visibleCount)
+  const hasMorePronostics = visibleCount < orderedPronostics.length
 
-  if (sortedPronostics.length === 0) {
-    return <div className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">Aucun pronostic pour le moment.</div>
+  if (orderedPronostics.length === 0) {
+    return <div className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.6)] p-5 text-sm text-[var(--muted)]">Aucun pronostic pour le moment.</div>
   }
 
   return (
     <div className="space-y-4">
-      {sortedPronostics.map((pronostic) => (
-        <article key={pronostic.id} className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+      {visiblePronostics.map((pronostic) => (
+        <article key={pronostic.id} className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
               <UserAvatar username={pronostic.user_username} avatarUrl={pronostic.user_avatar_url} size="sm" />
@@ -46,6 +59,18 @@ function PronosticList({ pronostics }: PronosticListProps) {
           </div>
         </article>
       ))}
+
+      {hasMorePronostics ? (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((count) => count + 5)}
+            className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-2.5 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--accent-soft)] hover:text-[var(--text)]"
+          >
+            Charger plus
+          </button>
+        </div>
+      ) : null}
     </div>
   )
 }
