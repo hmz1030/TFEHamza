@@ -86,7 +86,7 @@ def players_who_played(side_data, sub_in_ids):
 
 
 def ensure_players(team, raw_players):
-    """Cree/maj les Player et renvoie la liste de paires (Player, raw_player)."""
+    """Cree/maj les Player et renvoie la liste de triplets (Team, Player, raw_player)."""
     pairs = []
     for raw_player in raw_players:
         api_id = str(raw_player.get('id') or '').strip()
@@ -98,20 +98,21 @@ def ensure_players(team, raw_players):
             api_id=api_id,
             defaults={'name': name, 'team': team, 'image': image},
         )
-        pairs.append((player, raw_player))
+        pairs.append((team, player, raw_player))
     return pairs
 
 
 def sync_match_players(match, pairs, event_summary):
-    """Synchronise MatchPlayer a partir d'une liste de (Player, raw_player)."""
-    players = [pair[0] for pair in pairs]
+    """Synchronise MatchPlayer a partir d'une liste de (Team, Player, raw_player)."""
+    players = [pair[1] for pair in pairs]
     MatchPlayer.objects.filter(match=match).exclude(player__in=players).delete()
-    for player, raw in pairs:
+    for team, player, raw in pairs:
         stats = event_summary.get(player.api_id, get_empty_event_summary())
         MatchPlayer.objects.update_or_create(
             match=match,
             player=player,
             defaults={
+                'team': team,
                 'is_starter': bool(raw.get('is_starter')),
                 'goals': stats['goals'],
                 'assists': stats['assists'],

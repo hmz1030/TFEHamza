@@ -53,6 +53,7 @@ export interface Player {
 export interface MatchPlayer {
   id: number
   player: Player
+  team: number | null
   is_starter: boolean
   goals: number
   assists: number

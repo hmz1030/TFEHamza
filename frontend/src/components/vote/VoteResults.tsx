@@ -14,16 +14,17 @@ interface MvpCardPlayer extends Player {
   clubName: string
 }
 
-function getClubForPlayer(match: Match, player: Player) {
-  if (player.team === match.home_team.id) return match.home_team
-  if (player.team === match.away_team.id) return match.away_team
+function getClubForMatchPlayer(match: Match, matchPlayer: MatchPlayer) {
+  const teamId = matchPlayer.team ?? matchPlayer.player.team
+  if (teamId === match.home_team.id) return match.home_team
+  if (teamId === match.away_team.id) return match.away_team
   return match.home_team
 }
 
 function buildMvpRanking(votes: Vote[], matchPlayers: MatchPlayer[], match: Match): MvpCardPlayer[] {
   return matchPlayers
     .map((matchPlayer) => {
-      const club = getClubForPlayer(match, matchPlayer.player)
+      const club = getClubForMatchPlayer(match, matchPlayer)
 
       return {
         ...matchPlayer.player,

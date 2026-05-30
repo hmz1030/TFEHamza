@@ -55,6 +55,7 @@ class Match(models.Model):
 class MatchPlayer(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE, related_name='match_players')
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='match_players')
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='match_players', null=True, blank=True)
     is_starter = models.BooleanField(default=False)
     goals = models.PositiveSmallIntegerField(default=0)
     assists = models.PositiveSmallIntegerField(default=0)

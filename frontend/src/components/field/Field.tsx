@@ -88,7 +88,7 @@ function placePlayersForSide(
   side: Side,
 ): PlacedPlayer[] {
   const starters = matchPlayers.filter(
-    (mp) => mp.is_starter && mp.player.team === teamId,
+    (mp) => mp.is_starter && (mp.team ?? mp.player.team) === teamId,
   )
   const sortedStarters = starters
     .slice()

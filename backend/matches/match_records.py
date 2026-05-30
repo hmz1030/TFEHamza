@@ -27,6 +27,10 @@ def _merge_match_players(duplicate, keep):
             continue
 
         changed_fields = []
+        if not existing.team_id and row.team_id:
+            existing.team = row.team
+            changed_fields.append('team')
+
         for field in MATCH_PLAYER_BOOLEAN_FIELDS:
             if getattr(row, field) and not getattr(existing, field):
                 setattr(existing, field, True)

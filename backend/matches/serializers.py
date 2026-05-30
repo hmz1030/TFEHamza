@@ -24,10 +24,11 @@ class PlayerSerializer(serializers.ModelSerializer):
 
 class MatchPlayerSerializer(serializers.ModelSerializer):
     player = PlayerSerializer(read_only=True)
+    team = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = MatchPlayer
-        fields = ('id', 'player', 'is_starter', 'goals', 'assists', 'subbed_in', 'subbed_out')
+        fields = ('id', 'player', 'team', 'is_starter', 'goals', 'assists', 'subbed_in', 'subbed_out')
 
 
 class MatchSerializer(serializers.ModelSerializer):
