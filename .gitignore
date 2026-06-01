@@ -228,3 +228,6 @@ frontend/.env.local
 # Deployment
 publish/
 docker/.env.production
+
+# Rapport LaTeX local
+rapport/
