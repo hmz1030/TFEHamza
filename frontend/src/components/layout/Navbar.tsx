@@ -10,8 +10,8 @@ const publicLinks = [
 ]
 
 const privateLinks = [
+  { to: '/friends', label: 'Ami' },
   { to: '/favorites', label: 'Favoris' },
-  { to: '/profile', label: 'Profil' },
 ]
 
 function Navbar() {
@@ -60,10 +60,18 @@ function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <>
-              <div className="flex items-center gap-2 rounded-full border border-[var(--line)] bg-white/[0.03] px-3 py-1.5">
+              <Link
+                to="/profile"
+                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 transition ${
+                  location.pathname === '/profile'
+                    ? 'border-[var(--accent-strong)] bg-white/[0.06]'
+                    : 'border-[var(--line)] bg-white/[0.03] hover:border-[var(--line-strong)]'
+                }`}
+                aria-label="Voir mon profil"
+              >
                 <UserAvatar username={user.username} avatarUrl={user.avatar_url} size="sm" />
                 <span className="text-sm font-semibold text-[var(--muted-strong)]">{user.username}</span>
-              </div>
+              </Link>
               <button
                 type="button"
                 onClick={handleLogout}
@@ -114,10 +122,19 @@ function Navbar() {
 
           {user ? (
             <div className="space-y-3 border-t border-[var(--line)] pt-3">
-              <div className="flex flex-wrap items-center gap-2 px-3">
+              <Link
+                to="/profile"
+                onClick={() => setMenuOpen(false)}
+                className={`flex flex-wrap items-center gap-2 rounded-full border px-3 py-2 transition ${
+                  location.pathname === '/profile'
+                    ? 'border-[var(--accent-strong)] bg-white/[0.06]'
+                    : 'border-[var(--line)] bg-white/[0.03] hover:border-[var(--line-strong)]'
+                }`}
+                aria-label="Voir mon profil"
+              >
                 <UserAvatar username={user.username} avatarUrl={user.avatar_url} size="sm" />
                 <span className="text-sm font-semibold text-[var(--muted-strong)]">{user.username}</span>
-              </div>
+              </Link>
               <button
                 type="button"
                 onClick={handleLogout}

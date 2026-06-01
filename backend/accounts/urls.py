@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import RegisterView, MeView, ProfileUpdateView, UserListView, UserDetailView, UserActivityView, UserFavoriteClubListView, FollowView, UnfollowView, FavoriteClubCreateView, FavoriteClubDeleteView, FavoriteClubListView, MyActivityView
+from .views import RegisterView, MeView, ProfileUpdateView, UserListView, UserDetailView, UserActivityView, UserFavoriteClubListView, FollowView, UnfollowView, FavoriteClubCreateView, FavoriteClubDeleteView, FavoriteClubListView, MyActivityView, MyPronosticActivityView, FriendsFeedView, UserPronosticActivityView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -9,9 +9,12 @@ urlpatterns = [
     path('me/', MeView.as_view(), name='me'),
     path('me/profile/', ProfileUpdateView.as_view(), name='profile-update'),
     path('me/activity/', MyActivityView.as_view(), name='my-activity'),
+    path('me/pronostics/', MyPronosticActivityView.as_view(), name='my-pronostics'),
+    path('friends-feed/', FriendsFeedView.as_view(), name='friends-feed'),
     path('users/', UserListView.as_view(), name='user-list'),
     path('users/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
     path('users/<int:user_id>/activity/', UserActivityView.as_view(), name='user-activity'),
+    path('users/<int:user_id>/pronostics/', UserPronosticActivityView.as_view(), name='user-pronostics'),
     path('users/<int:user_id>/favorites/', UserFavoriteClubListView.as_view(), name='user-favorites'),
     path('follow/', FollowView.as_view(), name='follow'),
     path('unfollow/<int:followee_id>/', UnfollowView.as_view(), name='unfollow'),

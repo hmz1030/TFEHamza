@@ -10,9 +10,8 @@ import UserAvatar from '../components/user/UserAvatar'
 import UserBadge from '../components/user/UserBadge'
 import VoteSummaryCard from '../components/vote/VoteSummaryCard'
 import Loader from '../components/ui/Loader'
-import type { ActivityData, FavoriteClub } from '../services/userService'
 import { getMatches } from '../services/matchService'
-import { getUser, getUserActivity, getUserFavoriteClubs } from '../services/userService'
+import { getUser, getUserActivity, getUserFavoriteClubs, getUserPronostics, type ActivityData, type FavoriteClub } from '../services/userService'
 import type { Match, PublicUser } from '../types'
 import { resolveCachedData, setCachedData } from '../utils/requestCache'
 
@@ -31,7 +30,7 @@ function UserPublic() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<PublicActivityTab | null>(null)
-  const [visiblePronosticCount, setVisiblePronosticCount] = useState(INITIAL_PRONOSTIC_COUNT)
+  const [loadingMorePronostics, setLoadingMorePronostics] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -39,7 +38,9 @@ function UserPublic() {
     setActiveTab(null)
     Promise.all([
       resolveCachedData(`user:${userId}:detail`, async () => (await getUser(userId)).data),
-      resolveCachedData(`user:${userId}:activity`, async () => (await getUserActivity(userId)).data),
+      resolveCachedData(`user:${userId}:activity`, async () => (
+        await getUserActivity(userId, { pronosticsLimit: INITIAL_PRONOSTIC_COUNT })
+      ).data),
       resolveCachedData(`user:${userId}:favorites`, async () => (await getUserFavoriteClubs(userId)).data),
       resolveCachedData('matches:list', async () => (await getMatches()).data),
     ])
@@ -54,7 +55,7 @@ function UserPublic() {
   }, [userId])
 
   const totalPoints = useMemo(
-    () => activity?.pronostics.reduce((sum, pronostic) => sum + (pronostic.points ?? 0), 0) ?? 0,
+    () => activity?.pronostics_total_points ?? 0,
     [activity],
   )
   const notesCount = activity?.ratings.length ?? 0
@@ -63,14 +64,38 @@ function UserPublic() {
     () => new Map(matches.map((match) => [match.id, match])),
     [matches],
   )
-  const visiblePronostics = activity?.pronostics.slice(0, visiblePronosticCount) ?? []
-  const hasMorePronostics = Boolean(activity && visiblePronosticCount < activity.pronostics.length)
+  const visiblePronostics = activity?.pronostics ?? []
+  const hasMorePronostics = Boolean(activity?.pronostics_has_more)
 
   const handleSelectTab = (tab: PublicActivityTab) => {
-    if (tab === 'pronostics') {
-      setVisiblePronosticCount(INITIAL_PRONOSTIC_COUNT)
-    }
     setActiveTab((current) => current === tab ? null : tab)
+  }
+
+  const handleLoadMorePronostics = async () => {
+    if (!activity || loadingMorePronostics) return
+
+    setLoadingMorePronostics(true)
+    try {
+      const response = await getUserPronostics(userId, activity.pronostics_next_offset, PRONOSTIC_BATCH_SIZE)
+      setActivity((current) => {
+        if (!current) return current
+
+        const next = {
+          ...current,
+          pronostics: [...current.pronostics, ...response.data.pronostics],
+          pronostics_count: response.data.pronostics_count,
+          pronostics_total_points: response.data.pronostics_total_points,
+          pronostics_next_offset: response.data.pronostics_next_offset,
+          pronostics_has_more: response.data.pronostics_has_more,
+        }
+        setCachedData(`user:${userId}:activity`, next)
+        return next
+      })
+    } catch {
+      setError('Impossible de charger plus de pronostics.')
+    } finally {
+      setLoadingMorePronostics(false)
+    }
   }
 
   const handleFollowChange = (isFollowing: boolean) => {
@@ -240,7 +265,7 @@ function UserPublic() {
           </div>
 
           <div className="space-y-4">
-            {activity?.pronostics.length ? visiblePronostics.map((pronostic) => (
+            {activity?.pronostics_count ? visiblePronostics.map((pronostic) => (
               <PronosticSummaryCard
                 key={pronostic.id}
                 pronostic={pronostic}
@@ -256,14 +281,11 @@ function UserPublic() {
               <div className="flex justify-end">
                 <button
                   type="button"
-                  onClick={() => {
-                    setVisiblePronosticCount((current) =>
-                      Math.min(current + PRONOSTIC_BATCH_SIZE, activity?.pronostics.length ?? current),
-                    )
-                  }}
-                  className="rounded-full border border-[var(--line)] px-5 py-2 text-sm font-bold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+                  onClick={() => void handleLoadMorePronostics()}
+                  disabled={loadingMorePronostics}
+                  className="rounded-full border border-[var(--line)] px-5 py-2 text-sm font-bold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  Voir plus
+                  {loadingMorePronostics ? 'Chargement...' : 'Voir plus'}
                 </button>
               </div>
             ) : null}

@@ -5,6 +5,7 @@ import Navbar from './components/layout/Navbar'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import Home from './pages/Home'
 import Favorites from './pages/Favorites'
+import Friends from './pages/Friends'
 import Login from './pages/Login'
 import MatchDetail from './pages/MatchDetail'
 import Pronostics from './pages/Pronostics'
@@ -37,6 +38,7 @@ function AppContent() {
           <Route path="/teams/:id" element={<TeamDetail />} />
           <Route path="/leaderboard" element={<Navigate to="/pronostics?tab=classement" replace />} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
           <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
           <Route path="/pronostics" element={<ProtectedRoute><Pronostics /></ProtectedRoute>} />
           <Route path="/pronostic-groups" element={<Navigate to="/pronostics?tab=groupes" replace />} />
