@@ -1,0 +1,127 @@
+@startuml MatchNoteSimplified
+
+skinparam classAttributeIconSize 0
+skinparam class {
+    BackgroundColor White
+    BorderColor #333333
+    ArrowColor #666666
+}
+skinparam linetype ortho
+hide circle
+
+entity User {
+    username : String
+    email : String
+    badge_id : Integer <<FK>>
+}
+
+entity Badge {
+    name : String
+    min_rated_match : Integer
+    icon : String
+}
+
+entity Follow {
+    follower_id : Integer <<FK>>
+    followee_id : Integer <<FK>>
+    created_at : DateTime
+}
+
+entity FavoriteClub {
+    user_id : Integer <<FK>>
+    team_id : Integer <<FK>>
+}
+
+entity Team {
+    name : String
+    league : String
+    logo : String
+}
+
+entity Player {
+    name : String
+    position : String
+    team_id : Integer <<FK>>
+}
+
+entity Match {
+    date : DateTime
+    status : String
+    score : String
+}
+
+entity MatchPlayer {
+    match_id : Integer <<FK>>
+    player_id : Integer <<FK>>
+    is_starter : Boolean
+}
+
+entity Rating {
+    score : Integer
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+}
+
+entity Comment {
+    content : Text
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+}
+
+entity Vote {
+    user_id : Integer <<FK>>
+    match_id : Integer <<FK>>
+    player_id : Integer <<FK>>
+}
+
+entity Pronostic {
+    home_score : Integer
+    away_score : Integer
+    points : Integer
+}
+
+entity PronosticGroup {
+    name : String
+    owner_id : Integer <<FK>>
+    created_at : DateTime
+}
+
+entity PronosticGroupMember {
+    group_id : Integer <<FK>>
+    user_id : Integer <<FK>>
+    status : String
+}
+
+Badge ||--o{ User
+User ||--o{ Follow : "follower/followee"
+User ||--o{ FavoriteClub
+
+Team ||--o{ FavoriteClub
+Team ||--o{ Player
+Team ||--o{ Match : "home/away"
+
+Match ||--o{ MatchPlayer
+Player ||--o{ MatchPlayer
+Team ||--o{ MatchPlayer
+
+User ||--o{ Rating
+Match ||--o{ Rating
+
+User ||--o{ Comment
+Match ||--o{ Comment
+Comment ||--o{ Comment : "replies"
+
+User ||--o{ Vote
+Match ||--o{ Vote
+Player ||--o{ Vote
+
+User ||--o{ Pronostic
+Match ||--o{ Pronostic
+
+User ||--o{ PronosticGroup : "owner"
+PronosticGroup ||--o{ PronosticGroupMember
+User ||--o{ PronosticGroupMember
+
+Match |o--o| Player : "MVP"
+
+@enduml

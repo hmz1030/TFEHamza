@@ -15,6 +15,7 @@ import { getMatches } from '../services/matchService'
 import { getTeams } from '../services/teamService'
 import type { Match, Team } from '../types'
 import { resolveCachedData, setCachedData } from '../utils/requestCache'
+import UserShareProfil from '../components/user/UserShareProfil'
 
 const INITIAL_PRONOSTIC_COUNT = 3
 const PRONOSTIC_BATCH_SIZE = 10
@@ -238,6 +239,9 @@ function Profile() {
             >
               {editingProfile ? 'Fermer' : 'Modifier mon profil'}
             </button>
+             <div className="mt-3 flex flex-wrap items-center gap-2">
+            <UserShareProfil userId={user.id} className="" />
+          </div>
           </div>
 
           {user.bio ? (

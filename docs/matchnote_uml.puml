@@ -46,6 +46,7 @@ entity Team {
     * id : Integer <<PK>>
     --
     api_id : String (nullable, unique)
+    canonical_key : String (nullable, unique)
     name : String
     league : String
     country : String
@@ -84,6 +85,7 @@ entity Match {
     home_score : Integer
     away_score : Integer
     status : String
+    status_display : String
     mvp_id : Integer <<FK>> (nullable)
     lineup_synced_at : DateTime (nullable)
 }
@@ -93,7 +95,12 @@ entity MatchPlayer {
     --
     match_id : Integer <<FK>>
     player_id : Integer <<FK>>
+    team_id : Integer <<FK>> (nullable)
     is_starter : Boolean
+    goals : Integer
+    assists : Integer
+    subbed_in : Boolean
+    subbed_out : Boolean
 }
 
 entity Rating {
@@ -196,6 +203,7 @@ User ||--o{ PronosticGroupMember : "invited_by"
 Team ||--o{ Player
 Team ||--o{ FavoriteClub
 Team ||--o{ Match : "home/away"
+Team ||--o{ MatchPlayer
 
 Match ||--o{ Rating
 Match ||--o{ Comment

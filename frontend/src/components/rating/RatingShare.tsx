@@ -2,10 +2,10 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import shareIcon from '../../assets/share-icon.svg'
 import { getBackendOrigin } from '../../services/api'
-import type { Comment } from '../../types'
+import type { Rating } from '../../types'
 
-interface CommentShareActionsProps {
-  comment: Comment
+interface RatingShareActionsProps {
+  rating: Rating
   matchLabel?: string
   className?: string
 }
@@ -16,14 +16,15 @@ function truncateText(text: string, maxLength: number) {
   return `${normalized.slice(0, maxLength - 1).trim()}...`
 }
 
-function getCommentUrl(comment: Comment) {
-  return `${getBackendOrigin()}/share/comments/${comment.id}/`
+function getRatingUrl(rating: Rating) {
+  return `${getBackendOrigin()}/share/ratings/${rating.id}/`
 }
 
-function getShareText(comment: Comment, matchLabel?: string) {
-  const excerpt = truncateText(comment.content, 140)
+function getShareText(rating: Rating, matchLabel?: string) {
+  const excerpt = truncateText(rating.comment, 140)
   const context = matchLabel ? ` sur ${matchLabel}` : ''
-  return `Regarde ce commentaire de ${comment.user_username}${context} : "${excerpt}"`
+  const quote = excerpt ? ` : "${excerpt}"` : ''
+  return `Regarde cette note de ${rating.user_username}${context}${quote}`
 }
 
 function ShareOptionIcon({ type }: { type: 'copy' | 'x' | 'whatsapp' }) {
@@ -59,19 +60,19 @@ function ShareOptionIcon({ type }: { type: 'copy' | 'x' | 'whatsapp' }) {
   )
 }
 
-function CommentShareActions({ comment, matchLabel, className = 'mt-3' }: CommentShareActionsProps) {
+function RatingShareActions({ rating, matchLabel, className = 'mt-3' }: RatingShareActionsProps) {
   const [open, setOpen] = useState(false)
-  const commentUrl = getCommentUrl(comment)
-  const shareText = getShareText(comment, matchLabel)
+  const ratingUrl = getRatingUrl(rating)
+  const shareText = getShareText(rating, matchLabel)
   const encodedText = encodeURIComponent(shareText)
-  const encodedUrl = encodeURIComponent(commentUrl)
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${commentUrl}`)}`
+  const encodedUrl = encodeURIComponent(ratingUrl)
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${ratingUrl}`)}`
   const xUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(commentUrl)
-      toast.success('Lien du commentaire copié')
+      await navigator.clipboard.writeText(ratingUrl)
+      toast.success('Lien de la note copié')
       setOpen(false)
     } catch {
       toast.error('Impossible de copier le lien')
@@ -86,7 +87,7 @@ function CommentShareActions({ comment, matchLabel, className = 'mt-3' }: Commen
       <button
         type="button"
         title="Partager"
-        aria-label="Partager ce commentaire"
+        aria-label="Partager cette note"
         onClick={() => setOpen(true)}
         className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] transition hover:border-[var(--accent-strong)]"
       >
@@ -99,7 +100,7 @@ function CommentShareActions({ comment, matchLabel, className = 'mt-3' }: Commen
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-lg font-bold text-[var(--text)]">Partager</h3>
-                <p className="mt-1 text-sm text-[var(--muted)]">Choisis où envoyer ce commentaire.</p>
+                <p className="mt-1 text-sm text-[var(--muted)]">Choisis où envoyer cette note.</p>
               </div>
               <button
                 type="button"
@@ -132,4 +133,4 @@ function CommentShareActions({ comment, matchLabel, className = 'mt-3' }: Commen
   )
 }
 
-export default CommentShareActions
+export default RatingShareActions

@@ -109,7 +109,7 @@ function MvpVoteSection({ match, matchPlayers, votes, loadingPlayers, onCreated 
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.2rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-4">
           <p className="text-sm text-[var(--muted-strong)]">
             {selectedPlayer ? (
-              <>Pret a voter pour <span className="font-semibold text-[var(--text)]">{selectedPlayer.name}</span> ?</>
+              <>Pret à voter pour <span className="font-semibold text-[var(--text)]">{selectedPlayer.name}</span> ?</>
             ) : (
               'Clique sur un joueur pour le designer MVP.'
             )}

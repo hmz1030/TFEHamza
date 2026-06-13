@@ -17,14 +17,14 @@ interface FieldProps {
 const POSITION_LABELS = ['GK', 'DF', 'MF', 'FW'] as const
 type PositionLabel = (typeof POSITION_LABELS)[number]
 
-const HOME_LINE_X: Record<PositionLabel, number> = {
+const AWAY_LINE_X: Record<PositionLabel, number> = {
   GK: 94,
   DF: 80,
   MF: 68,
   FW: 58, // Écarté du centre
 }
 
-const AWAY_LINE_X: Record<PositionLabel, number> = {
+const HOME_LINE_X: Record<PositionLabel, number> = {
   GK: 6,
   DF: 20,
   MF: 32,
@@ -34,7 +34,7 @@ const AWAY_LINE_X: Record<PositionLabel, number> = {
 function normalizePosition(raw: string): PositionLabel | null {
   const value = (raw || '').trim().toUpperCase()
 
-  if (!value) return null
+  if (!value) return 'MF'
 
   if (value.startsWith('G')) return 'GK'
 
@@ -63,16 +63,6 @@ function normalizePosition(raw: string): PositionLabel | null {
   return 'MF'
 }
 
-function getFallbackFormation(count: number): PositionLabel[] {
-  const shortFormation: PositionLabel[] = ['GK', 'DF', 'DF', 'MF', 'MF', 'FW', 'FW']
-  const fullFormation: PositionLabel[] = ['GK', 'DF', 'DF', 'DF', 'DF', 'MF', 'MF', 'MF', 'FW', 'FW', 'FW']
-
-  if (count <= 1) return ['GK']
-  if (count <= 7) return shortFormation.slice(0, count)
-
-  return fullFormation.slice(0, count)
-}
-
 interface PlacedPlayer {
   matchPlayer: MatchPlayer
   player: Player
@@ -93,13 +83,15 @@ function placePlayersForSide(
   const sortedStarters = starters
     .slice()
     .sort((a, b) => (a.player.number ?? 999) - (b.player.number ?? 999))
-  const fallbackFormation = getFallbackFormation(sortedStarters.length)
 
   const grouped = new Map<PositionLabel, MatchPlayer[]>()
   POSITION_LABELS.forEach((label) => grouped.set(label, []))
 
-  sortedStarters.forEach((mp, index) => {
-    const label = normalizePosition(mp.player.position) ?? fallbackFormation[index] ?? 'MF'
+  sortedStarters.forEach((mp) => {
+    const label = normalizePosition(mp.player.position)
+
+    if (!label) return
+
     grouped.get(label)!.push(mp)
   })
 
@@ -171,11 +163,9 @@ function EventIcon({ type }: { type: EventBadgeType }) {
 function EventBadge({
   type,
   label,
-  count,
 }: {
   type: EventBadgeType
   label: string
-  count?: number
 }) {
   return (
     <span
@@ -183,7 +173,6 @@ function EventBadge({
       className={`flex h-4 min-w-4 items-center justify-center rounded-full px-0.5 text-[8px] font-black leading-none ring-1 shadow ${EVENT_BADGE_STYLES[type]}`}
     >
       <EventIcon type={type} />
-      {count && count > 2 ? <span className="ml-0.5">x{count}</span> : null}
     </span>
   )
 }
@@ -198,10 +187,6 @@ function CountBadges({
   label: string
 }) {
   if (count <= 0) return null
-
-  if (count > 2) {
-    return <EventBadge type={type} label={label} count={count} />
-  }
 
   return Array.from({ length: count }, (_, index) => (
     <EventBadge key={`${type}-${index}`} type={type} label={label} />
@@ -348,8 +333,8 @@ function Field({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between text-xs uppercase tracking-[0.24em] text-[var(--muted-strong)]">
-        <span>{awayTeam.name}</span>
         <span>{homeTeam.name}</span>
+        <span>{awayTeam.name}</span>
       </div>
 
       <div className="relative mx-auto aspect-[3/4] md:aspect-[4/3] w-full max-w-[760px] overflow-hidden rounded-[1.6rem] border border-white/30 shadow-[0_24px_60px_rgba(0,0,0,0.45)] bg-[#145c2c]">

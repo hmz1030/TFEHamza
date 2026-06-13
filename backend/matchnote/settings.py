@@ -37,7 +37,10 @@ DEBUG = APP_MODE != 'production'
 ENABLE_SYNC_ENDPOINTS = config('ENABLE_SYNC_ENDPOINTS', default=DEBUG, cast=bool)
 ENABLE_SYNC_SCHEDULER = config('ENABLE_SYNC_SCHEDULER', default=False, cast=bool)
 
-ALLOWED_HOSTS = csv_config('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = csv_config(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1,.trycloudflare.com'
+)
 
 
 # Application definition
@@ -147,6 +150,7 @@ CORS_ALLOWED_ORIGINS = csv_config(
 CSRF_TRUSTED_ORIGINS = csv_config('CSRF_TRUSTED_ORIGINS')
 USE_X_FORWARDED_HOST = config('USE_X_FORWARDED_HOST', default=False, cast=bool)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173' if DEBUG else '')
 
 AUTH_USER_MODEL = 'accounts.User'
 

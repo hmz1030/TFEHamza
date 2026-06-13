@@ -7,6 +7,7 @@ import CommentForm from './CommentForm'
 import CommentReactionButtons from './CommentReactionButtons'
 import CommentReportButton from './CommentReportButton'
 import CommentShareActions from './CommentShareActions'
+import RatingShareActions from '../rating/RatingShare'
 
 interface DiscussionFeedProps {
   matchId: number
@@ -59,12 +60,14 @@ function DiscussionFeed({
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_ITEMS)
   const focusedCommentId = Number(searchParams.get('comment'))
+  const focusedRatingId = Number(searchParams.get('rating'))
 
   useEffect(() => {
-    if (!focusedCommentId) return
-    const target = document.getElementById(`comment-${focusedCommentId}`)
+    const targetId = focusedRatingId ? `rating-${focusedRatingId}` : focusedCommentId ? `comment-${focusedCommentId}` : null
+    if (!targetId) return
+    const target = document.getElementById(targetId)
     target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }, [comments, focusedCommentId, visibleCount])
+  }, [comments, focusedCommentId, focusedRatingId, ratings, visibleCount])
 
   const repliesByParent = useMemo(() => {
     const replies = new Map<number, Comment[]>()
@@ -91,15 +94,16 @@ function DiscussionFeed({
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [comments, ratings])
 
   const focusedFeedIndex = useMemo(() => {
-    if (!focusedCommentId) return -1
+    if (!focusedCommentId && !focusedRatingId) return -1
 
     return feed.findIndex((item) => {
+      if (item.type === 'rating') return item.rating.id === focusedRatingId
       if (item.type !== 'comment') return false
       if (item.comment.id === focusedCommentId) return true
 
       return (repliesByParent.get(item.comment.id) ?? []).some((reply) => reply.id === focusedCommentId)
     })
-  }, [feed, focusedCommentId, repliesByParent])
+  }, [feed, focusedCommentId, focusedRatingId, repliesByParent])
 
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE_ITEMS)
@@ -124,7 +128,11 @@ function DiscussionFeed({
   return (
     <div className="space-y-4">
       {visibleFeed.map((item) => item.type === 'rating' ? (
-        <article key={`rating-${item.rating.id}`} className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+        <article
+          key={`rating-${item.rating.id}`}
+          id={`rating-${item.rating.id}`}
+          className={`rounded-[1.6rem] border bg-[rgba(17,27,40,0.72)] p-5 transition ${focusedRatingId === item.rating.id ? 'border-[var(--accent-strong)] shadow-[0_0_0_1px_var(--accent-strong)]' : 'border-[var(--line)]'}`}
+        >
           <div className="flex items-start justify-between gap-4">
             <UserLine userId={item.rating.user} username={item.rating.user_username} avatarUrl={item.rating.user_avatar_url} date={item.rating.created_at} />
             <span className="rounded-full border border-[rgba(200,132,73,0.3)] bg-[var(--accent-soft)] px-3 py-1.5 text-sm font-bold text-[var(--accent-strong)]">
@@ -134,6 +142,7 @@ function DiscussionFeed({
           <p className="mt-4 text-sm leading-6 text-[var(--muted-strong)]">
             {item.rating.comment.trim() || 'Note envoyee sans commentaire.'}
           </p>
+          <RatingShareActions rating={item.rating} matchLabel={matchLabel} className="mt-4" />
         </article>
       ) : (
         <article key={`comment-${item.comment.id}`} id={`comment-${item.comment.id}`} className={`rounded-[1.6rem] border bg-[rgba(17,27,40,0.72)] p-5 transition ${focusedCommentId === item.comment.id ? 'border-[var(--accent-strong)] shadow-[0_0_0_1px_var(--accent-strong)]' : 'border-[var(--line)]'}`}>

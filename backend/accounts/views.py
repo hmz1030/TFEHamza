@@ -1,7 +1,8 @@
 from django.db import IntegrityError
 from django.db.models import Avg, Sum
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -324,3 +325,21 @@ class UserPronosticActivityView(APIView):
         offset = parse_positive_int(request.query_params.get('offset'), 0)
         limit = parse_positive_int(request.query_params.get('limit'), PRONOSTICS_DEFAULT_LIMIT)
         return Response(get_pronostics_payload(user, request, offset=offset, limit=limit))
+
+class UserShareProfilView(generics.RetrieveAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self,request,user_id):
+        user = get_object_or_404(User, pk=user_id)
+        title = f"Découvrez le profil de {user.username} sur MatchNote !"
+        image_url = get_user_avatar_url(user, request)
+        profile_path = f'/profile-redirect/{user.id}'
+        frontend_url = settings.FRONTEND_URL.rstrip('/')
+        redirect_url = f'{frontend_url}{profile_path}' if frontend_url else request.build_absolute_uri(profile_path)
+        context = {
+            'title': title,
+            'image_url': image_url,
+            'redirect_url': redirect_url,
+            'description': f"Consultez le profil de {user.username} sur MatchNote.",
+            }
+        return render(request, 'share_profil.html', context)

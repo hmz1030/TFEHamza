@@ -18,11 +18,19 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from accounts.views import UserShareProfilView
+from matches.views.comments import CommentShareImageView, CommentShareView
+from matches.views.ratings import RatingShareImageView, RatingShareView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
     path('api/', include('matches.urls')),
+    path('share/comments/<int:comment_id>/', CommentShareView.as_view(), name='comment_share'),
+    path('share/comments/<int:comment_id>/image/', CommentShareImageView.as_view(), name='comment_share_image'),
+    path('share/profil/<int:user_id>/', UserShareProfilView.as_view(), name='profile-share'),
+    path('share/ratings/<int:rating_id>/', RatingShareView.as_view(), name='rating_share'),
+    path('share/ratings/<int:rating_id>/image/', RatingShareImageView.as_view(), name='rating_share_image'),
 ]
 
 if settings.DEBUG:

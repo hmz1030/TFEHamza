@@ -1,31 +1,15 @@
-import { useState } from 'react'
-import toast from 'react-hot-toast'
-import shareIcon from '../../assets/share-icon.svg'
-import { getBackendOrigin } from '../../services/api'
-import type { Comment } from '../../types'
+import {useState} from "react";
+import toast from "react-hot-toast";
+import shareIcon from "../../assets/share-icon.svg";
+import { useAuth } from "../../context/AuthContext";
+import { getBackendOrigin } from "../../services/api";
 
-interface CommentShareActionsProps {
-  comment: Comment
-  matchLabel?: string
-  className?: string
+
+interface UserShareProfilProps{
+    userId: number
+    className?: string
+
 }
-
-function truncateText(text: string, maxLength: number) {
-  const normalized = text.replace(/\s+/g, ' ').trim()
-  if (normalized.length <= maxLength) return normalized
-  return `${normalized.slice(0, maxLength - 1).trim()}...`
-}
-
-function getCommentUrl(comment: Comment) {
-  return `${getBackendOrigin()}/share/comments/${comment.id}/`
-}
-
-function getShareText(comment: Comment, matchLabel?: string) {
-  const excerpt = truncateText(comment.content, 140)
-  const context = matchLabel ? ` sur ${matchLabel}` : ''
-  return `Regarde ce commentaire de ${comment.user_username}${context} : "${excerpt}"`
-}
-
 function ShareOptionIcon({ type }: { type: 'copy' | 'x' | 'whatsapp' }) {
   if (type === 'x') {
     return (
@@ -58,48 +42,49 @@ function ShareOptionIcon({ type }: { type: 'copy' | 'x' | 'whatsapp' }) {
     </svg>
   )
 }
+function UserShareProfil({userId, className = 'mt-3'}: UserShareProfilProps){
+    const {user} = useAuth()
+    const [open, setOpen] = useState(false)
+    const profileUrl = `${getBackendOrigin()}/share/profil/${userId}/`
+    const username = user?.username ?? 'cet utilisateur'
+    const encodedUrl = encodeURIComponent(profileUrl)
+    const shareText = `Regarde le profil de ${username} sur MatchNote`
+    const encodedText = encodeURIComponent(shareText)
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText} : ${profileUrl}`)}`
+    const xUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}` 
 
-function CommentShareActions({ comment, matchLabel, className = 'mt-3' }: CommentShareActionsProps) {
-  const [open, setOpen] = useState(false)
-  const commentUrl = getCommentUrl(comment)
-  const shareText = getShareText(comment, matchLabel)
-  const encodedText = encodeURIComponent(shareText)
-  const encodedUrl = encodeURIComponent(commentUrl)
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${commentUrl}`)}`
-  const xUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(commentUrl)
-      toast.success('Lien du commentaire copié')
-      setOpen(false)
-    } catch {
-      toast.error('Impossible de copier le lien')
+    const copyLink = async() => {
+        try {
+            await navigator.clipboard.writeText(profileUrl)
+            toast.success('Lien du profil copié dans le presse-papiers')
+            setOpen(false)
+        } catch (error) {
+            toast.error('Impossible de copier le lien du profil')
+        }
     }
-  }
 
-  const optionClass =
+    const optionClass =
     'flex w-full items-center gap-3 rounded-[0.8rem] border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-4 py-3 text-left text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]'
 
-  return (
-    <div className={className}>
-      <button
-        type="button"
-        title="Partager"
-        aria-label="Partager ce commentaire"
-        onClick={() => setOpen(true)}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] transition hover:border-[var(--accent-strong)]"
-      >
-        <img src={shareIcon} alt="" className="h-8 w-8 object-contain invert" aria-hidden="true" />
-      </button>
+    return (
+        <div className={className}>
+            <button
+                type="button"
+                title="Partager le profil"
+                aria-label="Partager le profil"
+                onClick={() => setOpen(true)}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] transition hover:border-[var(--accent-strong)]"
+            >
+                <img src={shareIcon} alt="" className="h-8 w-8 object-contain invert" aria-hidden="true" />
+            </button>
 
-      {open ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" role="dialog" aria-modal="true">
+            {open ? (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" role="dialog" aria-modal="true">
           <div className="w-full max-w-sm rounded-[1.4rem] border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[var(--shadow)]">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-lg font-bold text-[var(--text)]">Partager</h3>
-                <p className="mt-1 text-sm text-[var(--muted)]">Choisis où envoyer ce commentaire.</p>
+                <p className="mt-1 text-sm text-[var(--muted)]">Choisis où envoyer ton profil</p>
               </div>
               <button
                 type="button"
@@ -127,9 +112,10 @@ function CommentShareActions({ comment, matchLabel, className = 'mt-3' }: Commen
             </div>
           </div>
         </div>
-      ) : null}
-    </div>
-  )
-}
+            ) : null}
 
-export default CommentShareActions
+        </div>
+            )
+    
+}
+export default UserShareProfil

@@ -1,4 +1,4 @@
-from .comments import CommentCreateView, CommentListView, CommentReactionView, CommentReportView
+from .comments import CommentCreateView, CommentListView, CommentReactionView, CommentReportView, CommentShareView
 from .dev_sync import DevSyncLineupsView, DevSyncLiveScoresView, DevSyncMatchesView, DevSyncSquadsView
 from .matches import MatchDetailView, MatchListView, MatchPlayerListView, TodayMatchListView
 from .pronostic_groups import (
@@ -11,7 +11,7 @@ from .pronostic_groups import (
     PronosticGroupResponseView,
 )
 from .pronostics import LeaderboardView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView
-from .ratings import RatingCreateView, RatingListView
+from .ratings import RatingCreateView, RatingListView, RatingShareImageView, RatingShareView
 from .teams import PlayerListView, TeamDetailView, TeamListView, TeamOverviewView
 from .votes import VoteCreateView, VoteListView
 
@@ -21,6 +21,7 @@ __all__ = [
     'CommentListView',
     'CommentReactionView',
     'CommentReportView',
+    'CommentShareView',
     'DevSyncLineupsView',
     'DevSyncLiveScoresView',
     'DevSyncMatchesView',
@@ -42,6 +43,8 @@ __all__ = [
     'PronosticPointsCalculationView',
     'RatingCreateView',
     'RatingListView',
+    'RatingShareImageView',
+    'RatingShareView',
     'TeamDetailView',
     'TeamListView',
     'TeamOverviewView',

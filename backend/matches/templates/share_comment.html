@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ comment.content|truncatechars:160 }}">
+  <meta http-equiv="refresh" content="0; url={{ redirect_url }}">
+
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="MatchNote">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ comment.content|truncatechars:160 }}">
+  <meta property="og:image" content="{{ image_url }}">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ title }}">
+  <meta name="twitter:image" content="{{ image_url }}">
+  <meta name="twitter:description" content="{{ comment.content|truncatechars:160 }}">
+</head>
+<body>
+  <script>
+    window.location.replace("{{ redirect_url|escapejs }}")
+  </script>
+  <a href="{{ redirect_url }}">Voir le commentaire</a>
+</body>
+</html>
