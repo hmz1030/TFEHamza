@@ -1,0 +1,22 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    {% if original and original.status == "pending" %}
+        <li>
+            <form method="post" action="{% url 'admin:matches_commentreport_mask_content' original.pk %}" style="display: inline;">
+                {% csrf_token %}
+                <button
+                    type="submit"
+                    style="background: #ba2121; "
+                >
+                    Masquer le contenu
+                </button>
+            </form>
+        </li>
+    {% endif %}
+{% endblock %}
+
+
+#https://stackoverflow.com/questions/6583877/how-to-override-and-extend-basic-django-admin-templates
+#lien tuto + doc custom html admin : https://docs.djangoproject.com/en/4.2/ref/contrib/admin/#overriding-admin-templates

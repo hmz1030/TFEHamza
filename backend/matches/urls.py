@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import TeamListView, TeamDetailView, TeamOverviewView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView, RatingListView, CommentCreateView, CommentListView, CommentReactionView, CommentReportView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView, PronosticGroupListCreateView, PronosticGroupInvitationListView, PronosticGroupDetailView, PronosticGroupInviteView, PronosticGroupResponseView, PronosticGroupLeaveView, PronosticGroupLeaderboardView
+from .views import TeamListView, TeamDetailView, TeamOverviewView, PlayerListView, MatchListView, MatchDetailView, MatchPlayerListView, TodayMatchListView, DevSyncMatchesView, DevSyncLiveScoresView, DevSyncLineupsView, DevSyncSquadsView, RatingCreateView,RatingReportView,RatingListView, CommentCreateView,CommentReplyListView, CommentListView, CommentReactionView, CommentReportView, VoteCreateView, VoteListView, PronosticCreateView, PronosticListView, PronosticPointsCalculationView, LeaderboardView, PronosticGroupListCreateView, PronosticGroupInvitationListView, PronosticGroupDetailView, PronosticGroupInviteView, PronosticGroupResponseView, PronosticGroupLeaveView, PronosticGroupLeaderboardView
 
 urlpatterns = [
     path('teams/', TeamListView.as_view(), name='team-list'),
@@ -28,9 +28,11 @@ urlpatterns = [
     path('pronostic-groups/<int:group_id>/leave/', PronosticGroupLeaveView.as_view(), name='pronostic-group-leave'),
     path('pronostic-groups/<int:group_id>/leaderboard/', PronosticGroupLeaderboardView.as_view(), name='pronostic-group-leaderboard'),
     path('ratings/', RatingCreateView.as_view(), name='rating-create'),
+    path('ratings/<int:rating_id>/report/', RatingReportView.as_view(), name='rating-report'),
     path('comments/', CommentCreateView.as_view(), name='comment-create'),
     path('comments/<int:comment_id>/reaction/', CommentReactionView.as_view(), name='comment-reaction'),
     path('comments/<int:comment_id>/report/', CommentReportView.as_view(), name='comment-report'),
     path('votes/', VoteCreateView.as_view(), name='vote-create'),
     path('pronostics/', PronosticCreateView.as_view(), name='pronostic-create'),
+    path('comments/<int:comment_id>/replies/', CommentReplyListView.as_view(), name='comment-replies'),
 ]

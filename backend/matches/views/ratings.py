@@ -2,14 +2,15 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
+from rest_framework.response import Response
 
 from accounts.models import Badge
 
-from ..models import Rating
-from ..serializers import RatingSerializer
+from ..models import Rating, CommentReport
+from ..serializers import CommentReportSerializer, RatingSerializer
 from ..utiles.dynamic_share_image import generate_match_share_image
 
 
@@ -70,3 +71,19 @@ class RatingShareImageView(APIView):
         rating = get_object_or_404(Rating, pk=rating_id)
         image_bytes = generate_match_share_image(rating.match)
         return HttpResponse(image_bytes, content_type="image/png")
+
+
+class RatingReportView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, rating_id):
+        rating = get_object_or_404(Rating, pk= rating_id)
+        if CommentReport.objects.filter(rating=rating, reported_by = request.user).exists():
+            return Response(
+                {'detail': 'Tu as deja signale le commentaire de cette note'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        serializer = CommentReportSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        report = serializer.save(rating=rating, reported_by=request.user)
+        return Response(CommentReportSerializer(report).data, status=status.HTTP_201_CREATED)

@@ -1,4 +1,5 @@
-from django.shortcuts import get_object_or_404
+from django.db.models import Count
+from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.conf import settings
 from rest_framework import generics, permissions, status
@@ -7,8 +8,12 @@ from rest_framework.views import APIView
 
 from ..models import Comment, CommentReaction, CommentReport
 from ..serializers import CommentReportSerializer, CommentSerializer
-from ..utiles.dynamic_share_image import  generate_match_share_image
-from django.shortcuts import render
+from ..utiles.dynamic_share_image import generate_match_share_image
+
+
+INITIAL_REPLY_LIMIT = 2
+DEFAULT_REPLY_LIMIT = 3
+MAX_REPLY_LIMIT = 25
 
 
 class CommentCreateView(generics.CreateAPIView):
@@ -24,12 +29,63 @@ class CommentListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        return (
+        base_queryset = (
             Comment.objects
             .filter(match_id=self.kwargs['match_id'])
             .select_related('user', 'match', 'parent')
+        )
+
+        parents = list(
+            base_queryset
+            .filter(parent__isnull=True)
+            .annotate(replies_count=Count('replies'))
             .order_by('created_at')
         )
+
+        replies = []
+        for parent in parents:
+            replies.extend(
+                base_queryset
+                .filter(parent_id=parent.id)
+                .order_by('created_at')[:INITIAL_REPLY_LIMIT]
+            )
+
+        return parents + replies
+
+
+def parse_positive_int(value, default, maximum=None):
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        parsed = default
+
+    parsed = max(parsed, 0)
+    if maximum is not None:
+        parsed = min(parsed, maximum)
+    return parsed
+
+
+class CommentReplyListView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, comment_id):
+        get_object_or_404(Comment, pk=comment_id)
+
+        limit = parse_positive_int(request.query_params.get('limit'), DEFAULT_REPLY_LIMIT, MAX_REPLY_LIMIT)
+        offset = parse_positive_int(request.query_params.get('offset'), 0)
+
+        replies = list(
+            Comment.objects
+            .filter(parent_id=comment_id)
+            .select_related('user', 'match', 'parent')
+            .order_by('created_at')[offset:offset + limit + 1]
+        )
+
+        serializer = CommentSerializer(replies[:limit], many=True, context={'request': request})
+        return Response({
+            'results': serializer.data,
+            'has_more': len(replies) > limit,
+        })
 
 
 class CommentReactionView(APIView):

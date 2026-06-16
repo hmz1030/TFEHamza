@@ -181,7 +181,13 @@ function MatchDetail() {
         <section id="pronostics" className="space-y-4">
           <h2 className="text-3xl font-bold text-[var(--text)]">Pronostics</h2>
           {!myPronostic ? (
-            <PronosticForm matchId={match.id} status={match.status} onCreated={refetch} />
+            <PronosticForm
+              matchId={match.id}
+              status={match.status}
+              homeTeam={match.home_team}
+              awayTeam={match.away_team}
+              onCreated={refetch}
+            />
           ) : null}
           <PronosticList pronostics={pronostics} currentUserId={user?.id} />
         </section>

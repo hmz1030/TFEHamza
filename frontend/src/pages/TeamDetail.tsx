@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import TeamActivityProgress from '../components/team/TeamActivityProgress'
 import Loader from '../components/ui/Loader'
 import { getTeamOverview } from '../services/teamService'
 import type { Match, TeamOverview, TeamOverviewPlayer } from '../types'
@@ -170,18 +171,15 @@ function TeamDetail() {
           <p className="inline-flex rounded-full border border-[var(--line)] bg-white/[0.05] px-4 py-1 text-xs font-black uppercase tracking-[0.18em] text-[var(--accent-strong)]">
             Ton activite
           </p>
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            <div className="rounded-[1.4rem] bg-white/[0.035] p-4">
-              <p className="text-sm text-[var(--muted)]">Matchs notes</p>
-              <p className="mt-2 text-3xl font-black">{activity.rated_matches} / {activity.total_matches}</p>
-            </div>
-            <div className="rounded-[1.4rem] bg-white/[0.035] p-4">
-              <p className="text-sm text-[var(--muted)]">Progression</p>
-              <p className="mt-2 text-3xl font-black text-[var(--accent-strong)]">{completion}%</p>
-            </div>
-            <div className="rounded-[1.4rem] bg-white/[0.035] p-4">
+          <div className="mt-5 grid grid-cols-2 items-stretch gap-3 sm:gap-4">
+            <TeamActivityProgress
+              ratedMatches={activity.rated_matches}
+              totalMatches={activity.total_matches}
+              percentage={completion}
+            />
+            <div className="flex min-h-full flex-col justify-center rounded-[1.4rem] bg-white/[0.035] p-5 text-center">
               <p className="text-sm text-[var(--muted)]">Ta moyenne</p>
-              <p className="mt-2 text-3xl font-black text-[var(--accent-strong)]">{formatRating(activity.average_rating)}</p>
+              <p className="mt-3 text-5xl font-black text-[var(--accent-strong)]">{formatRating(activity.average_rating)}</p>
             </div>
           </div>
         </section>
@@ -213,7 +211,7 @@ function TeamDetail() {
                     Math.min(current + MATCH_BATCH_SIZE, overview.recent_matches.length),
                   )
                 }}
-                className="rounded-full border border-[var(--line)] px-5 py-2 text-sm font-bold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)]"
+                className="text-action-button text-sm"
               >
                 Voir plus
               </button>

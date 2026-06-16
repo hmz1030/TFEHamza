@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 
 class Team(models.Model):
@@ -136,7 +137,8 @@ class CommentReport(models.Model):
         (DISMISSED, 'Dismissed'),
     )
 
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='reports')
+    comment = models.ForeignKey(Comment, null=True, blank=True, on_delete=models.CASCADE, related_name='reports')
+    rating = models.ForeignKey(Rating, null=True, blank=True, on_delete=models.CASCADE, related_name='reports')
     reported_by = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='comment_reports')
     reason = models.TextField(blank=True, default='')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=PENDING)
@@ -152,11 +154,32 @@ class CommentReport(models.Model):
 
     class Meta:
         db_table = 'comment_report'
-        unique_together = ('comment', 'reported_by')
+        constraints = [
+            # un report doit concerner soit un commentaire, soit une note, mais pas les deux
+            models.CheckConstraint(
+                name='report_comment_or_rating',
+                condition=(
+                    Q(comment__isnull=False, rating__isnull=True)
+                    | Q(comment__isnull=True, rating__isnull=False)
+                ),
+            ),
+            models.UniqueConstraint(
+                fields=['comment', 'reported_by'],
+                name='unique_comment_report_by_user',
+            ),
+            models.UniqueConstraint(
+                fields=['rating', 'reported_by'],
+                name='unique_rating_report_by_user',
+            ),
+        ]
         ordering = ('-created_at',)
 
     def __str__(self):
-        return f"Report {self.comment_id} by {self.reported_by}"
+        if self.comment_id:
+            target = f"comment {self.comment_id}"
+        else:
+            target = f"rating {self.rating_id}"
+        return f"Report {target} by {self.reported_by}"
 
 
 class Vote(models.Model):

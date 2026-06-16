@@ -1,5 +1,5 @@
 import api from './api'
-import type { LeaderboardEntry, Pronostic } from '../types'
+import type { LeaderboardPage, Pronostic } from '../types'
 
 export const getPronostics = (matchId: number) =>
   api.get<Pronostic[]>(`/matches/${matchId}/pronostics/`)
@@ -7,8 +7,8 @@ export const getPronostics = (matchId: number) =>
 export const createPronostic = (data: { match: number; home_score: number; away_score: number }) =>
   api.post<Pronostic>('/pronostics/', data)
 
-export const getLeaderboard = () =>
-  api.get<LeaderboardEntry[]>('/pronostics/leaderboard/')
+export const getLeaderboard = (page = 1, pageSize = 10) =>
+  api.get<LeaderboardPage>(`/pronostics/leaderboard/?page=${page}&page_size=${pageSize}`)
 
 export const calculatePronosticPoints = (matchId?: number) =>
   api.post<{

@@ -203,13 +203,13 @@ function Profile() {
         ? activity?.comments.length
           ? `${activity.comments.length} commentaire(s) publie(s)`
           : 'Aucun commentaire pour le moment.'
-      : activeTab === 'votes'
-        ? activity?.votes.length
-          ? `${activity.votes.length} vote(s) MVP enregistre(s)`
-          : 'Aucun vote pour le moment.'
-        : activity?.pronostics_count
-          ? `${activity.pronostics_count} pronostic(s) saisi(s)`
-          : 'Aucun pronostic pour le moment.'
+        : activeTab === 'votes'
+          ? activity?.votes.length
+            ? `${activity.votes.length} vote(s) MVP enregistre(s)`
+            : 'Aucun vote pour le moment.'
+          : activity?.pronostics_count
+            ? `${activity.pronostics_count} pronostic(s) saisi(s)`
+            : 'Aucun pronostic pour le moment.'
 
   if (!user) return null
   if (loading) return <Loader label="Chargement du profil..." />
@@ -239,9 +239,9 @@ function Profile() {
             >
               {editingProfile ? 'Fermer' : 'Modifier mon profil'}
             </button>
-             <div className="mt-3 flex flex-wrap items-center gap-2">
-            <UserShareProfil userId={user.id} className="" />
-          </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <UserShareProfil userId={user.id} className="" />
+            </div>
           </div>
 
           {user.bio ? (
@@ -297,22 +297,25 @@ function Profile() {
           </div>
         ) : null}
 
-        <section className="grid gap-4 sm:grid-cols-4">
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+        <section className="grid grid-cols-2 gap-4 sm:grid-cols-4 justify-items-center">
+          <article className="w-28 sm:w-32 md:w-36 aspect-square rounded-full border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5 flex flex-col items-center justify-center text-center">
             <p className="text-sm text-[var(--muted)]">Notes</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{notesCount}</p>
+            <p className="mt-1 text-xl font-black tracking-tight text-[var(--text)]">{notesCount}</p>
           </article>
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+
+          <article className="w-28 sm:w-32 md:w-36 aspect-square rounded-full border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5 flex flex-col items-center justify-center text-center">
             <p className="text-sm text-[var(--muted)]">Votes MVP</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.votes.length ?? 0}</p>
+            <p className="mt-1 text-xl font-black tracking-tight text-[var(--text)]">{activity?.votes.length ?? 0}</p>
           </article>
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+
+          <article className="w-28 sm:w-32 md:w-36 aspect-square rounded-full border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5 flex flex-col items-center justify-center text-center">
             <p className="text-sm text-[var(--muted)]">Commentaires</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{activity?.comments.length ?? 0}</p>
+            <p className="mt-1 text-xl font-black tracking-tight text-[var(--text)]">{activity?.comments.length ?? 0}</p>
           </article>
-          <article className="rounded-[1.6rem] border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+
+          <article className="w-28 sm:w-32 md:w-36 aspect-square rounded-full border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5 flex flex-col items-center justify-center text-center">
             <p className="text-sm text-[var(--muted)]">Points</p>
-            <p className="mt-2 text-3xl font-black tracking-tight text-[var(--text)]">{totalPoints}</p>
+            <p className="mt-1 text-xl font-black tracking-tight text-[var(--text)]">{totalPoints} points </p>
           </article>
         </section>
 
@@ -418,7 +421,7 @@ function Profile() {
                       type="button"
                       onClick={() => void handleLoadMorePronostics()}
                       disabled={loadingMorePronostics}
-                      className="rounded-full border border-[var(--line)] px-5 py-2 text-sm font-bold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="text-action-button text-sm"
                     >
                       {loadingMorePronostics ? 'Chargement...' : 'Voir plus'}
                     </button>

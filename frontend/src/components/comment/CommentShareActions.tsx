@@ -117,12 +117,10 @@ function CommentShareActions({ comment, matchLabel, className = 'mt-3' }: Commen
                 Copier le lien
               </button>
               <a href={xUrl} target="_blank" rel="noreferrer" onClick={() => setOpen(false)} className={optionClass}>
-                <ShareOptionIcon type="x" />
-                Partager sur X
+                Partager sur <ShareOptionIcon type="x" />
               </a>
               <a href={whatsappUrl} target="_blank" rel="noreferrer" onClick={() => setOpen(false)} className={optionClass}>
-                <ShareOptionIcon type="whatsapp" />
-                Partager sur WhatsApp
+                Partager sur WhatsApp <ShareOptionIcon type="whatsapp" />
               </a>
             </div>
           </div>

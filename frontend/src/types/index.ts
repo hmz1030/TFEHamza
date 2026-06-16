@@ -122,7 +122,8 @@ export interface CommentReactionResult {
 
 export interface CommentReport {
   id: number
-  comment: number
+  comment: number | null
+  rating: number | null
   reported_by: number
   reported_by_username: string
   reason: string
@@ -141,8 +142,14 @@ export interface Comment {
   likes_count: number
   dislikes_count: number
   my_reaction: CommentReactionValue | null
+  replies_count: number
   created_at: string
   updated_at: string
+}
+
+export interface CommentReply {
+  results: Comment[]
+  has_more: boolean
 }
 
 export interface Vote {
@@ -175,6 +182,16 @@ export interface LeaderboardEntry {
   total_points: number
   pronostics_count: number
   points_ratio: number | null
+}
+
+export interface LeaderboardPage {
+  results: LeaderboardEntry[]
+  count: number
+  page: number
+  page_size: number
+  total_pages: number
+  current_user_entry: LeaderboardEntry | null
+  current_user_rank: number | null
 }
 
 export type PronosticGroupMemberStatus = 'pending' | 'accepted' | 'refused' | 'left'

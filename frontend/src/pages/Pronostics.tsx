@@ -6,7 +6,7 @@ import { PronosticGroupsPanel } from './PronosticGroups'
 import PronosticForm from '../components/pronostic/PronosticForm'
 import PronosticSummaryCard from '../components/pronostic/PronosticSummaryCard'
 import Loader from '../components/ui/Loader'
-import type { Match, Pronostic as PronosticType, Team } from '../types'
+import type { Match, Pronostic as PronosticType } from '../types'
 import { useAuth } from '../context/AuthContext'
 import { getMatches, syncTodayMatches } from '../services/matchService'
 import { getMyActivity } from '../services/userService'
@@ -40,31 +40,6 @@ const TABS = [
 ] as const
 
 type PronosticTab = typeof TABS[number]['id']
-
-function TeamLogo({ team }: { team: Team }) {
-  return (
-    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[var(--line)] bg-white p-1.5">
-      {team.logo ? (
-        <img src={team.logo} alt={team.name} className="h-full w-full object-contain" />
-      ) : (
-        <span className="text-xs font-black text-[var(--bg-deep)]">
-          {team.name.slice(0, 3).toUpperCase()}
-        </span>
-      )}
-    </span>
-  )
-}
-
-function PronosticTeam({ team }: { team: Team }) {
-  return (
-    <div className="flex min-w-0 items-center gap-3">
-      <TeamLogo team={team} />
-      <span className="truncate text-base font-semibold text-[var(--text)] sm:text-lg">
-        {team.name}
-      </span>
-    </div>
-  )
-}
 
 function Pronostics() {
   const { user } = useAuth()
@@ -295,25 +270,27 @@ function Pronostics() {
                   ? 'Aucun match a pronostiquer pour le moment.'
                   : `Aucun match a venir pour ${leagueFilter}.`}
               </div>
-            ) : upcomingMatches.map((match) => (
-              <article key={match.id} className="rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
-                <div className="mb-4 flex items-center justify-between gap-4">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm uppercase tracking-[0.18em] text-[var(--accent-strong)]">{match.league}</p>
-                    <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
-                      <PronosticTeam team={match.home_team} />
-                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-[var(--muted)]">vs</span>
-                      <PronosticTeam team={match.away_team} />
-                    </div>
-                  </div>
+            ) : upcomingMatches.map((match) => {
+              const myPronostic = myPronosticByMatchId.get(match.id)
+
+              return myPronostic ? (
+                <article key={match.id} className="mx-auto w-full max-w-2xl rounded-lg border border-[var(--line)] bg-[rgba(17,27,40,0.72)] p-5">
+                  <p className="mb-4 text-center text-sm uppercase tracking-[0.18em] text-[var(--accent-strong)]">{match.league}</p>
+                  <PronosticSummaryCard pronostic={myPronostic} match={match} title={user ? 'Pronostic deja envoye' : undefined} />
+                </article>
+              ) : (
+                <div key={match.id} className="mx-auto w-full max-w-2xl">
+                  <p className="mb-3 text-center text-sm uppercase tracking-[0.18em] text-[var(--accent-strong)]">{match.league}</p>
+                  <PronosticForm
+                    matchId={match.id}
+                    status={match.status}
+                    homeTeam={match.home_team}
+                    awayTeam={match.away_team}
+                    onCreated={refetchHistory}
+                  />
                 </div>
-                {myPronosticByMatchId.get(match.id) ? (
-                  <PronosticSummaryCard pronostic={myPronosticByMatchId.get(match.id)!} match={match} title={user ? 'Pronostic deja envoye' : undefined} />
-                ) : (
-                  <PronosticForm matchId={match.id} status={match.status} onCreated={refetchHistory} />
-                )}
-              </article>
-            ))}
+              )
+            })}
           </div>
         </section>
       </div>

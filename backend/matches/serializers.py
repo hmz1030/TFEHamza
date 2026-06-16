@@ -61,6 +61,7 @@ class CommentSerializer(serializers.ModelSerializer):
     likes_count = serializers.SerializerMethodField()
     dislikes_count = serializers.SerializerMethodField()
     my_reaction = serializers.SerializerMethodField()
+    replies_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -75,6 +76,7 @@ class CommentSerializer(serializers.ModelSerializer):
             'likes_count',
             'dislikes_count',
             'my_reaction',
+            'replies_count',
             'created_at',
             'updated_at',
         )
@@ -97,6 +99,10 @@ class CommentSerializer(serializers.ModelSerializer):
         reaction = obj.reactions.filter(user=request.user).first()
         return reaction.value if reaction else None
 
+    def get_replies_count(self, obj):
+        annotated_count = getattr(obj, 'replies_count', None)
+        return annotated_count if annotated_count is not None else obj.replies.count()
+
     def validate(self, data):
         parent = data.get('parent')
         match = data.get('match')
@@ -107,11 +113,47 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class CommentReportSerializer(serializers.ModelSerializer):
     reported_by_username = serializers.CharField(source='reported_by.username', read_only=True)
+    target_content = serializers.SerializerMethodField()
+    target_type = serializers.SerializerMethodField()
 
     class Meta:
         model = CommentReport
-        fields = ('id', 'comment', 'reported_by', 'reported_by_username', 'reason', 'status', 'created_at')
-        read_only_fields = ('comment', 'reported_by', 'reported_by_username', 'status', 'created_at')
+        fields = (
+            'id',
+            'comment',
+            'rating',
+            'target_type',
+            'target_content',
+            'reported_by',
+            'reported_by_username',
+            'reason',
+            'status',
+            'created_at',
+        )
+        read_only_fields = (
+            'comment',
+            'rating',
+            'reported_by',
+            'reported_by_username',
+            'status',
+            'created_at',
+            'target_type',
+            'target_content',
+        )
+
+    def get_target_type(self, obj):
+        if obj.comment:
+            return 'comment'
+        if obj.rating:
+            return 'rating'
+        return 'unknown'
+
+    def get_target_content(self, obj):
+        if obj.comment:
+            return obj.comment.content
+        if obj.rating:
+            return obj.rating.comment
+        return ''
 
 
 class VoteSerializer(serializers.ModelSerializer):

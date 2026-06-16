@@ -283,7 +283,7 @@ function UserPublic() {
                   type="button"
                   onClick={() => void handleLoadMorePronostics()}
                   disabled={loadingMorePronostics}
-                  className="rounded-full border border-[var(--line)] px-5 py-2 text-sm font-bold text-[var(--muted-strong)] transition hover:border-[var(--accent-strong)] hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="text-action-button text-sm"
                 >
                   {loadingMorePronostics ? 'Chargement...' : 'Voir plus'}
                 </button>

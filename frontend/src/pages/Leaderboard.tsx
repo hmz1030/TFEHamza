@@ -4,7 +4,9 @@ import Loader from '../components/ui/Loader'
 import UserAvatar from '../components/user/UserAvatar'
 import { useAuth } from '../context/AuthContext'
 import { getLeaderboard } from '../services/pronosticService'
-import type { LeaderboardEntry } from '../types'
+import type { LeaderboardEntry, LeaderboardPage } from '../types'
+
+const LEADERBOARD_PAGE_SIZE = 10
 
 function formatRatio(ratio: number | null) {
   return typeof ratio === 'number'
@@ -29,24 +31,24 @@ function MyLeaderboardCard({ entry, rank }: { entry: LeaderboardEntry | null; ra
   return (
     <div className="rounded-[1.8rem] border border-[rgba(200,132,73,0.28)] bg-[rgba(200,132,73,0.1)] p-5">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+        <div className="grid w-full grid-cols-[auto_1fr_auto_auto_auto] items-center gap-3 text-center">
           <UserAvatar username={entry.user.username} avatarUrl={entry.user.avatar_url} size="md" />
+
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-strong)]">Ton classement</p>
             <p className="mt-1 text-xl font-black text-[var(--text)]">{entry.user.username}</p>
           </div>
-        </div>
 
-        <div className="grid w-full grid-cols-3 gap-3 text-center sm:w-auto sm:min-w-[420px]">
-          <div className="rounded-[1.2rem] border border-[rgba(255,255,255,0.08)] bg-[rgba(3,10,18,0.22)] px-4 py-3">
+          <div className="px-4 py-3">
             <p className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">Rang</p>
-            <p className="mt-1 text-2xl font-black text-[var(--text)]">#{rank}</p>
+            <p className="mt-1 text-2xl font-black text-[var(--text)]">{rank}</p>
           </div>
-          <div className="rounded-[1.2rem] border border-[rgba(255,255,255,0.08)] bg-[rgba(3,10,18,0.22)] px-4 py-3">
+
+          <div className="px-4 py-3">
             <p className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">Points</p>
             <p className="mt-1 text-2xl font-black text-[var(--accent-strong)]">{entry.total_points}</p>
           </div>
-          <div className="rounded-[1.2rem] border border-[rgba(255,255,255,0.08)] bg-[rgba(3,10,18,0.22)] px-4 py-3">
+
+          <div className="px-4 py-3">
             <p className="text-xs uppercase tracking-[0.16em] text-[var(--muted)]">Ratio</p>
             <p className="mt-1 text-2xl font-black text-[var(--text)]">{formatRatio(entry.points_ratio)}</p>
           </div>
@@ -58,28 +60,55 @@ function MyLeaderboardCard({ entry, rank }: { entry: LeaderboardEntry | null; ra
 
 export function LeaderboardPanel() {
   const { user } = useAuth()
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([])
+  const [leaderboard, setLeaderboard] = useState<LeaderboardPage | null>(null)
+  const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    getLeaderboard()
-      .then((response) => setEntries(response.data))
+    setLoading(true)
+    setError('')
+
+    getLeaderboard(page, LEADERBOARD_PAGE_SIZE)
+      .then((response) => setLeaderboard(response.data))
       .catch(() => setError("Impossible de charger le classement."))
       .finally(() => setLoading(false))
-  }, [])
+  }, [page])
 
   if (loading) return <Loader label="Chargement du classement..." />
 
-  const myIndex = user ? entries.findIndex((entry) => entry.user.id === user.id) : -1
-  const myEntry = myIndex >= 0 ? entries[myIndex] : null
-  const myRank = myIndex >= 0 ? myIndex + 1 : null
+  const entries = leaderboard?.results ?? []
+  const myEntry = user ? leaderboard?.current_user_entry ?? null : null
+  const myRank = user ? leaderboard?.current_user_rank ?? null : null
+  const totalPages = leaderboard?.total_pages ?? 1
+  const rankOffset = ((leaderboard?.page ?? page) - 1) * LEADERBOARD_PAGE_SIZE
 
   return (
     <div className="space-y-4">
       {error ? <div className="rounded-[1.6rem] border border-[var(--danger)]/30 bg-[rgba(127,29,29,0.18)] p-4 text-sm text-[var(--danger)]">{error}</div> : null}
       {user ? <MyLeaderboardCard entry={myEntry} rank={myRank} /> : null}
-      <LeaderboardTable entries={entries} currentUserId={user?.id} />
+      <LeaderboardTable entries={entries} currentUserId={user?.id} rankOffset={rankOffset} />
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <button
+          type="button"
+          onClick={() => setPage((current) => Math.max(1, current - 1))}
+          disabled={page <= 1}
+          className="text-action-button text-sm"
+        >
+          Precedent
+        </button>
+        <span className="text-sm font-semibold text-[var(--muted)]">
+          Page {leaderboard?.page ?? page} / {totalPages}
+        </span>
+        <button
+          type="button"
+          onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+          disabled={page >= totalPages}
+          className="text-action-button text-sm"
+        >
+          Suivant
+        </button>
+      </div>
     </div>
   )
 }

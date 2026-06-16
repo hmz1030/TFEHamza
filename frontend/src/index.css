@@ -23,6 +23,7 @@
   --danger: #c56d64;
   --shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.7);
   --font-display: "Oswald", "Arial Narrow", Arial, Helvetica, sans-serif;
+  --site-background-image: url("./assets/stadeCDM2026.png");
 }
 
 html {
@@ -32,10 +33,17 @@ html {
 }
 
 body {
+  position: relative;
   min-height: 100vh;
   margin: 0;
   background:
+    linear-gradient(rgba(7, 12, 17, 0.88), rgba(7, 12, 17, 0.94)),
+    var(--site-background-image),
     linear-gradient(180deg, #0b1117 0%, #101720 100%);
+  background-attachment: fixed;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
   color: var(--text);
 }
 
@@ -135,4 +143,22 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+.text-action-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--muted-strong);
+  font-weight: 700;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.text-action-button:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.text-action-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }

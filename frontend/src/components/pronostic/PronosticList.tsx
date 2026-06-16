@@ -65,7 +65,7 @@ function PronosticList({ pronostics, currentUserId, initialVisibleCount = 5 }: P
           <button
             type="button"
             onClick={() => setVisibleCount((count) => count + 5)}
-            className="rounded-full border border-[var(--line)] bg-[rgba(255,255,255,0.03)] px-5 py-2.5 text-sm font-semibold text-[var(--muted-strong)] transition hover:border-[var(--accent-soft)] hover:text-[var(--text)]"
+            className="text-action-button text-sm"
           >
             Charger plus
           </button>

@@ -88,15 +88,15 @@ function CommentReactionButtons({
   }
 
   const baseClass =
-    'inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-60'
-  const inactiveClass = 'border-[var(--line)] text-[var(--muted-strong)] hover:text-[var(--text)]'
+    'inline-flex items-center gap-1.5 bg-transparent p-0 text-xs font-semibold transition hover:text-[var(--text)] disabled:cursor-not-allowed disabled:opacity-60'
+  const inactiveClass = 'text-[var(--muted-strong)]'
   const likeClass =
     myReaction === 'like'
-      ? 'border-[rgba(110,160,124,0.55)] bg-[rgba(110,160,124,0.16)] text-[var(--success)]'
+      ? 'text-[var(--success)]'
       : inactiveClass
   const dislikeClass =
     myReaction === 'dislike'
-      ? 'border-[rgba(197,109,100,0.55)] bg-[rgba(197,109,100,0.16)] text-[var(--danger)]'
+      ? 'text-[var(--danger)]'
       : inactiveClass
 
   return (
