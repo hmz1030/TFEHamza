@@ -51,4 +51,6 @@ Pour remplir les pages club des equipes deja presentes en base avec les matchs p
 
 Pour fusionner les doublons de matchs crees par deux endpoints API differents, lancer : `python manage.py dedupe_matches` (ou en prod Docker : `docker compose --env-file .env.production -p matchnote exec backend python manage.py dedupe_matches`).
 
+Pour recuperer plus rapidement la lineup d'un match precis en prod, lancer : `docker compose --env-file .env.production -p matchnote exec backend python manage.py sync_lineups --match-id 52`.
+
 Pour generer 50 comptes de presentation sans prefixe `demo_`, avec commentaires, notes, votes MVP et pronostics, lancer : `python manage.py seed_demo_data --reset` (ou en prod Docker : `docker compose --env-file .env.production -p matchnote exec backend python manage.py seed_demo_data --reset`).
