@@ -16,6 +16,14 @@ def fetch_matches_for_date(target_date):
         return []
     return data.get('matches', []) or []
 
+def fetch_live_scores_match_minute(match_api_id):
+    """Recupere la minute exacte a afficher dans la carte du match"""
+    data = api_get('live_match_details.php', {'match_id': match_api_id})
+    if data is None:
+        return None
+    header = data.get('header') or {}
+    status = header.get('status') or {}
+    return parse_int(status.get('minute'), default=None)
 
 def _filter_target_match(match_data):
     """Retourne (league_name, api_id) si le match est cible, sinon None."""
@@ -86,6 +94,8 @@ def update_match_live_data(match_data):
     home_score = parse_int(match_data.get('home', {}).get('score', 0))
     away_score = parse_int(match_data.get('away', {}).get('score', 0))
     status_data = match_data.get('status') or {}
+    is_live = bool(status_data.get('is_live'))
+    match_minute = fetch_live_scores_match_minute(api_id) if is_live else None
     new_status = status_data.get('status', match.status)
     new_status_display = status_data.get('display', match.status_display)
 
@@ -102,9 +112,12 @@ def update_match_live_data(match_data):
     if match.status_display != new_status_display:
         match.status_display = new_status_display
         dirty = True
+    if match_minute != match.minute:
+        match.minute = match_minute
+        dirty = True
 
     if dirty:
-        match.save(update_fields=['home_score', 'away_score', 'status', 'status_display'])
+        match.save(update_fields=['home_score', 'away_score', 'status', 'status_display', 'minute'])
     return match
 
 

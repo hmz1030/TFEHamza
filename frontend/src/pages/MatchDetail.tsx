@@ -79,6 +79,7 @@ function MatchDetail() {
   const statusLabel = isLive(match.status) && match.status_display
     ? match.status_display
     : match.status
+  const minuteLabel = isLive(match.status) && match.minute !== null ? `${match.minute}'` : null
 
   return (
     <div className="min-h-screen px-4 py-8 text-[var(--text)] sm:px-6 lg:px-8">
@@ -87,8 +88,11 @@ function MatchDetail() {
           <div className="px-6 py-8 sm:px-8 sm:py-10">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <p className="text-sm uppercase tracking-[0.32em] text-[var(--accent-strong)]">{match.league}</p>
-              <p className="rounded-full border border-[var(--line)] px-4 py-2 text-xs uppercase tracking-[0.2em] text-[var(--muted-strong)]">
-                {statusLabel}
+              <p className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] px-4 py-2 text-xs uppercase tracking-[0.2em] text-[var(--muted-strong)]">
+                <span>{statusLabel}</span>
+                {minuteLabel ? (
+                  <span className="text-sm leading-none tracking-normal">{minuteLabel}</span>
+                ) : null}
               </p>
             </div>
 

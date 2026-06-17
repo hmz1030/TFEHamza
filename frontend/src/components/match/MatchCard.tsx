@@ -82,6 +82,7 @@ function MatchCard({ match }: MatchCardProps) {
   const ratingConfig = getRatingConfig(match.average_rating)
   const scheduled = isScheduled(match.status)
   const liveLabel = getLiveLabel(match)
+  const minuteLabel = isLive(match.status) && match.minute !== null ? `${match.minute}'` : null
 
   return (
     <Link
@@ -96,6 +97,9 @@ function MatchCard({ match }: MatchCardProps) {
           <div className={`inline-flex shrink-0 items-center gap-2 rounded-md border px-3 py-1.5 text-[0.68rem] font-extrabold uppercase tracking-[0.1em] ${badgeClasses}`}>
             {showLiveDot ? <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--success)]" /> : null}
             <span>{liveLabel ?? badge}</span>
+            {minuteLabel ? (
+              <span className="text-sm leading-none tracking-normal">{minuteLabel}</span>
+            ) : null}
           </div>
         </div>
 
@@ -135,9 +139,11 @@ function MatchCard({ match }: MatchCardProps) {
                 <div className={`sports-heading text-4xl leading-none ${scoreAccent}`}>
                   {match.home_score ?? '-'} - {match.away_score ?? '-'}
                 </div>
-                <div className="mt-2 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
-                  {liveLabel ?? (showLiveDot ? 'En cours' : badge)}
-                </div>
+                {!minuteLabel ? (
+                  <div className="mt-2 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
+                    {liveLabel ?? (showLiveDot ? 'En cours' : badge)}
+                  </div>
+                ) : null}
               </>
             )}
           </div>
