@@ -1,7 +1,50 @@
 from matches.models import Team
 from matches.clubs import canonical_club_key
 from matches.sync.http import TEAM_LOGO_URL
+from translate import Translator
 
+_translator = Translator(from_lang="tr", to_lang="fr")
+_translation_cache = {}
+TEAM_NAME_TRANSLATIONS = {
+    'ABD': 'États-Unis',
+    'Mısır': 'Égypte',
+    'Norveç': 'Norvège',
+    'Cezayir': 'Algérie',
+    'Kolombiya': 'Colombie',
+    'Haïtienne': 'Haïti',
+    'Fildişi Sahili': "Côte d'Ivoire",
+    'İngiltere': 'Angleterre',
+    'Demokratik Kongo C.': 'RD Congo',
+    'République démocratique du Congo C.': 'RD Congo',
+    'S. Arabistan': 'Arabie saoudite',
+    'Hollanda': 'Pays-Bas',
+    'Hollande': 'Pays-Bas',
+    '(USA)': 'États-Unis',
+    'ETATS-UNIS': 'États-Unis',
+    'Mais...': 'Égypte',
+    'Norvégien': 'Norvège',
+    'Algérienne': 'Algérie',
+    'Tu as': "Côte d'Ivoire",
+    'ROYAUME-UNI': 'Angleterre',
+    'Japonais': 'Japon'
+}
+def translate_team_name(raw_name, league_name):
+    """Traduit les noms d'equipes turques en francais pour mieux matcher les equipes existantes."""
+    if league_name != 'Coupe du Monde':
+        return raw_name
+    
+    if raw_name in TEAM_NAME_TRANSLATIONS:
+        return TEAM_NAME_TRANSLATIONS[raw_name]
+
+    if raw_name in _translation_cache:
+        return _translation_cache[raw_name]
+    try:
+        translated = _translator.translate(raw_name)
+    except Exception:
+        translated = raw_name
+
+    _translation_cache[raw_name] = translated or raw_name
+    return _translation_cache[raw_name]
 
 def _find_existing_team(team_name):
     target_key = canonical_club_key(team_name)
@@ -55,8 +98,9 @@ def _should_replace_logo(current_logo, next_logo):
 def find_or_create_team(team_data, league_name):
     """Trouve ou cree une Team depuis le bloc home/away Live Football API."""
     api_id = str(team_data.get('id') or '').strip()
-    name = (team_data.get('name') or '').strip()
-    canonical_key = canonical_club_key(name)
+    raw_name = (team_data.get('name') or '').strip()
+    name = translate_team_name(raw_name, league_name)
+    canonical_key = canonical_club_key(raw_name)
     logo = _team_logo_url(api_id)
 
     if api_id:

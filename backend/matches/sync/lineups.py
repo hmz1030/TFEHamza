@@ -19,13 +19,14 @@ def get_player_api_id(raw_player):
 def get_empty_event_summary():
     return {
         'goals': 0,
+        'own_goals': 0,
         'assists': 0,
         'subbed_in': False,
         'subbed_out': False,
     }
 
 
-def build_event_summary(events):
+def build_event_summary(events, player_sides):
     """Resume les buts, assists et remplacements par api_id joueur."""
     summary = {}
 
@@ -40,12 +41,21 @@ def build_event_summary(events):
         detail = event.get('detail') or {}
 
         if event_type == 'goal':
-            scorer_stats = stats_for(detail.get('player'))
+            raw_scorer = detail.get('player')
+            scorer_stats = stats_for(raw_scorer)
+            is_own_goal = False
             if scorer_stats is not None:
-                scorer_stats['goals'] += 1
+                scorer_id = get_player_api_id(raw_scorer)
+                goal_side = (event.get('side') or '').lower()
+                player_side = player_sides.get(scorer_id)
+                is_own_goal = goal_side in ('home', 'away') and player_side in ('home', 'away') and goal_side != player_side
+                if is_own_goal:
+                    scorer_stats['own_goals'] += 1
+                else:
+                    scorer_stats['goals'] += 1
 
             assist_stats = stats_for(detail.get('assist'))
-            if assist_stats is not None:
+            if assist_stats is not None and not is_own_goal:
                 assist_stats['assists'] += 1
 
         if event_type == 'substitution':
@@ -85,6 +95,21 @@ def players_who_played(side_data, sub_in_ids):
     return players
 
 
+def build_player_side_map(home_players, away_players):
+    """Associe chaque api_id joueur au cote home/away pour detecter les CSC."""
+    """ comme ca plus simple que de parcourir la liste home ou away a chaque fois qu'on veut savoir si c'est un CSC ou pas """
+    player_sides = {}
+    for raw_player in home_players:
+        api_id = get_player_api_id(raw_player)
+        if api_id:
+            player_sides[api_id] = 'home'
+    for raw_player in away_players:
+        api_id = get_player_api_id(raw_player)
+        if api_id:
+            player_sides[api_id] = 'away'
+    return player_sides
+
+
 def ensure_players(team, raw_players):
     """Cree/maj les Player et renvoie la liste de triplets (Team, Player, raw_player)."""
     pairs = []
@@ -115,6 +140,7 @@ def sync_match_players(match, pairs, event_summary):
                 'team': team,
                 'is_starter': bool(raw.get('is_starter')),
                 'goals': stats['goals'],
+                'own_goals': stats['own_goals'],
                 'assists': stats['assists'],
                 'subbed_in': stats['subbed_in'] or not bool(raw.get('is_starter')),
                 'subbed_out': stats['subbed_out'],
@@ -130,11 +156,12 @@ def sync_lineup_for_match(match):
 
     details = fetch_match_details(match.api_id)
     events = (details or {}).get('events') or []
-    event_summary = build_event_summary(events)
     sub_in_ids = get_sub_in_ids(events)
 
     home_played = players_who_played(lineups['home'], sub_in_ids)
     away_played = players_who_played(lineups['away'], sub_in_ids)
+    player_sides = build_player_side_map(home_played, away_played)
+    event_summary = build_event_summary(events, player_sides)
 
     home_pairs = ensure_players(match.home_team, home_played)
     away_pairs = ensure_players(match.away_team, away_played)

@@ -124,17 +124,18 @@ function placePlayersForSide(
   return placed
 }
 
-type EventBadgeType = 'goal' | 'assist' | 'sub-in' | 'sub-out'
+type EventBadgeType = 'goal' | 'own-goal' | 'assist' | 'sub-in' | 'sub-out'
 
 const EVENT_BADGE_STYLES: Record<EventBadgeType, string> = {
   goal: 'bg-white text-slate-950 ring-black/25',
+  'own-goal': 'bg-red-600 text-white ring-white/25',
   assist: 'bg-amber-300 text-slate-950 ring-black/25',
   'sub-in': 'bg-emerald-500 text-white ring-white/25',
   'sub-out': 'bg-red-500 text-white ring-white/25',
 }
 
 function EventIcon({ type }: { type: EventBadgeType }) {
-  if (type === 'goal') {
+  if (type === 'goal' || type === 'own-goal') {
     return (
       <img src={footballIcon} alt="" aria-hidden="true" className="h-3 w-3 object-contain" />
     )
@@ -201,10 +202,11 @@ function PlayerEventBadges({
   compact?: boolean
 }) {
   const goals = matchPlayer.goals ?? 0
+  const ownGoals = matchPlayer.own_goals ?? 0
   const assists = matchPlayer.assists ?? 0
   const hasSubs = matchPlayer.subbed_in || matchPlayer.subbed_out
 
-  if (!goals && !assists && !hasSubs) return null
+  if (!goals && !ownGoals && !assists && !hasSubs) return null
 
   const scale = compact ? 'scale-90' : ''
 
@@ -212,6 +214,11 @@ function PlayerEventBadges({
     <span className={`pointer-events-none absolute inset-0 ${scale}`}>
       <span className="absolute -top-2 -right-2 flex gap-0.5">
         <CountBadges type="goal" count={goals} label={`${goals} but${goals > 1 ? 's' : ''}`} />
+        <CountBadges
+          type="own-goal"
+          count={ownGoals}
+          label={`${ownGoals} but${ownGoals > 1 ? 's' : ''} contre son camp`}
+        />
       </span>
 
       <span className="absolute -top-2 -left-2 flex gap-0.5">

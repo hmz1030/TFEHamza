@@ -56,6 +56,7 @@ export interface MatchPlayer {
   team: number | null
   is_starter: boolean
   goals: number
+  own_goals: number
   assists: number
   subbed_in: boolean
   subbed_out: boolean

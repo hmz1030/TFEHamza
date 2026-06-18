@@ -46,7 +46,7 @@ function PronosticForm({ matchId, status, homeTeam, awayTeam, onCreated }: Prono
       <p className="self-start text-sm font-medium text-[var(--muted-strong)]">Ton pronostic</p>
       <input type="hidden" value={matchId} readOnly />
       <div className="flex w-full flex-wrap items-center justify-center gap-3">
-        {homeTeam ? <TeamPronosticLogo team={homeTeam} align="right" /> : null}
+        {homeTeam ? <TeamPronosticLogo team={homeTeam} /> : null}
         <input
           type="number"
           min="0"
@@ -64,7 +64,7 @@ function PronosticForm({ matchId, status, homeTeam, awayTeam, onCreated }: Prono
           aria-label={awayTeam ? `Score ${awayTeam.name}` : 'Score equipe exterieure'}
           className="h-12 w-16 rounded-md border border-[var(--line)] bg-[rgba(255,255,255,0.03)] text-center text-lg font-bold text-[var(--text)] outline-none transition focus:border-[var(--accent)]"
         />
-        {awayTeam ? <TeamPronosticLogo team={awayTeam} align="left" /> : null}
+        {awayTeam ? <TeamPronosticLogo team={awayTeam} /> : null}
       </div>
       {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
       <button type="submit" disabled={loading} className="rounded-md bg-[var(--accent)] px-5 py-3 text-sm font-semibold text-[var(--bg-deep)] transition hover:bg-[var(--accent-strong)] disabled:opacity-60">
@@ -74,9 +74,9 @@ function PronosticForm({ matchId, status, homeTeam, awayTeam, onCreated }: Prono
   )
 }
 
-function TeamPronosticLogo({ team, align }: { team: Team; align: 'left' | 'right' }) {
+function TeamPronosticLogo({ team }: { team: Team }) {
   return (
-    <div className={`flex min-w-0 max-w-28 items-center gap-2 ${align === 'right' ? 'flex-row-reverse text-right' : ''}`}>
+    <div className="flex w-24 min-w-0 flex-col items-center gap-1.5 text-center">
       <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-[var(--line)] bg-white p-1.5">
         {team.logo ? (
           <img src={team.logo} alt={team.name} className="h-full w-full object-contain" />
@@ -84,7 +84,7 @@ function TeamPronosticLogo({ team, align }: { team: Team; align: 'left' | 'right
           <span className="text-xs font-black text-[var(--bg-deep)]">{team.name.slice(0, 3).toUpperCase()}</span>
         )}
       </span>
-      <span className="truncate text-sm font-semibold text-[var(--text)]">{team.name}</span>
+      <span className="text-xs font-semibold leading-tight text-[var(--text)]">{team.name}</span>
     </div>
   )
 }

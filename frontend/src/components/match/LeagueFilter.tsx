@@ -1,3 +1,11 @@
+import worldcupIcon from '../../assets/leagues/WorldCupIcon.png'
+import BundesligaIcon from '../../assets/leagues/Bundesliga-logo.png'
+import ChampionsLeagueIcon from '../../assets/leagues/championsLeagueIcon.png'
+import Laliga from '../../assets/leagues/LaLigaIcon.jpg'
+import LaLigue1 from '../../assets/leagues/Logo_Ligue_1.svg'
+import SerieA from '../../assets/leagues/SerieA.jpg'
+import PremierLeagueIcon from '../../assets/leagues/PL.png'
+
 export const LEAGUES = [
   'Toutes',
   'Premier League',
@@ -19,13 +27,13 @@ interface LeagueOption {
 
 const leagueOptions: LeagueOption[] = [
   { name: 'Toutes', shortName: 'T' },
-  { name: 'Premier League', shortName: 'PL' },
-  { name: 'La Liga', shortName: 'LL' },
-  { name: 'Serie A', shortName: 'SA' },
-  { name: 'Ligue 1', shortName: 'L1' },
-  { name: 'Bundesliga', shortName: 'BL' },
-  { name: 'Champions League', shortName: 'CL' },
-  { name: 'Coupe du Monde', shortName: 'CM' },
+  { name: 'Premier League', shortName: 'PL', logoSrc: PremierLeagueIcon },
+  { name: 'La Liga', shortName: 'LL', logoSrc: Laliga },
+  { name: 'Serie A', shortName: 'SA', logoSrc: SerieA },
+  { name: 'Ligue 1', shortName: 'L1', logoSrc: LaLigue1 },
+  { name: 'Bundesliga', shortName: 'BL', logoSrc: BundesligaIcon },
+  { name: 'Champions League', shortName: 'CL', logoSrc: ChampionsLeagueIcon },
+  { name: 'Coupe du Monde', shortName: 'CM', logoSrc: worldcupIcon },
 ]
 
 interface LeagueFilterProps {
@@ -55,7 +63,7 @@ function LeagueFilter({ selectedLeague, onSelectLeague }: LeagueFilterProps) {
                 <img
                   src={league.logoSrc}
                   alt={league.name}
-                  className="h-5 w-5 rounded-full object-contain"
+                  className="h-10 w-10 rounded-full object-contain"
                 />
               ) : (
                 <span

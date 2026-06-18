@@ -60,6 +60,7 @@ class MatchPlayer(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='match_players', null=True, blank=True)
     is_starter = models.BooleanField(default=False)
     goals = models.PositiveSmallIntegerField(default=0)
+    own_goals = models.PositiveSmallIntegerField(default=0)
     assists = models.PositiveSmallIntegerField(default=0)
     subbed_in = models.BooleanField(default=False)
     subbed_out = models.BooleanField(default=False)
