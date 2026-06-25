@@ -1,3 +1,6 @@
+from datetime import datetime, time, timedelta, timezone as dt_timezone
+from zoneinfo import ZoneInfo
+
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.dateparse import parse_date
@@ -6,6 +9,18 @@ from rest_framework import generics, permissions
 from ..models import Match, MatchPlayer
 from ..serializers import MatchPlayerSerializer, MatchSerializer
 from .common import get_match_queryset
+
+
+DISPLAY_TIMEZONE = ZoneInfo('Europe/Brussels')
+
+
+def filter_matches_for_display_date(queryset, target_date):
+    start = datetime.combine(target_date, time.min, tzinfo=DISPLAY_TIMEZONE)
+    end = start + timedelta(days=1)
+    return queryset.filter(
+        date__gte=start.astimezone(dt_timezone.utc),
+        date__lt=end.astimezone(dt_timezone.utc),
+    )
 
 
 class MatchListView(generics.ListAPIView):
@@ -23,7 +38,7 @@ class MatchListView(generics.ListAPIView):
         if not parsed_date:
             return Match.objects.none()
 
-        return queryset.filter(date__date=parsed_date)
+        return filter_matches_for_display_date(queryset, parsed_date)
 
 
 class MatchDetailView(generics.RetrieveAPIView):
@@ -51,5 +66,5 @@ class TodayMatchListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        today = timezone.now().date()
-        return get_match_queryset().filter(date__date=today)
+        today = timezone.now().astimezone(DISPLAY_TIMEZONE).date()
+        return filter_matches_for_display_date(get_match_queryset(), today)
