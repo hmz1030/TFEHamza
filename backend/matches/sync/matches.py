@@ -1,4 +1,4 @@
-from datetime import date, timezone as dt_timezone
+from datetime import date, datetime, timedelta, timezone as dt_timezone
 
 from django.utils import timezone
 
@@ -42,6 +42,24 @@ def _filter_target_match(match_data):
     return league_name, api_id
 
 
+def build_match_datetime(match_data, target_date, api_id):
+    timestamp = parse_int(match_data.get('timestamp'), default=None)
+    if timestamp is not None:
+        return datetime.fromtimestamp(timestamp, tz=dt_timezone.utc)
+
+    kickoff = match_data.get('kickoff', '00:00')
+    kickoff_time = datetime.strptime(kickoff, '%H:%M').time()
+    match_datetime = datetime.combine(target_date, kickoff_time, tzinfo=dt_timezone.utc)
+
+    existing = Match.objects.filter(api_id=api_id).only('date').first()
+    if existing and abs(match_datetime - existing.date) <= timedelta(days=1):
+        if kickoff_time.hour >= 12:
+            return min(existing.date, match_datetime)
+        return max(existing.date, match_datetime)
+
+    return match_datetime
+
+
 def upsert_match_full(match_data, target_date):
     """Cree ou met a jour un match complet (horaires, equipes, scores, status)."""
     filtered = _filter_target_match(match_data)
@@ -57,12 +75,7 @@ def upsert_match_full(match_data, target_date):
     home_team = find_or_create_team(home_data, league_name)
     away_team = find_or_create_team(away_data, league_name)
 
-    kickoff = match_data.get('kickoff', '00:00')
-    match_datetime = timezone.datetime.combine(
-        target_date,
-        timezone.datetime.strptime(kickoff, '%H:%M').time(),
-        tzinfo=dt_timezone.utc,
-    )
+    match_datetime = build_match_datetime(match_data, target_date, api_id)
 
     match, was_created = upsert_match_record(
         api_id=api_id,
