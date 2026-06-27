@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import shareIcon from '../../assets/share-icon.svg'
 import { getBackendOrigin } from '../../services/api'
 import type { Rating } from '../../types'
+import { useCopyToClipboard } from '../../hooks/CopyLink'
 
 interface RatingShareActionsProps {
   rating: Rating
@@ -68,13 +69,15 @@ function RatingShareActions({ rating, matchLabel, className = 'mt-3' }: RatingSh
   const encodedUrl = encodeURIComponent(ratingUrl)
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${ratingUrl}`)}`
   const xUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`
+  const { copy } = useCopyToClipboard(2000)
 
   const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(ratingUrl)
+    const success = await copy(ratingUrl)
+
+    if (success) {
       toast.success('Lien de la note copié')
       setOpen(false)
-    } catch {
+    } else {
       toast.error('Impossible de copier le lien')
     }
   }

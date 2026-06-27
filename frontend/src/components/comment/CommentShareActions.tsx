@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import shareIcon from '../../assets/share-icon.svg'
 import { getBackendOrigin } from '../../services/api'
 import type { Comment } from '../../types'
+import { useCopyToClipboard } from "../../hooks/CopyLink"
 
 interface CommentShareActionsProps {
   comment: Comment
@@ -67,13 +68,14 @@ function CommentShareActions({ comment, matchLabel, className = 'mt-3' }: Commen
   const encodedUrl = encodeURIComponent(commentUrl)
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${shareText} ${commentUrl}`)}`
   const xUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`
-
+  const { copy } = useCopyToClipboard(2000)
   const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(commentUrl)
+    const success = await copy(commentUrl)
+
+    if (success) {
       toast.success('Lien du commentaire copié')
       setOpen(false)
-    } catch {
+    } else {
       toast.error('Impossible de copier le lien')
     }
   }
