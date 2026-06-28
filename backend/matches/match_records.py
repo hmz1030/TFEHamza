@@ -1,7 +1,6 @@
-from django.db.models import Count
+from django.db.models import Count, Q
 
 from matches.models import Comment, Match, MatchPlayer, Pronostic, Rating, Vote
-
 
 USER_MATCH_MODELS = (Rating, Vote, Pronostic)
 MATCH_PLAYER_BOOLEAN_FIELDS = ('is_starter', 'subbed_in', 'subbed_out')
@@ -84,6 +83,42 @@ def find_match_by_natural_key(match_date, league_name, home_team, away_team):
     return keep
 
 
+def find_match_by_placeholder(match_date, league_name, home_team, away_team, exclude=None):
+    """Trouve un ancien match placeholder remplace par le vrai match."""
+    placeholders = Match.objects.filter(
+        date=match_date,
+        league=league_name,
+        api_id__startswith='lfa',
+    )
+    if exclude:
+        placeholders = placeholders.exclude(pk=exclude.pk)
+
+    same_side_match = placeholders.filter(
+        Q(home_team=home_team) | Q(away_team=away_team)
+    ).order_by('id').first()
+    if same_side_match:
+        return same_side_match
+
+    placeholders = list(placeholders.order_by('id'))
+    if len(placeholders) == 1:
+        return placeholders[0]
+
+    return None
+
+
+def merge_placeholder_duplicate(match, match_date, league_name, home_team, away_team):
+    placeholder = find_match_by_placeholder(
+        match_date,
+        league_name,
+        home_team,
+        away_team,
+        exclude=match,
+    )
+    if placeholder:
+        merge_duplicate_match(placeholder, match)
+    return match
+
+
 def _can_assign_api_id(match, api_id):
     if not api_id:
         return False
@@ -144,8 +179,25 @@ def upsert_match_record(
 ):
     natural_match = find_match_by_natural_key(date, league, home_team, away_team)
     if natural_match:
+        merge_placeholder_duplicate(natural_match, date, league, home_team, away_team)
         return update_match_record(
             natural_match,
+            api_id=api_id,
+            replace_api_id=replace_api_id,
+            date=date,
+            league=league,
+            home_team=home_team,
+            away_team=away_team,
+            home_score=home_score,
+            away_score=away_score,
+            status=status,
+            status_display=status_display,
+        ), False
+
+    placeholder_match = find_match_by_placeholder(date, league, home_team, away_team)
+    if placeholder_match:
+        return update_match_record(
+            placeholder_match,
             api_id=api_id,
             replace_api_id=replace_api_id,
             date=date,
