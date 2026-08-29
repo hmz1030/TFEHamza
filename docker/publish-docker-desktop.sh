@@ -18,6 +18,6 @@ compose() {
 }
 
 cd "$SCRIPT_DIR/../publish"
-compose --env-file .env.production -p "$DOCKER_APP_NAME" down --remove-orphans
-compose --env-file .env.production -p "$DOCKER_APP_NAME" build --no-cache
-compose --env-file .env.production -p "$DOCKER_APP_NAME" up -d
+compose -f docker/docker-compose.yml --env-file docker/.env.production -p "$DOCKER_APP_NAME" down --remove-orphans
+compose -f docker/docker-compose.yml --env-file docker/.env.production -p "$DOCKER_APP_NAME" build --no-cache
+compose -f docker/docker-compose.yml --env-file docker/.env.production -p "$DOCKER_APP_NAME" up -d

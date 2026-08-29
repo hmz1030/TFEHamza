@@ -11,5 +11,5 @@ ssh -p "$INFOLAB_SSH_PORT" "$INFOLAB_USER@$INFOLAB_HOST" "
   else
     COMPOSE_CMD='docker-compose'
   fi
-  \$COMPOSE_CMD --env-file .env.production -p $DOCKER_APP_NAME start scheduler
+  \$COMPOSE_CMD -f docker/docker-compose.yml --env-file docker/.env.production -p $DOCKER_APP_NAME stop celery-beat celery-worker redis
 "

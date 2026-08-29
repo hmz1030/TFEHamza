@@ -15,7 +15,7 @@ scp -P "$GCLOUD_SSH_PORT" -r "$PUBLISH_DIR"/. "$GCLOUD_USER@$GCLOUD_HOST:$REMOTE
 ssh -p "$GCLOUD_SSH_PORT" "$GCLOUD_USER@$GCLOUD_HOST" "
   set -e
   cd $REMOTE_DIR
-  docker compose --env-file .env.production -p $DOCKER_APP_NAME down --remove-orphans || true
-  docker compose --env-file .env.production -p $DOCKER_APP_NAME build --no-cache
-  docker compose --env-file .env.production -p $DOCKER_APP_NAME up -d
+  docker compose -f docker/docker-compose.yml --env-file docker/.env.production -p $DOCKER_APP_NAME down --remove-orphans || true
+  docker compose -f docker/docker-compose.yml --env-file docker/.env.production -p $DOCKER_APP_NAME build --no-cache
+  docker compose -f docker/docker-compose.yml --env-file docker/.env.production -p $DOCKER_APP_NAME up -d
 "

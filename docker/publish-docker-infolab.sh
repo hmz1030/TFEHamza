@@ -23,7 +23,7 @@ ssh -p "$INFOLAB_SSH_PORT" "$INFOLAB_USER@$INFOLAB_HOST" "
     echo 'Docker Compose est introuvable.'
     exit 1
   fi
-  \$COMPOSE_CMD --env-file .env.production -p $DOCKER_APP_NAME down --remove-orphans || true
-  \$COMPOSE_CMD --env-file .env.production -p $DOCKER_APP_NAME build --no-cache
-  \$COMPOSE_CMD --env-file .env.production -p $DOCKER_APP_NAME up -d
+  \$COMPOSE_CMD -f docker/docker-compose.yml --env-file docker/.env.production -p $DOCKER_APP_NAME down --remove-orphans || true
+  \$COMPOSE_CMD -f docker/docker-compose.yml --env-file docker/.env.production -p $DOCKER_APP_NAME build --no-cache
+  \$COMPOSE_CMD -f docker/docker-compose.yml --env-file docker/.env.production -p $DOCKER_APP_NAME up -d
 "

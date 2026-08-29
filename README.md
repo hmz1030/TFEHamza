@@ -2,55 +2,72 @@
 
 Projet de fin d'etudes.
 
-## Modes de sync locaux
- car je voulais tester le comportement en prod sans bouton sync dev pour voir comment ca donne en prod
- les matchs a venir sont sync pour les 21 prochains jours 
- pour les matchs du jour, tous les3h ya un update
- et les matchs en direct toutes les 1 minutes ! 
-Mode developpement classique :
+## Synchronisations avec Celery et Redis
+
+Les synchronisations automatiques sont distribuees entre trois services :
+
+- Redis transporte les taches et fournit les verrous anti-chevauchement.
+- Celery Beat planifie les synchronisations.
+- Celery Worker execute les commandes Django existantes.
+
+La planification utilise le fuseau UTC configure dans Django :
+
+- Calendrier des 21 prochains jours chaque jour a 03:00.
+- Effectifs des equipes des 21 prochains jours chaque jour a 04:00.
+- Calendrier proche toutes les 3 heures entre 08:00 et 23:00.
+- Effectifs proches a 08:30, 14:30 et 20:30.
+- Scores en direct toutes les minutes.
+- Compositions toutes les 10 minutes.
+- Points des pronostics toutes les 15 minutes.
+
+### Developpement local
+
+Configurer Django :
 
 ```env
 # backend/.env
 APP_MODE=development
 ENABLE_SYNC_ENDPOINTS=true
-ENABLE_SYNC_SCHEDULER=false
+CELERY_BROKER_URL=redis://127.0.0.1:6379/0
 
 # frontend/.env
 VITE_ENABLE_DEV_TOOLS=true
 ```
 
-Mode prod-test local :
-
-```env
-# backend/.env
-APP_MODE=development
-ENABLE_SYNC_ENDPOINTS=false
-ENABLE_SYNC_SCHEDULER=true
-
-# frontend/.env
-VITE_ENABLE_DEV_TOOLS=false
-```
-
-Lancer le scheduler local :
+Demarrer Redis :
 
 ```bash
-backend\venv\Scripts\python.exe backend\manage.py run_sync_scheduler
+docker run --name matchnote-redis -p 6379:6379 -d redis:7.4-alpine
 ```
 
-Le scheduler lance :
+Dans deux terminaux ouverts dans `backend`, demarrer le Worker puis Beat :
 
-- `sync_matches --days-ahead=21` une fois par jour apres 03:00.
-- `sync_matches --days-ahead=1` toutes les 3h entre 08:00 et 23:00.
-- `sync_live_scores` toutes les 1 min.
-- `sync_lineups` toutes les 10 min.
-- `calculate_pronostic_points` toutes les 15 min.
+```bash
+# Windows
+venv\Scripts\celery.exe -A matchnote worker --loglevel=INFO --pool=solo
+venv\Scripts\celery.exe -A matchnote beat --loglevel=INFO
 
-Pour arreter le scheduler au cas ou si le process tourne encore en arriere plan : `Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'manage\.py run_sync_scheduler' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }`.
+# Linux/macOS
+celery -A matchnote worker --loglevel=INFO
+celery -A matchnote beat --loglevel=INFO
+```
 
-Pour remplir les pages club des equipes deja presentes en base avec les matchs passes et a venir connus par l'API, lancer une fois : `python manage.py sync_team_matches` (ou en prod Docker : `docker compose --env-file .env.production -p matchnote exec backend python manage.py sync_team_matches`).
+Les endpoints de synchronisation manuelle restent controles par `ENABLE_SYNC_ENDPOINTS`.
 
-Pour fusionner les doublons de matchs crees par deux endpoints API differents, lancer : `python manage.py dedupe_matches` (ou en prod Docker : `docker compose --env-file .env.production -p matchnote exec backend python manage.py dedupe_matches`).
+### Production Docker
 
-Pour recuperer plus rapidement la lineup d'un match precis en prod, lancer : `docker compose --env-file .env.production -p matchnote exec backend python manage.py sync_lineups --match-id 52`.
+Copier `docker/.env.production.example` vers `docker/.env.production`, remplir les secrets, puis lancer :
 
-Pour generer 50 comptes de presentation sans prefixe `demo_`, avec commentaires, notes, votes MVP et pronostics, lancer : `python manage.py seed_demo_data --reset` (ou en prod Docker : `docker compose --env-file .env.production -p matchnote exec backend python manage.py seed_demo_data --reset`).
+```bash
+docker compose --env-file docker/.env.production -f docker/docker-compose.yml -p matchnote up -d --build
+```
+
+Le deploiement demarre le backend, PostgreSQL, Redis, un Celery Worker et une seule instance de Celery Beat. Ne pas lancer plusieurs instances de Beat pour le meme environnement.
+
+Pour remplir les pages club des equipes deja presentes en base avec les matchs passes et a venir connus par l'API, lancer une fois : `python manage.py sync_team_matches` (ou en prod Docker : `docker compose -f docker/docker-compose.yml --env-file docker/.env.production -p matchnote exec backend python manage.py sync_team_matches`).
+
+Pour fusionner les doublons de matchs crees par deux endpoints API differents, lancer : `python manage.py dedupe_matches` (ou en prod Docker : `docker compose -f docker/docker-compose.yml --env-file docker/.env.production -p matchnote exec backend python manage.py dedupe_matches`).
+
+Pour recuperer plus rapidement la lineup d'un match precis en prod, lancer : `docker compose -f docker/docker-compose.yml --env-file docker/.env.production -p matchnote exec backend python manage.py sync_lineups --match-id 52`.
+
+Pour generer 50 comptes de presentation sans prefixe `demo_`, avec commentaires, notes, votes MVP et pronostics, lancer : `python manage.py seed_demo_data --reset` (ou en prod Docker : `docker compose -f docker/docker-compose.yml --env-file docker/.env.production -p matchnote exec backend python manage.py seed_demo_data --reset`).
